@@ -22,15 +22,15 @@
                                     </NuxtLink>
                                     <NuxtLink to="/projects"
                                         class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
-                                        ПРОЕКТЫ
+                                        ЕГЭ/ОГЭ
                                     </NuxtLink>
                                     <NuxtLink to="/studio"
                                         class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
-                                        СТУДИЯ
+                                        МЕРОПРИЯТИЯ
                                     </NuxtLink>
                                     <NuxtLink to="/contact"
                                         class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
-                                        КОНТАКТЫ
+                                        ФОРУМ
                                     </NuxtLink>
                                 </nav>
 
@@ -106,7 +106,7 @@
                                         style="animation-delay: 0.4s">
                                         <span
                                             class="absolute left-0 w-0 h-px bg-white group-hover:w-8 transition-all duration-300"></span>
-                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">Проекты</span>
+                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">ЕГЭ/ОГЭ</span>
                                         <span
                                             class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">02</span>
                                     </NuxtLink>
@@ -116,7 +116,7 @@
                                         style="animation-delay: 0.5s">
                                         <span
                                             class="absolute left-0 w-0 h-px bg-white group-hover:w-8 transition-all duration-300"></span>
-                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">Студия</span>
+                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">Мероприятия</span>
                                         <span
                                             class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">03</span>
                                     </NuxtLink>
@@ -126,7 +126,7 @@
                                         style="animation-delay: 0.6s">
                                         <span
                                             class="absolute left-0 w-0 h-px bg-white group-hover:w-8 transition-all duration-300"></span>
-                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">Контакты</span>
+                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">Форум</span>
                                         <span
                                             class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">04</span>
                                     </NuxtLink>
