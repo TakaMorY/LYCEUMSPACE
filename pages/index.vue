@@ -8,11 +8,19 @@
                     <div class="bg-neutral-950/90 backdrop-blur-md border-b border-white/5">
                         <div class="container mx-auto px-6 py-4">
                             <div class="flex items-center justify-between">
-                                <!-- Логотип -->
-                                <div
-                                    class="text-2xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-                                    LYCEUMSPACE
+                                <div class="flex items-center gap-3">
+                                    <!-- Логотип с использованием NuxtImg (если используете Nuxt) -->
+                                    <img src="/images/logo/logotip.png" alt="Logo" class="h-10 w-auto" />
+
+                                    <!-- Или обычный img -->
+                                    <!-- <img src="/logo.png" alt="Logo" class="h-10 w-auto"> -->
+
+                                    <span
+                                        class="text-2xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
+                                        LYCEUMSPACE
+                                    </span>
                                 </div>
+
 
                                 <!-- Десктоп навигация -->
                                 <nav class="hidden md:flex items-center gap-8">
@@ -116,7 +124,8 @@
                                         style="animation-delay: 0.5s">
                                         <span
                                             class="absolute left-0 w-0 h-px bg-white group-hover:w-8 transition-all duration-300"></span>
-                                        <span class="ml-0 group-hover:ml-12 transition-all duration-300">Мероприятия</span>
+                                        <span
+                                            class="ml-0 group-hover:ml-12 transition-all duration-300">Мероприятия</span>
                                         <span
                                             class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">03</span>
                                     </NuxtLink>
@@ -299,7 +308,54 @@
                         </section>
                     </div>
                 </div>
+                <section class="bg-neutral-900">
+                    <div
+                        class="p-20 sm:p-10 rounded-3xl bg-neutral-900 dark:text-white  flex items-center justify-center overflow-hidden shadow-2xl">
+                        <div class="w-full max-w-6xl px-4 sm:px-6">
+                            <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                                <!-- Left Section: Text Content -->
+                                <div class="flex flex-col justify-center text-center md:text-left z-10">
+                                    <h1
+                                        class="text-4xl sm:text-4xl md:text-5xl lg:text-8xl font-extrabold uppercase leading-tight tracking-tight">
+                                        Поможем с <span class="text-gray-400">учёбой</span>
+                                    </h1>
+                                    <p
+                                        class="mt-4 text-base sm:text-lg md:text-xl font-medium text-gray-400 dark:text-gray-400 text-gray-700 text-balance">
+                                        На сайте представленно множество заданий, конспектов учеников и советов от 100
+                                        бальников.
+                                    </p>
+                                    <div class="mt-6 sm:mt-8 flex flex-wrap gap-4">
+                                        <NuxtLink to=""
+                                            class="rounded-sm p-3 grow border text-center border-white text-white font-bold uppercase text-sm tracking-widest hover:bg-neutral-700 hover:text-white transition">
+                                            Пора учиться
+                                        </NuxtLink>
+                                    </div>
+                                </div>
+
+                                <!-- Right Section: Visual Block -->
+                                <div class="relative flex items-center sm:m-10">
+                                    <div
+                                        class="absolute -top-10 md:-top-20 -left-10 sm:w-32 sm:h-32 lg:w-64 lg:h-64 bg-neutral-700 rotate-12 rounded-lg border-neutral-800 border-b-4 border-r-8 max-sm:hidden">
+                                    </div>
+                                    <div
+                                        class="relative z-10 bg-neutral-800/80 p-4 sm:p-6 -right-1/2 -translate-x-1/2 grow text-center shadow-xl -rotate-2 rounded-xl text-nowrap border-neutral-950 border-b-4 border-r-8">
+                                        <h2 class="text-2xl sm:text-3xl font-bold uppercase text-white ">
+                                            Всё бесплатно
+                                        </h2>
+                                        <p class="mt-1 text-sm sm:text-base font-light text-gray-400 ">
+                                            Учись в своё удовольствие
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-10 md:-bottom-20 -right-16 sm:w-32 sm:h-32 lg:w-64 lg:h-64 bg-neutral-600 -rotate-12 rounded-lg border-neutral-700 border-r-4 border-b-8 max-sm:hidden">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
+
         </template>
     </section>
 
