@@ -209,7 +209,7 @@
 
                                 <!-- Footer меню -->
                                 <div class="mt-auto pb-8 text-center">
-                                    <p class="text-xs text-white/20 tracking-wider">© 2026 TAKARECORDS. Все права
+                                    <p class="text-xs text-white/20 tracking-wider">© 2026 LYCEUMSPACE. Все права
                                         защищены.</p>
                                 </div>
                             </div>
@@ -244,7 +244,7 @@
                                         class="text-neutral-400 tracking-wider text-sm font-mono opacity-0 text-reveal-delay"
                                         data-delay="0">01 / ПРОСМОТР</span>
                                     <h2 class="mt-4 text-4xl md:text-7xl font-bold leading-none bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent opacity-0 text-reveal-delay"
-                                        data-delay="200">Удобный<br class="hidden md:block">Интерфейс</h2>
+                                        data-delay="200">Удобный <br class="hidden md:block">Интерфейс</h2>
                                     <p class="mt-6 text-neutral-400 text-base md:text-lg leading-relaxed opacity-0 text-reveal-delay"
                                         data-delay="400">Сайт удобен для использования на всех устройствах</p>
                                     <button @click="scrollToBottom"
@@ -263,7 +263,7 @@
                                         class="text-neutral-400 tracking-wider text-sm font-mono opacity-0 text-reveal-delay"
                                         data-delay="0">02 / ДИЗАЙН</span>
                                     <h2 class="mt-4 text-4xl md:text-7xl font-bold leading-none bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent opacity-0 text-reveal-delay"
-                                        data-delay="200">Современный<br class="hidden md:block">Дизайн</h2>
+                                        data-delay="200">Современный <br class="hidden md:block">Дизайн</h2>
                                     <p class="mt-6 text-neutral-400 text-base md:text-lg leading-relaxed opacity-0 text-reveal-delay"
                                         data-delay="400">Создали удобный и модный дизайн специально для вас.
                                     </p>
@@ -290,7 +290,7 @@
                                         class="text-neutral-400 tracking-wider text-sm font-mono opacity-0 text-reveal-delay"
                                         data-delay="0">03 / ПРОСТРАНСТВО</span>
                                     <h2 class="mt-4 text-4xl md:text-7xl font-bold leading-none bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent opacity-0 text-reveal-delay"
-                                        data-delay="200">Учебная<br class="hidden md:block">Среда</h2>
+                                        data-delay="200">Учебная <br class="hidden md:block">Среда</h2>
                                     <p class="mt-6 text-neutral-400 text-base md:text-lg leading-relaxed opacity-0 text-reveal-delay"
                                         data-delay="400">Платформа для удобной учёбы
                                     </p>
