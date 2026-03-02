@@ -16,7 +16,7 @@
         <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Заголовок с эффектом появления -->
             <div class="text-center mb-20 reveal">
-                <span class="text-neutral-400 text-sm font-mono tracking-[0.3em] block mb-4">ABOUT</span>
+                <span class="text-neutral-400 text-sm font-mono tracking-[0.3em] block mb-4">О НАС</span>
                 <h2 class="text-7xl sm:text-8xl md:text-9xl font-black tracking-tighter leading-none">
                     <span
                         class="bg-gradient-to-r from-white via-white to-neutral-400 bg-clip-text text-transparent block">О
@@ -104,7 +104,7 @@
                     <div class="relative">
                         <div
                             class="w-16 h-16 mb-6 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-700 transition-colors duration-500">
-                            <span class="text-3xl text-neutral-300"><img src="/images/AboutLyceum/palitra.png"
+                            <span class="text-3xl text-neutral-300"><img src="/images/AboutLyceum/paletka.png"
                                     class="h-12" alt=""></span>
                         </div>
                         <h3 class="text-2xl font-bold text-white mb-3">Творческая свобода</h3>
