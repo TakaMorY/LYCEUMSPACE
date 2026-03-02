@@ -125,9 +125,9 @@
                     <!-- Левая колонка с наукой -->
                     <div class="space-y-8">
                         <div class="flex items-center gap-4">
-                            <span class="text-neutral-500 text-4xl">🔬</span>
+
                             <span class="w-full h-[2px] bg-gradient-to-r from-neutral-700 to-transparent"></span>
-                            <span class="text-neutral-500 text-4xl">⚡️</span>
+
                         </div>
 
                         <h3 class="text-4xl md:text-5xl font-light leading-tight text-white">
@@ -163,7 +163,8 @@
                     <div class="absolute top-0 right-0 w-64 h-64 bg-neutral-800/20 rounded-full filter blur-3xl"></div>
 
                     <div class="relative flex flex-col md:flex-row items-center gap-8 md:gap-16">
-                        <div class="text-8xl opacity-30 text-neutral-600"><img src="/images/AboutLyceum/graduate.png" class="h-24" alt=""></div>
+                        <div class="text-8xl opacity-30 text-neutral-600"><img src="/images/AboutLyceum/graduate.png"
+                                class="h-24" alt=""></div>
                         <div>
                             <span class="text-neutral-500 text-sm font-mono tracking-wider">ДОСТИЖЕНИЯ</span>
                             <h4 class="text-3xl md:text-4xl font-bold text-white mt-2 mb-4">Выпускники лицея</h4>
