@@ -5,7 +5,7 @@
                 <div class="flex space-x-6 mb-4 md:mb-0">
                     <NuxtLink target="_blank" to="https://github.com/TakaMorY/LYCEUMSPACE" alt="код git" class="text-xs text-gray-500 hover:text-gray-300">Код git</NuxtLink>
                     <NuxtLink to="policy" alt="политика конфедициальности" class="text-xs text-gray-500 hover:text-gray-300">Политика конфедициальности</NuxtLink>
-                    <NuxtLink to="/" alt="главная" class="text-xs text-gray-500 hover:text-gray-300">Главная</NuxtLink>
+                    <NuxtLink to="/" external  alt="главная" class="text-xs text-gray-500 hover:text-gray-300">Главная</NuxtLink>
                 </div>
                 <div class="text-xs text-gray-500">
                     © 2026, ЛИЦЕСКОЕПРОСТРАНСТВО. Все права защищены.
