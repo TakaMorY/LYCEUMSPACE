@@ -369,6 +369,9 @@
     <section>
         <AboutLyceum />
     </section>
+    <section>
+        <AboutForum />
+    </section>
 
 
 
