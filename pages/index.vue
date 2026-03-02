@@ -28,11 +28,11 @@
                                     class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                     ГЛАВНАЯ
                                 </NuxtLink>
-                                <NuxtLink to="/projects"
+                                <NuxtLink to="/"
                                     class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                     ЕГЭ/ОГЭ
                                 </NuxtLink>
-                                <NuxtLink to="/studio"
+                                <NuxtLink to="/"
                                     class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                     МЕРОПРИЯТИЯ
                                 </NuxtLink>
@@ -102,14 +102,14 @@
                                 <NuxtLink to="/" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.3s">
-                                    <span
+                                    <span 
                                         class="absolute left-0 w-0 h-px bg-white group-hover:w-8 transition-all duration-300"></span>
                                     <span class="ml-0 group-hover:ml-12 transition-all duration-300">Главная</span>
                                     <span
                                         class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">01</span>
                                 </NuxtLink>
 
-                                <NuxtLink to="/projects" @click="closeMobileMenu"
+                                <NuxtLink to="/" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.4s">
                                     <span
@@ -119,7 +119,7 @@
                                         class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">02</span>
                                 </NuxtLink>
 
-                                <NuxtLink to="/studio" @click="closeMobileMenu"
+                                <NuxtLink to="/" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.5s">
                                     <span
@@ -129,7 +129,7 @@
                                         class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">03</span>
                                 </NuxtLink>
 
-                                <NuxtLink to="/contact" @click="closeMobileMenu"
+                                <NuxtLink to="/forum" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.6s">
                                     <span

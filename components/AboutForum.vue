@@ -214,12 +214,12 @@
                                 <p class="text-neutral-500 text-sm">Советы и материалы для экзаменов</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-6">
+                        <NuxtLink to="/forum" class="flex items-center gap-6">
                             <span class="text-sm text-neutral-600 font-mono bg-neutral-800/50 px-4 py-2 rounded-full">24
                                 ответа</span>
                             <span
                                 class="text-2xl text-neutral-600 group-hover:text-white group-hover:translate-x-2 transition-all">→</span>
-                        </div>
+                        </NuxtLink>
                     </div>
 
                     <!-- Тема 2 - с градиентным фоном при ховере -->
@@ -232,12 +232,12 @@
                                 <p class="text-neutral-500 text-sm">Помогите решить олимпиадную задачу</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-6">
+                        <NuxtLink to="/forum" class="flex items-center gap-6">
                             <span
                                 class="text-sm text-neutral-600 font-mono border border-neutral-800 px-4 py-2 rounded-full group-hover:border-neutral-600 transition-colors">12
                                 ответов</span>
                             <span class="text-2xl text-neutral-600 group-hover:text-white transition-colors">→</span>
-                        </div>
+                        </NuxtLink>
                     </div>
 
                     <!-- Тема 3 - с боковой линией -->
@@ -252,25 +252,25 @@
                                 <p class="text-neutral-500 text-sm">Что почитать для углубленного изучения</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-6">
+                        <NuxtLink to="/forum" class="flex items-center gap-6">
                             <span class="text-sm text-neutral-600 font-mono">8 ответов</span>
                             <div
                                 class="w-10 h-10 rounded-full border border-neutral-700 flex items-center justify-center group-hover:border-neutral-500 group-hover:border-neutral-600 transition-colors">
                                 <span class="text-xl text-neutral-600 group-hover:text-white">→</span>
                             </div>
-                        </div>
+                        </NuxtLink>
                     </div>
                 </div>
 
                 <!-- Кнопка "Все темы" -->
                 <div class="text-center mt-12">
-                    <button
+                    <NuxtLink to="/forum"
                         class="group inline-flex items-center gap-3 px-8 py-4 border border-neutral-800 rounded-full hover:border-neutral-600 transition-all duration-300">
                         <span class="text-neutral-400 text-sm font-mono tracking-wider group-hover:text-white">ВСЕ
                             ОБСУЖДЕНИЯ</span>
                         <span
                             class="text-xl text-neutral-600 group-hover:text-white group-hover:translate-x-1 transition-all">→</span>
-                    </button>
+                    </NuxtLink>
                 </div>
             </div>
 
@@ -288,14 +288,14 @@
                         Присоединяйся к обсуждениям, задавай вопросы и помогай другим
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button
+                        <NuxtLink to="/forum"
                             class="px-8 py-4 bg-white text-neutral-900 rounded-xl font-medium text-lg hover:bg-neutral-200 transition-all duration-300 hover:scale-105">
                             Присоединиться
-                        </button>
-                        <button
+                        </NuxtLink>
+                        <NuxtLink to="/forum"
                             class="px-8 py-4 border border-neutral-700 text-neutral-300 rounded-xl font-medium text-lg hover:bg-neutral-800 transition-all duration-300">
                             Узнать больше
-                        </button>
+                        </NuxtLink>
                     </div>
                 </div>
             </div>
