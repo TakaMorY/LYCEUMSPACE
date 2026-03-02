@@ -558,9 +558,7 @@ import Footer from '~/components/Footer.vue';
         line-height: 1.1;
     }
 
-    .xs\:max-w-[180px] {
-        max-width: 180px;
-    }
+
 }
 
 /* Плавный скролл */
