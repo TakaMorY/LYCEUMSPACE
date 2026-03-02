@@ -4,10 +4,11 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div class="flex space-x-6 mb-4 md:mb-0">
                     <NuxtLink target="_blank" to="https://github.com/TakaMorY/LYCEUMSPACE" alt="код git" class="text-xs text-gray-500 hover:text-gray-300">Код git</NuxtLink>
-                    <a href="#" class="text-xs text-gray-500 hover:text-gray-300">Политика конфедициальности</a>
+                    <NuxtLink to="policy" alt="политика конфедициальности" class="text-xs text-gray-500 hover:text-gray-300">Политика конфедициальности</NuxtLink>
+                    <NuxtLink to="/" alt="главная" class="text-xs text-gray-500 hover:text-gray-300">Главная</NuxtLink>
                 </div>
                 <div class="text-xs text-gray-500">
-                    © 2026, LYCEUMSPACE. Все права защищены.
+                    © 2026, ЛИЦЕСКОЕПРОСТРАНСТВО. Все права защищены.
                 </div>
             </div>
         </div>

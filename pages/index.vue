@@ -17,7 +17,7 @@
 
                                     <span
                                         class="text-2xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-                                        LYCEUMSPACE
+                                        ЛИЦЕСКОЕПРОСТРАНСТВО
                                     </span>
                                 </div>
 
@@ -36,7 +36,7 @@
                                         class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                         МЕРОПРИЯТИЯ
                                     </NuxtLink>
-                                    <NuxtLink to="/contact"
+                                    <NuxtLink to="/forum"
                                         class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                         ФОРУМ
                                     </NuxtLink>
@@ -218,7 +218,7 @@
 
                                 <!-- Footer меню -->
                                 <div class="mt-auto pb-8 text-center">
-                                    <p class="text-xs text-white/20 tracking-wider">© 2026 LYCEUMSPACE. Все права
+                                    <p class="text-xs text-white/20 tracking-wider">© 2026 ЛИЦЕСКОЕПРОСТРАНСТВО. Все права
                                         защищены.</p>
                                 </div>
                             </div>
@@ -243,9 +243,21 @@
                         <section class="landing-section relative flex-col md:flex-row">
                             <div
                                 class="w-full md:w-1/2 h-[50vh] md:h-screen relative overflow-hidden group shine-effect">
+                                <!-- Затемнение фона -->
                                 <div class="absolute inset-0 bg-gradient-to-r from-neutral-950/70 to-neutral-950/50">
                                 </div>
+
+                                <!-- Надпись LYCEUMSPACE - прямая -->
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span
+                                        class="text-white/60 text-xl md:text-3xl lg:text-5xl font-bold tracking-[0.2em] uppercase transform hover:scale-105 hover:text-white/30 transition-all duration-700 cursor-default">
+                                        ЛИЦЕСКОЕПРОСТРАНСТВО
+                                    </span>
+                                </div>
+
+                                <!-- Здесь может быть ваше изображение/контент -->
                             </div>
+
                             <div
                                 class="w-full md:w-1/2 h-[50vh] md:h-screen flex items-center justify-center p-8 bg-neutral-950">
                                 <div class="max-w-lg card-3d float-animation text-center md:text-left">

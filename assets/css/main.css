@@ -1,0 +1,57 @@
+/* assets/css/main.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-black text-white;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Кастомный скроллбар */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-black;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-white/20 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-white/30;
+    }
+}
+
+@layer components {
+
+    /* Эффект свечения при наведении на карточки */
+    .post-card-glow {
+        position: relative;
+    }
+
+    .post-card-glow::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.75rem;
+        padding: 1px;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .post-card-glow:hover::after {
+        opacity: 1;
+    }
+}
