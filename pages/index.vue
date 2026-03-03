@@ -17,7 +17,7 @@
 
                                 <span
                                     class="text-xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-                                    ЛИЦЕСКОЕПРОСТРАНСТВО
+                                    ЛИЦЕЙСКОЕПРОСТРАНСТВО
                                 </span>
                             </div>
 
@@ -216,7 +216,7 @@
 
                             <!-- Footer меню -->
                             <div class="mt-auto pb-8 text-center">
-                                <p class="text-xs text-white/20 tracking-wider">© 2026 ЛИЦЕСКОЕПРОСТРАНСТВО. Все
+                                <p class="text-xs text-white/20 tracking-wider">© 2026 ЛИЦЕЙСКОЕПРОСТРАНСТВО. Все
                                     права
                                     защищены.</p>
                             </div>
@@ -248,8 +248,8 @@
                             <!-- Надпись LYCEUMSPACE - прямая -->
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <span
-                                    class="text-white/60 text-xl md:text-3xl lg:text-5xl font-bold tracking-[0.2em] uppercase transform hover:scale-105 hover:text-white/30 transition-all duration-700 cursor-default">
-                                    ЛИЦЕСКОЕПРОСТРАНСТВО
+                                    class="text-white/60 text-xs md:text-xl lg:text-3xl font-bold tracking-[0.2em] uppercase transform hover:scale-105 hover:text-white/30 transition-all duration-700 cursor-default">
+                                    ЛИЦЕЙСКОЕПРОСТРАНСТВО
                                 </span>
                             </div>
 

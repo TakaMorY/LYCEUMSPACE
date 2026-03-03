@@ -12,7 +12,7 @@
                         </svg>
                     </button>
 
-                    <span class="text-lg font-bold tracking-tighter">BLACK/FORUM</span>
+                    <span class="text-lg font-bold tracking-tighter">ЛИЦЕЙСКИЙФОРУМ</span>
 
                     <button class="p-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

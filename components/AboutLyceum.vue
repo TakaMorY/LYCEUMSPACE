@@ -34,12 +34,12 @@
                     </div>
 
                     <p class="text-2xl sm:text-3xl md:text-4xl font-light text-neutral-300 leading-relaxed pt-12">
-                        Единственное в городе Владивостоке и Приморском крае
+                        Единственное во Владивостоке и Приморском крае
                         <span class="font-bold text-white relative inline-block">
                             образовательное учреждение
                             <span class="absolute -bottom-2 left-0 w-full h-[2px] bg-neutral-600"></span>
                         </span>
-                        <br class="hidden sm:block" />где учатся
+                        <br class="hidden sm:block" /> где учатся
                         <span
                             class="text-5xl sm:text-6xl md:text-7xl font-black text-white block sm:inline-block mx-2">ТОЛЬКО</span>
                         мальчики
