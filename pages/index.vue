@@ -248,7 +248,7 @@
                             <!-- Надпись LYCEUMSPACE - прямая -->
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <span
-                                    class="text-white/60 text-xs md:text-xl lg:text-3xl font-bold tracking-[0.2em] uppercase transform hover:scale-105 hover:text-white/30 transition-all duration-700 cursor-default">
+                                    class="text-white/60 text-xl md:text-xl lg:text-3xl font-bold tracking-[0.2em] uppercase transform hover:scale-105 hover:text-white/30 transition-all duration-700 cursor-default">
                                     ЛИЦЕЙСКОЕПРОСТРАНСТВО
                                 </span>
                             </div>
