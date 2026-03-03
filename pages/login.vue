@@ -159,24 +159,24 @@
                         <!-- Кнопка отправки -->
                         <button type="submit" :disabled="loading || (!isLogin && !agreed)"
                             class="relative w-full group/btn overflow-hidden rounded-2xl bg-gradient-to-r from-neutral-700 via-neutral-600 to-neutral-700 bg-[length:200%_100%] animate-gradient-x px-6 py-4 text-white font-medium shadow-lg transition-all duration-300 hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed animate-slide-down animation-delay-500">
-                            <span class="relative z-10">{{ loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Создать аккаунт') }}</span>
+                            <span class="relative z-10">{{ loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Создать  аккаунт') }}</span>
                             <span
                                 class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></span>
                         </button>
 
                         <!-- Ссылка на восстановление пароля (только вход) -->
                         <div v-if="isLogin" class="text-center animate-fade-in animation-delay-600">
-                            <NuxtLink to="/forgot-password"
+                            <a href="/forgot-password"
                                 class="text-sm text-neutral-400 hover:text-white transition-colors relative group/link">
                                 Забыли пароль?
                                 <span
                                     class="absolute -bottom-0.5 left-1/2 w-0 h-px bg-white group-hover/link:w-full group-hover/link:left-0 transition-all duration-300"></span>
-                            </NuxtLink>
+                            </a>
                         </div>
                     </form>
 
-
-                    <!-- <div class="mt-8 animate-fade-in animation-delay-700">
+                    <!-- OAuth разделитель и кнопки -->
+                    <div class="mt-8 animate-fade-in animation-delay-700">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
                                 <div class="w-full border-t border-neutral-700"></div>
@@ -188,7 +188,7 @@
                         </div>
 
                         <div class="mt-6 grid grid-cols-2 gap-3">
-                            
+                            <!-- Google OAuth -->
                             <button @click="signInWithOAuth('google')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white transition-colors"
@@ -209,7 +209,7 @@
                                 <span class="ml-2 text-sm text-neutral-300 group-hover/btn:text-white">Google</span>
                             </button>
 
-                            
+                            <!-- Yandex OAuth -->
                             <button @click="signInWithOAuth('yandex')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white" viewBox="0 0 24 24"
@@ -224,7 +224,7 @@
                                 <span class="ml-2 text-sm text-neutral-300 group-hover/btn:text-white">Yandex</span>
                             </button>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -241,13 +241,15 @@ const showPassword = ref(false)
 const error = ref('')
 const loading = ref(false)
 
-// Универсальная функция для OAuth
+// FIX: получаем origin универсально
+const { origin } = useRequestURL()
+
 const signInWithOAuth = async (provider) => {
     try {
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: window.location.origin // после OAuth вернёт сюда
+                redirectTo: origin // FIX: используем origin из useRequestURL
             }
         })
         if (error) throw error
@@ -262,14 +264,22 @@ const handleSubmit = async () => {
 
     try {
         if (isLogin.value) {
-            const { data, error: authError } = await supabase.auth.signInWithPassword({
+            const { error: authError } = await supabase.auth.signInWithPassword({
                 email: email.value,
                 password: password.value,
             })
             if (authError) throw authError
+
+            await navigateTo('/')
+            return // FIX: явный выход, чтобы не выполнять finally после навигации
         } else {
             if (!agreed.value) {
                 throw new Error('Необходимо согласие с правилами')
+            }
+
+            // FIX: проверка длины пароля
+            if (password.value.length < 6) {
+                throw new Error('Пароль должен содержать минимум 6 символов')
             }
 
             const { data, error: authError } = await supabase.auth.signUp({
@@ -286,14 +296,21 @@ const handleSubmit = async () => {
 
             if (data.user && !data.session) {
                 error.value = 'Проверьте почту для подтверждения регистрации'
+                // FIX: очищаем поля для безопасности
+                email.value = ''
+                password.value = ''
                 loading.value = false
                 return
             }
+
+            await navigateTo('/')
+            return
         }
-        await navigateTo('/')
     } catch (err) {
         error.value = err.message
     } finally {
+        // FIX: сбрасываем loading только если не было успешной навигации
+        // Благодаря return выше, этот код не выполнится после navigateTo
         loading.value = false
     }
 }

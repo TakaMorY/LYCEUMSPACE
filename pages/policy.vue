@@ -557,8 +557,6 @@ import Footer from '~/components/Footer.vue';
         font-size: 2.25rem;
         line-height: 1.1;
     }
-
-
 }
 
 /* Плавный скролл */
