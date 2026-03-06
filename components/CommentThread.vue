@@ -1,117 +1,60 @@
 <template>
-  <div class="space-y-4">
-    <!-- Форма нового комментария (только для авторизованных) -->
-    <div v-if="user" class="flex gap-3">
-      <img
-        v-if="user.user_metadata?.avatar"
-        :src="user.user_metadata.avatar"
-        class="avatar avatar-sm"
-        alt=""
-      />
-      <div
-        v-else
-        class="avatar avatar-sm bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold"
-      >
-        {{ user.email?.charAt(0).toUpperCase() }}
-      </div>
+  <div class="comment-thread space-y-4">
+    <!-- Форма нового комментария -->
+    <div class="flex gap-3">
+      <UserAvatar :user="user" />
       <div class="flex-1">
         <textarea
           v-model="newComment"
-          placeholder="Напишите комментарий..."
+          :placeholder="replyingTo ? `Ответить ${replyingTo.user?.name}...` : 'Напишите комментарий...'"
           rows="2"
-          class="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg focus:ring-1 focus:ring-blue-500 bg-transparent resize-none"
+          class="w-full p-3 bg-neutral-900 border border-neutral-800 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         ></textarea>
-        <div class="flex justify-between items-center mt-2">
-          <div v-if="replyingTo" class="text-sm text-gray-500">
-            Ответ {{ replyingTo.profiles?.name }}
-            <button @click="replyingTo = null" class="text-red-500 ml-2">✕</button>
-          </div>
-          <button
-            @click="submitComment"
-            :disabled="!newComment.trim()"
-            class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-full text-sm font-medium"
-          >
-            {{ commenting ? 'Отправка...' : 'Отправить' }}
+        
+        <div v-if="replyingTo" class="flex items-center justify-between mt-2">
+          <span class="text-sm text-neutral-500">
+            Ответ @{{ replyingTo.user?.username }}
+          </span>
+          <button @click="cancelReply" class="text-sm text-red-400 hover:text-red-300">
+            Отмена
           </button>
         </div>
+        
+        <button
+          @click="submitComment"
+          :disabled="!newComment.trim()"
+          class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm disabled:opacity-50 hover:bg-blue-700 transition"
+        >
+          {{ replyingTo ? 'Ответить' : 'Отправить' }}
+        </button>
       </div>
-    </div>
-    <div v-else class="text-center text-gray-500 py-2">
-      Войдите, чтобы оставить комментарий
     </div>
 
     <!-- Список комментариев -->
-    <div v-if="rootComments.length" class="space-y-3">
-      <div
-        v-for="comment in rootComments"
-        :key="comment.id"
-        class="flex gap-2 text-sm"
-      >
-        <NuxtLink :to="`/forum/profile/${comment.user_id}`">
-          <img
-            v-if="comment.profiles?.avatar"
-            :src="comment.profiles.avatar"
-            class="avatar avatar-xs"
-            alt=""
-          />
-          <div
-            v-else
-            class="avatar avatar-xs bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs"
-          >
-            {{ comment.profiles?.name?.charAt(0) }}
-          </div>
-        </NuxtLink>
-        <div class="flex-1">
-          <div class="flex items-center gap-2 flex-wrap">
-            <NuxtLink :to="`/forum/profile/${comment.user_id}`" class="font-medium hover:underline">
-              {{ comment.profiles?.name }}
-            </NuxtLink>
-            <span class="text-gray-500 text-xs">{{ formatDate(comment.created_at) }}</span>
-          </div>
-          <p class="mt-1 text-gray-800 dark:text-gray-200">{{ comment.content }}</p>
-          <button
-            v-if="user"
-            @click="replyTo(comment)"
-            class="mt-1 text-xs text-gray-500 hover:text-blue-600"
-          >
-            Ответить
-          </button>
-
-          <!-- Вложенные комментарии -->
-          <div v-if="comment.replies?.length" class="mt-2 space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-            <div v-for="reply in comment.replies" :key="reply.id" class="flex gap-2">
-              <NuxtLink :to="`/forum/profile/${reply.user_id}`">
-                <img
-                  v-if="reply.profiles?.avatar"
-                  :src="reply.profiles.avatar"
-                  class="avatar avatar-xs"
-                  alt=""
-                />
-                <div v-else class="avatar avatar-xs bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs">
-                  {{ reply.profiles?.name?.charAt(0) }}
-                </div>
-              </NuxtLink>
-              <div>
-                <div class="flex items-center gap-2">
-                  <NuxtLink :to="`/forum/profile/${reply.user_id}`" class="font-medium hover:underline">
-                    {{ reply.profiles?.name }}
-                  </NuxtLink>
-                  <span class="text-gray-500 text-xs">{{ formatDate(reply.created_at) }}</span>
-                </div>
-                <p class="text-gray-800 dark:text-gray-200">{{ reply.content }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div v-if="loading" class="text-center py-4">
+      <Icon name="heroicons:arrow-path" class="w-6 h-6 animate-spin text-neutral-600 mx-auto" />
     </div>
-    <p v-else class="text-gray-500 text-center py-4">Нет комментариев</p>
+
+    <div v-else class="space-y-4">
+      <CommentItem
+        v-for="comment in comments"
+        :key="comment.id"
+        :comment="comment"
+        @reply="startReply"
+      />
+    </div>
+
+    <div v-if="!comments.length && !loading" class="text-center py-6 text-neutral-500">
+      Пока нет комментариев
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useSupabaseUser, useSupabaseClient } from '#imports'
+import { ref, onMounted } from 'vue'
+import { useSupabaseClient, useSupabaseUser } from '#imports'
+import UserAvatar from './UserAvatar.vue'
+import CommentItem from './CommentItem.vue'
 
 const props = defineProps({
   postId: {
@@ -119,73 +62,50 @@ const props = defineProps({
     required: true
   }
 })
+const emit = defineEmits(['update'])
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
 const comments = ref([])
+const loading = ref(true)
 const newComment = ref('')
-const commenting = ref(false)
 const replyingTo = ref(null)
 
-const rootComments = computed(() => comments.value.filter(c => !c.parent_id))
-
-// Загрузка комментариев
-async function fetchComments() {
-  const { data } = await supabase
+const fetchComments = async () => {
+  loading.value = true
+  const { data, error } = await supabase
     .from('comments')
     .select(`
       *,
-      profiles:user_id ( name, username, avatar )
+      user:user_id ( id, name, username, avatar )
     `)
     .eq('post_id', props.postId)
     .order('created_at', { ascending: true })
 
-  if (data) {
-    // Построение дерева
-    const map = {}
-    data.forEach(c => map[c.id] = { ...c, replies: [] })
+  if (!error && data) {
+    // Строим дерево комментариев
+    const commentMap = {}
+    data.forEach(c => commentMap[c.id] = { ...c, replies: [] })
+    const roots = []
     data.forEach(c => {
-      if (c.parent_id && map[c.parent_id]) {
-        map[c.parent_id].replies.push(map[c.id])
-      }
-    })
-    comments.value = data.filter(c => !c.parent_id)
-  }
-}
-
-// Подписка на новые комментарии в реальном времени
-onMounted(() => {
-  fetchComments()
-  subscribeToComments()
-})
-
-function subscribeToComments() {
-  supabase
-    .channel(`comments-${props.postId}`)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `post_id=eq.${props.postId}` }, async (payload) => {
-      const { data } = await supabase
-        .from('comments')
-        .select('*, profiles:user_id ( name, username, avatar )')
-        .eq('id', payload.new.id)
-        .single()
-      if (data) {
-        if (data.parent_id) {
-          const parent = comments.value.find(c => c.id === data.parent_id)
-          if (parent) parent.replies.push(data)
-        } else {
-          comments.value.push(data)
+      if (c.parent_id) {
+        if (commentMap[c.parent_id]) {
+          commentMap[c.parent_id].replies.push(commentMap[c.id])
         }
+      } else {
+        roots.push(commentMap[c.id])
       }
     })
-    .subscribe()
+    comments.value = roots
+  }
+  loading.value = false
 }
 
-// Отправка комментария
-async function submitComment() {
+const submitComment = async () => {
   if (!newComment.value.trim() || !user.value) return
-  commenting.value = true
-  await supabase
+
+  const { error } = await supabase
     .from('comments')
     .insert({
       post_id: props.postId,
@@ -193,29 +113,40 @@ async function submitComment() {
       content: newComment.value,
       parent_id: replyingTo.value?.id || null
     })
-  newComment.value = ''
-  replyingTo.value = null
-  commenting.value = false
+
+  if (!error) {
+    newComment.value = ''
+    replyingTo.value = null
+    await fetchComments()
+    emit('update')
+  }
 }
 
-function replyTo(comment) {
+const startReply = (comment) => {
   replyingTo.value = comment
-  // Прокрутка к полю ввода (опционально)
 }
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+const cancelReply = () => {
+  replyingTo.value = null
+  newComment.value = ''
 }
+
+onMounted(() => {
+  fetchComments()
+  
+  // Realtime подписка
+  const subscription = supabase
+    .channel(`comments:${props.postId}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'comments',
+      filter: `post_id=eq.${props.postId}`
+    }, () => {
+      fetchComments()
+    })
+    .subscribe()
+
+  onUnmounted(() => subscription.unsubscribe())
+})
 </script>
-
-<style scoped>
-.avatar {
-  @apply rounded-full object-cover;
-}
-.avatar-xs {
-  @apply w-6 h-6;
-}
-.avatar-sm {
-  @apply w-8 h-8;
-}
-</style>

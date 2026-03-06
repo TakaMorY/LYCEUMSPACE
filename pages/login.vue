@@ -117,6 +117,22 @@
                             </div>
                         </div>
 
+                        <div v-if="!isLogin" class="space-y-2 animate-slide-down animation-delay-250">
+                            <label class="block text-sm text-neutral-300">Имя пользователя</label>
+                            <div class="relative group/input">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <input v-model="username" type="text"
+                                    class="w-full pl-10 pr-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+                                    placeholder="Математический_Ботан" />
+                            </div>
+                        </div>
+
                         <!-- Чекбокс согласия (только регистрация) -->
                         <div v-if="!isLogin" class="flex items-center animate-slide-down animation-delay-400">
                             <label class="flex items-center cursor-pointer group/checkbox">
@@ -224,19 +240,22 @@
 </template>
 
 <script setup>
+
 import { useSupabaseUser, useSupabaseClient } from '#imports'
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
+const router = useRouter()
 
 // Если пользователь уже авторизован – сразу на форум
 if (user.value) {
-    await navigateTo('/forum')
+    await router.push('/forum')
 }
 
 const isLogin = ref(true)
 const email = ref('')
 const password = ref('')
+const username = ref('') // добавим для регистрации
 const agreed = ref(false)
 const showPassword = ref(false)
 const error = ref('')
@@ -251,7 +270,7 @@ const signInWithOAuth = async (provider) => {
         const { error: oauthError } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: `${origin}/forum` // после OAuth – сразу на форум
+                redirectTo: `${origin}/forum`
             }
         })
         if (oauthError) throw oauthError
@@ -262,24 +281,23 @@ const signInWithOAuth = async (provider) => {
 }
 
 // Создание профиля после регистрации
-async function createProfile(userId, email) {
-    const name = email.split('@')[0] || 'User'
-    const username = name + Math.floor(Math.random() * 1000)
-    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+async function createProfile(userId, email, username) {
+    const name = username || email.split('@')[0]
+    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`
 
     const { error: profileError } = await supabase
         .from('profiles')
         .insert({
             id: userId,
             name: name,
-            username: username,
+            username: name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000),
             avatar: avatar,
+            bio: '',
             created_at: new Date().toISOString()
         })
 
     if (profileError) {
         console.error('Ошибка создания профиля:', profileError)
-        // Не прерываем регистрацию, но логируем
     }
 }
 
@@ -297,8 +315,7 @@ const handleSubmit = async () => {
             })
             if (authError) throw authError
 
-            // Успешный вход – редирект на форум
-            await navigateTo('/forum')
+            await router.push('/forum')
             return
         } else {
             // Регистрация
@@ -314,8 +331,7 @@ const handleSubmit = async () => {
                 password: password.value,
                 options: {
                     data: {
-                        agreed_to_terms: true,
-                        agreed_at: new Date().toISOString()
+                        username: username.value || email.value.split('@')[0]
                     }
                 }
             })
@@ -330,10 +346,10 @@ const handleSubmit = async () => {
                 return
             }
 
-            // Если сессия создана сразу – создаём профиль и редирект
+            // Если сессия создана сразу
             if (data.session) {
-                await createProfile(data.user.id, email.value)
-                await navigateTo('/forum')
+                await createProfile(data.user.id, email.value, username.value)
+                await router.push('/forum')
                 return
             }
         }
@@ -343,6 +359,7 @@ const handleSubmit = async () => {
     }
 }
 </script>
+
 
 <style scoped>
 /* Анимации */

@@ -1,34 +1,23 @@
 <template>
   <Teleport to="body">
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div v-if="modelValue" class="fixed inset-0 z-50" @click.self="close">
-        <!-- Оверлей -->
-        <div class="absolute inset-0 bg-black/40 dark:bg-black/60" @click="close"></div>
-
-        <!-- Модалка -->
-        <div
-          class="absolute inset-x-0 bottom-0 sm:inset-10 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:max-w-2xl sm:mx-auto"
-          :class="{ 'h-full sm:h-auto': fullscreen }"
-        >
-          <div
-            class="bg-white dark:bg-gray-900 rounded-t-xl sm:rounded-xl shadow-2xl h-full sm:h-auto flex flex-col"
-          >
+    <Transition name="fade">
+      <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+          <!-- Затемнение фона -->
+          <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" @click="close"></div>
+          
+          <!-- Модальное окно -->
+          <div class="relative bg-neutral-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-neutral-800 shadow-2xl">
             <!-- Заголовок -->
-            <div class="flex items-center justify-between p-4 border-b dark:border-gray-800">
+            <div class="flex items-center justify-between p-4 border-b border-neutral-800">
               <h3 class="text-lg font-semibold">{{ title }}</h3>
-              <button @click="close" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                <Icon name="heroicons:x-mark" class="w-5 h-5" />
+              <button @click="close" class="p-1 hover:bg-neutral-800 rounded-full transition">
+                <Icon name="heroicons:x-mark" class="w-6 h-6" />
               </button>
             </div>
+            
             <!-- Контент -->
-            <div class="flex-1 overflow-y-auto p-4">
+            <div class="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
               <slot />
             </div>
           </div>
@@ -41,9 +30,21 @@
 <script setup>
 defineProps({
   modelValue: Boolean,
-  fullscreen: Boolean,
   title: String
 })
+
 const emit = defineEmits(['update:modelValue'])
-const close = () => emit('update:modelValue', false)
+
+const close = () => {
+  emit('update:modelValue', false)
+}
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

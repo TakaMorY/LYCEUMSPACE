@@ -1,129 +1,126 @@
 <template>
-  <article class="card">
-    <div class="card-body">
-      <div class="flex gap-3">
-        <!-- Аватар -->
-        <NuxtLink :to="`/forum/profile/${post.user_id}`">
-          <img
-            v-if="post.profiles?.avatar"
-            :src="post.profiles.avatar"
-            class="avatar avatar-md"
-            alt=""
-          />
-          <div
-            v-else
-            class="avatar avatar-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold"
-          >
-            {{ post.profiles?.name?.charAt(0) || '?' }}
-          </div>
-        </NuxtLink>
+  <div class="bg-neutral-900/50 rounded-xl p-4 border border-neutral-800 hover:border-neutral-700 transition">
+    <div class="flex gap-3">
+      <NuxtLink :to="`/forum/profile?id=${post.user_id}`">
+        <UserAvatar :user="post.profiles" />
+      </NuxtLink>
 
-        <div class="flex-1 min-w-0">
-          <!-- Шапка: имя, юзернейм, дата -->
-          <div class="flex items-center gap-2 flex-wrap text-sm">
-            <NuxtLink
-              :to="`/forum/profile/${post.user_id}`"
-              class="font-semibold text-gray-900 dark:text-white hover:underline truncate"
-            >
-              {{ post.profiles?.name }}
-            </NuxtLink>
-            <span class="text-gray-500">@{{ post.profiles?.username }}</span>
-            <span class="text-gray-400">· {{ formatDate(post.created_at) }}</span>
-          </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <NuxtLink :to="`/forum/profile?id=${post.user_id}`" class="font-semibold hover:underline">
+            {{ post.profiles?.name || 'Пользователь' }}
+          </NuxtLink>
+          <span class="text-neutral-500 text-sm">· {{ formatDate(post.created_at) }}</span>
+        </div>
 
-          <!-- Текст поста -->
-          <p class="mt-2 text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
-            {{ post.content }}
-          </p>
+        <p class="mt-2 text-white">{{ post.content }}</p>
 
-          <!-- Медиа (если есть) -->
-          <div v-if="post.media?.length" class="mt-3 grid gap-1" :class="mediaGridClass">
-            <img
-              v-for="m in post.media"
-              :key="m.id"
-              :src="m.url"
-              class="rounded-lg object-cover w-full h-auto cursor-pointer hover:opacity-90 transition"
-              @click="openMedia(m)"
-            />
-          </div>
+        <!-- Медиа -->
+        <div v-if="post.media?.length" class="mt-3 grid grid-cols-2 gap-2">
+          <!-- тут будут изображения -->
+        </div>
 
-          <!-- Кнопки действий -->
-          <div class="flex items-center gap-4 mt-4">
-            <button
-              class="btn-icon"
-              :class="{ 'text-red-500': post.liked_by_user }"
-              @click="$emit('like', post)"
-            >
-              <Icon
-                :name="post.liked_by_user ? 'heroicons:heart-solid' : 'heroicons:heart'"
-                class="w-5 h-5"
-              />
-              <span>{{ post.likes_count || 0 }}</span>
-            </button>
+        <!-- Действия -->
+        <div class="flex items-center gap-6 mt-4 text-neutral-500">
+          <button @click="toggleLike" class="flex items-center gap-1 hover:text-red-500 transition">
+            <Icon :name="liked ? 'heroicons:heart-solid' : 'heroicons:heart'" class="w-5 h-5" :class="{ 'text-red-500': liked }" />
+            <span :class="{ 'text-red-500': liked }">{{ likesCount }}</span>
+          </button>
 
-            <button class="btn-icon" @click="$emit('comment', post)">
-              <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-5 h-5" />
-              <span>{{ post.comments_count || 0 }}</span>
-            </button>
+          <button @click="$emit('comment', post)" class="flex items-center gap-1 hover:text-blue-500 transition">
+            <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-5 h-5" />
+            <span>{{ commentsCount }}</span>
+          </button>
 
-            <button class="btn-icon" @click="$emit('repost', post)">
-              <Icon name="heroicons:arrow-path" class="w-5 h-5" />
-              <span>{{ post.reposts_count || 0 }}</span>
-            </button>
-
-            <NuxtLink
-              v-if="!expanded"
-              :to="`/forum/post/${post.id}`"
-              class="btn-icon ml-auto"
-            >
-              <Icon name="heroicons:arrow-right-circle" class="w-5 h-5" />
-            </NuxtLink>
-          </div>
+          <button @click="toggleRepost" class="flex items-center gap-1 hover:text-green-500 transition">
+            <Icon name="heroicons:arrow-path" class="w-5 h-5" :class="{ 'text-green-500': reposted }" />
+            <span :class="{ 'text-green-500': reposted }">{{ repostsCount }}</span>
+          </button>
         </div>
       </div>
     </div>
-  </article>
+  </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import { useSupabaseClient, useSupabaseUser } from '#imports'
+import UserAvatar from './UserAvatar.vue'
+
 const props = defineProps({
-  post: Object,
-  expanded: Boolean
+  post: Object
 })
-const emit = defineEmits(['like', 'comment', 'repost'])
+const emit = defineEmits(['like', 'comment', 'repost', 'update'])
+
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+// Локальное состояние для оптимистичных обновлений
+const liked = ref(props.post.liked_by_user || false)
+const likesCount = ref(props.post.likes_count || 0)
+const reposted = ref(props.post.reposted_by_user || false)
+const repostsCount = ref(props.post.reposts_count || 0)
+const commentsCount = ref(props.post.comments_count || 0)
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+  return new Date(date).toLocaleDateString('ru-RU', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+  })
 }
 
-const mediaGridClass = computed(() => {
-  const count = props.post.media?.length || 0
-  if (count === 1) return 'grid-cols-1'
-  if (count === 2) return 'grid-cols-2'
-  if (count >= 3) return 'grid-cols-3'
-  return ''
-})
+const toggleLike = async () => {
+  if (!user.value) return
+  
+  const wasLiked = liked.value
+  // Оптимистичное обновление
+  liked.value = !wasLiked
+  likesCount.value += wasLiked ? -1 : 1
+  
+  try {
+    if (wasLiked) {
+      await supabase
+        .from('likes')
+        .delete()
+        .eq('user_id', user.value.id)
+        .eq('post_id', props.post.id)
+    } else {
+      await supabase
+        .from('likes')
+        .insert({ user_id: user.value.id, post_id: props.post.id })
+    }
+    emit('like', { postId: props.post.id, liked: liked.value })
+  } catch (error) {
+    // Откат при ошибке
+    liked.value = wasLiked
+    likesCount.value += wasLiked ? 1 : -1
+    console.error('Ошибка:', error)
+  }
+}
 
-function openMedia(media) {
-  // Можно открыть в модалке или новой вкладке
-  window.open(media.url, '_blank')
+const toggleRepost = async () => {
+  if (!user.value) return
+  
+  const wasReposted = reposted.value
+  reposted.value = !wasReposted
+  repostsCount.value += wasReposted ? -1 : 1
+  
+  try {
+    if (wasReposted) {
+      await supabase
+        .from('reposts')
+        .delete()
+        .eq('user_id', user.value.id)
+        .eq('post_id', props.post.id)
+    } else {
+      await supabase
+        .from('reposts')
+        .insert({ user_id: user.value.id, post_id: props.post.id })
+    }
+    emit('repost', { postId: props.post.id, reposted: reposted.value })
+  } catch (error) {
+    reposted.value = wasReposted
+    repostsCount.value += wasReposted ? 1 : -1
+    console.error('Ошибка:', error)
+  }
 }
 </script>
-
-<style scoped>
-.card {
-  @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 transition-shadow hover:shadow-md;
-}
-.card-body {
-  @apply p-4 sm:p-5;
-}
-.avatar {
-  @apply rounded-full object-cover;
-}
-.avatar-md {
-  @apply w-10 h-10;
-}
-.btn-icon {
-  @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800;
-}
-</style>
