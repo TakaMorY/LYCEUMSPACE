@@ -3,16 +3,21 @@
     <div class="card-body">
       <div class="flex gap-3">
         <!-- Аватар -->
-        <img
-          v-if="post.profiles?.avatar"
-          :src="post.profiles.avatar"
-          class="avatar avatar-md"
-          alt=""
-        />
-        <div v-else class="avatar avatar-md bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300">
-          {{ post.profiles?.name?.charAt(0) || '?' }}
-        </div>
-        
+        <NuxtLink :to="`/forum/profile/${post.user_id}`">
+          <img
+            v-if="post.profiles?.avatar"
+            :src="post.profiles.avatar"
+            class="avatar avatar-md"
+            alt=""
+          />
+          <div
+            v-else
+            class="avatar avatar-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold"
+          >
+            {{ post.profiles?.name?.charAt(0) || '?' }}
+          </div>
+        </NuxtLink>
+
         <div class="flex-1 min-w-0">
           <!-- Шапка: имя, юзернейм, дата -->
           <div class="flex items-center gap-2 flex-wrap text-sm">
@@ -25,13 +30,13 @@
             <span class="text-gray-500">@{{ post.profiles?.username }}</span>
             <span class="text-gray-400">· {{ formatDate(post.created_at) }}</span>
           </div>
-          
+
           <!-- Текст поста -->
           <p class="mt-2 text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
             {{ post.content }}
           </p>
-          
-          <!-- Медиа -->
+
+          <!-- Медиа (если есть) -->
           <div v-if="post.media?.length" class="mt-3 grid gap-1" :class="mediaGridClass">
             <img
               v-for="m in post.media"
@@ -41,8 +46,8 @@
               @click="openMedia(m)"
             />
           </div>
-          
-          <!-- Действия -->
+
+          <!-- Кнопки действий -->
           <div class="flex items-center gap-4 mt-4">
             <button
               class="btn-icon"
@@ -53,19 +58,19 @@
                 :name="post.liked_by_user ? 'heroicons:heart-solid' : 'heroicons:heart'"
                 class="w-5 h-5"
               />
-              <span>{{ post.likes_count }}</span>
+              <span>{{ post.likes_count || 0 }}</span>
             </button>
-            
+
             <button class="btn-icon" @click="$emit('comment', post)">
               <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-5 h-5" />
-              <span>{{ post.comments_count }}</span>
+              <span>{{ post.comments_count || 0 }}</span>
             </button>
-            
+
             <button class="btn-icon" @click="$emit('repost', post)">
               <Icon name="heroicons:arrow-path" class="w-5 h-5" />
-              <span>{{ post.reposts_count }}</span>
+              <span>{{ post.reposts_count || 0 }}</span>
             </button>
-            
+
             <NuxtLink
               v-if="!expanded"
               :to="`/forum/post/${post.id}`"
@@ -98,4 +103,27 @@ const mediaGridClass = computed(() => {
   if (count >= 3) return 'grid-cols-3'
   return ''
 })
+
+function openMedia(media) {
+  // Можно открыть в модалке или новой вкладке
+  window.open(media.url, '_blank')
+}
 </script>
+
+<style scoped>
+.card {
+  @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 transition-shadow hover:shadow-md;
+}
+.card-body {
+  @apply p-4 sm:p-5;
+}
+.avatar {
+  @apply rounded-full object-cover;
+}
+.avatar-md {
+  @apply w-10 h-10;
+}
+.btn-icon {
+  @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800;
+}
+</style>

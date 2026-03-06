@@ -2,17 +2,22 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/image', '@nuxtjs/supabase', '@nuxt/icon'],
-  runtimeConfig: {
-    public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY
-    }
-  },
+  modules: ['@nuxtjs/supabase', '@nuxt/image', '@nuxt/icon', '@nuxtjs/tailwindcss'],
   supabase: {
-    redirect: false, // если хотите сами управлять редиректами
-
+    redirect: false,
+    url: process.env.SUPABASE_URL,
+    key: process.env.SUPABASE_KEY,
+    // Правильные настройки cookie:
+    cookieSecure: process.env.NODE_ENV === 'production', // true на Vercel, false на localhost
+    cookieSameSite: 'lax'
+    // При необходимости можно добавить:
+    // cookieName: 'sb',
+    // cookieDomain: '',
+    // cookiePath: '/',
+    // cookieMaxAge: 60 * 60 * 24 * 7, // 7 дней
   },
+
+
   icon: {
     serverBundle: 'local', // или 'remote'
     collections: ['heroicons']

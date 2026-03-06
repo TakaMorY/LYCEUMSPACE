@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <!-- Крупные размытые фигуры (блобсы) с неоновым свечением -->
+        <!-- Крупные размытые фигуры -->
         <div class="absolute inset-0 overflow-hidden">
             <div
                 class="absolute -top-40 -right-40 w-96 h-96 bg-neutral-600 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
@@ -27,13 +27,10 @@
 
         <!-- Основная карточка -->
         <div class="relative w-full max-w-md animate-fade-in-up">
-            <!-- Двойное стекло: внешний слой с большим размытием -->
             <div class="absolute inset-0 bg-neutral-900/20 backdrop-blur-2xl rounded-3xl -z-10"></div>
-
-            <!-- Основной контент карточки с внутренним свечением -->
             <div
                 class="bg-neutral-900/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-neutral-700/50 overflow-hidden relative group">
-                <!-- Неоновая подсветка по краям при наведении на карточку -->
+                <!-- Неоновая подсветка при наведении -->
                 <div
                     class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
                     <div
@@ -44,7 +41,7 @@
                     </div>
                 </div>
 
-                <!-- Шапка с переключателем -->
+                <!-- Переключатель Вход / Регистрация -->
                 <div class="flex p-1 bg-neutral-800/60 m-2 rounded-2xl backdrop-blur-sm border border-neutral-700/30">
                     <button @click="isLogin = true"
                         class="flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
@@ -62,9 +59,8 @@
                     </button>
                 </div>
 
-                <!-- Контент -->
+                <!-- Контент формы -->
                 <div class="p-8">
-                    <!-- Заголовок с анимацией -->
                     <h2 class="text-4xl font-light text-white mb-2 animate-slide-down tracking-tight">
                         {{ isLogin ? 'С возвращением' : 'Присоединяйтесь' }}
                     </h2>
@@ -73,7 +69,7 @@
                     </p>
 
                     <form @submit.prevent="handleSubmit" class="space-y-6">
-                        <!-- Поле Email -->
+                        <!-- Email -->
                         <div class="space-y-2 animate-slide-down animation-delay-200">
                             <label class="block text-sm text-neutral-300">Email</label>
                             <div class="relative group/input">
@@ -90,7 +86,7 @@
                             </div>
                         </div>
 
-                        <!-- Поле Пароль -->
+                        <!-- Пароль -->
                         <div class="space-y-2 animate-slide-down animation-delay-300">
                             <label class="block text-sm text-neutral-300">Пароль</label>
                             <div class="relative group/input">
@@ -150,7 +146,7 @@
                             </label>
                         </div>
 
-                        <!-- Сообщение об ошибке -->
+                        <!-- Ошибка -->
                         <div v-if="error"
                             class="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm animate-shake backdrop-blur-sm">
                             {{ error }}
@@ -159,7 +155,7 @@
                         <!-- Кнопка отправки -->
                         <button type="submit" :disabled="loading || (!isLogin && !agreed)"
                             class="relative w-full group/btn overflow-hidden rounded-2xl bg-gradient-to-r from-neutral-700 via-neutral-600 to-neutral-700 bg-[length:200%_100%] animate-gradient-x px-6 py-4 text-white font-medium shadow-lg transition-all duration-300 hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed animate-slide-down animation-delay-500">
-                            <span class="relative z-10">{{ loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Создать  аккаунт') }}</span>
+                            <span class="relative z-10">{{ loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Создать аккаунт') }}</span>
                             <span
                                 class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></span>
                         </button>
@@ -175,7 +171,7 @@
                         </div>
                     </form>
 
-                    <!-- OAuth разделитель и кнопки -->
+                    <!-- OAuth -->
                     <div class="mt-8 animate-fade-in animation-delay-700">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
@@ -186,9 +182,7 @@
                                     войти с помощью</span>
                             </div>
                         </div>
-
                         <div class="mt-6 grid grid-cols-2 gap-3">
-                            <!-- Google OAuth -->
                             <button @click="signInWithOAuth('google')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white transition-colors"
@@ -208,8 +202,6 @@
                                 </svg>
                                 <span class="ml-2 text-sm text-neutral-300 group-hover/btn:text-white">Google</span>
                             </button>
-
-                            <!-- Yandex OAuth -->
                             <button @click="signInWithOAuth('yandex')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white" viewBox="0 0 24 24"
@@ -232,7 +224,16 @@
 </template>
 
 <script setup>
+import { useSupabaseUser, useSupabaseClient } from '#imports'
+
 const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+// Если пользователь уже авторизован – сразу на форум
+if (user.value) {
+    await navigateTo('/forum')
+}
+
 const isLogin = ref(true)
 const email = ref('')
 const password = ref('')
@@ -241,43 +242,69 @@ const showPassword = ref(false)
 const error = ref('')
 const loading = ref(false)
 
-// FIX: получаем origin универсально
 const { origin } = useRequestURL()
 
+// OAuth вход
 const signInWithOAuth = async (provider) => {
     try {
-        const { error } = await supabase.auth.signInWithOAuth({
+        loading.value = true
+        const { error: oauthError } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: origin // FIX: используем origin из useRequestURL
+                redirectTo: `${origin}/forum` // после OAuth – сразу на форум
             }
         })
-        if (error) throw error
+        if (oauthError) throw oauthError
     } catch (err) {
         error.value = err.message
+        loading.value = false
     }
 }
 
+// Создание профиля после регистрации
+async function createProfile(userId, email) {
+    const name = email.split('@')[0] || 'User'
+    const username = name + Math.floor(Math.random() * 1000)
+    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
+
+    const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+            id: userId,
+            name: name,
+            username: username,
+            avatar: avatar,
+            created_at: new Date().toISOString()
+        })
+
+    if (profileError) {
+        console.error('Ошибка создания профиля:', profileError)
+        // Не прерываем регистрацию, но логируем
+    }
+}
+
+// Основная обработка
 const handleSubmit = async () => {
     error.value = ''
     loading.value = true
 
     try {
         if (isLogin.value) {
+            // Вход
             const { error: authError } = await supabase.auth.signInWithPassword({
                 email: email.value,
                 password: password.value,
             })
             if (authError) throw authError
 
-            await navigateTo('/')
-            return // FIX: явный выход, чтобы не выполнять finally после навигации
+            // Успешный вход – редирект на форум
+            await navigateTo('/forum')
+            return
         } else {
+            // Регистрация
             if (!agreed.value) {
                 throw new Error('Необходимо согласие с правилами')
             }
-
-            // FIX: проверка длины пароля
             if (password.value.length < 6) {
                 throw new Error('Пароль должен содержать минимум 6 символов')
             }
@@ -294,23 +321,24 @@ const handleSubmit = async () => {
             })
             if (authError) throw authError
 
+            // Если требуется подтверждение email
             if (data.user && !data.session) {
                 error.value = 'Проверьте почту для подтверждения регистрации'
-                // FIX: очищаем поля для безопасности
                 email.value = ''
                 password.value = ''
                 loading.value = false
                 return
             }
 
-            await navigateTo('/')
-            return
+            // Если сессия создана сразу – создаём профиль и редирект
+            if (data.session) {
+                await createProfile(data.user.id, email.value)
+                await navigateTo('/forum')
+                return
+            }
         }
     } catch (err) {
         error.value = err.message
-    } finally {
-        // FIX: сбрасываем loading только если не было успешной навигации
-        // Благодаря return выше, этот код не выполнится после navigateTo
         loading.value = false
     }
 }
