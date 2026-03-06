@@ -7,14 +7,7 @@ export default defineNuxtConfig({
     redirect: false,
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
-    // Правильные настройки cookie:
-    cookieSecure: process.env.NODE_ENV === 'production', // true на Vercel, false на localhost
-    cookieSameSite: 'lax'
-    // При необходимости можно добавить:
-    // cookieName: 'sb',
-    // cookieDomain: '',
-    // cookiePath: '/',
-    // cookieMaxAge: 60 * 60 * 24 * 7, // 7 дней
+
   },
 
 
