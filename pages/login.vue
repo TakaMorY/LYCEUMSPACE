@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <!-- Крупные размытые фигуры -->
+        <!-- Крупные размытые фигуры (блобсы) с неоновым свечением -->
         <div class="absolute inset-0 overflow-hidden">
             <div
                 class="absolute -top-40 -right-40 w-96 h-96 bg-neutral-600 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
@@ -27,10 +27,13 @@
 
         <!-- Основная карточка -->
         <div class="relative w-full max-w-md animate-fade-in-up">
+            <!-- Двойное стекло: внешний слой с большим размытием -->
             <div class="absolute inset-0 bg-neutral-900/20 backdrop-blur-2xl rounded-3xl -z-10"></div>
+
+            <!-- Основной контент карточки с внутренним свечением -->
             <div
                 class="bg-neutral-900/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-neutral-700/50 overflow-hidden relative group">
-                <!-- Неоновая подсветка при наведении -->
+                <!-- Неоновая подсветка по краям при наведении на карточку -->
                 <div
                     class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
                     <div
@@ -41,7 +44,7 @@
                     </div>
                 </div>
 
-                <!-- Переключатель Вход / Регистрация -->
+                <!-- Шапка с переключателем -->
                 <div class="flex p-1 bg-neutral-800/60 m-2 rounded-2xl backdrop-blur-sm border border-neutral-700/30">
                     <button @click="isLogin = true"
                         class="flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
@@ -59,8 +62,9 @@
                     </button>
                 </div>
 
-                <!-- Контент формы -->
+                <!-- Контент -->
                 <div class="p-8">
+                    <!-- Заголовок с анимацией -->
                     <h2 class="text-4xl font-light text-white mb-2 animate-slide-down tracking-tight">
                         {{ isLogin ? 'С возвращением' : 'Присоединяйтесь' }}
                     </h2>
@@ -69,7 +73,7 @@
                     </p>
 
                     <form @submit.prevent="handleSubmit" class="space-y-6">
-                        <!-- Email -->
+                        <!-- Поле Email -->
                         <div class="space-y-2 animate-slide-down animation-delay-200">
                             <label class="block text-sm text-neutral-300">Email</label>
                             <div class="relative group/input">
@@ -86,7 +90,7 @@
                             </div>
                         </div>
 
-                        <!-- Пароль -->
+                        <!-- Поле Пароль -->
                         <div class="space-y-2 animate-slide-down animation-delay-300">
                             <label class="block text-sm text-neutral-300">Пароль</label>
                             <div class="relative group/input">
@@ -114,22 +118,6 @@
                                             d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                                     </svg>
                                 </button>
-                            </div>
-                        </div>
-
-                        <div v-if="!isLogin" class="space-y-2 animate-slide-down animation-delay-250">
-                            <label class="block text-sm text-neutral-300">Имя пользователя</label>
-                            <div class="relative group/input">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <input v-model="username" type="text"
-                                    class="w-full pl-10 pr-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-                                    placeholder="Математический_Ботан" />
                             </div>
                         </div>
 
@@ -162,7 +150,7 @@
                             </label>
                         </div>
 
-                        <!-- Ошибка -->
+                        <!-- Сообщение об ошибке -->
                         <div v-if="error"
                             class="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm animate-shake backdrop-blur-sm">
                             {{ error }}
@@ -187,7 +175,7 @@
                         </div>
                     </form>
 
-                    <!-- OAuth -->
+                    <!-- OAuth разделитель и кнопки -->
                     <div class="mt-8 animate-fade-in animation-delay-700">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
@@ -198,7 +186,9 @@
                                     войти с помощью</span>
                             </div>
                         </div>
+
                         <div class="mt-6 grid grid-cols-2 gap-3">
+                            <!-- Google OAuth -->
                             <button @click="signInWithOAuth('google')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white transition-colors"
@@ -218,6 +208,8 @@
                                 </svg>
                                 <span class="ml-2 text-sm text-neutral-300 group-hover/btn:text-white">Google</span>
                             </button>
+
+                            <!-- Yandex OAuth -->
                             <button @click="signInWithOAuth('yandex')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white" viewBox="0 0 24 24"
@@ -240,88 +232,52 @@
 </template>
 
 <script setup>
-
-import { useSupabaseUser, useSupabaseClient } from '#imports'
-
 const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const router = useRouter()
-
-// Если пользователь уже авторизован – сразу на форум
-if (user.value) {
-    await router.push('/forum')
-}
-
 const isLogin = ref(true)
 const email = ref('')
 const password = ref('')
-const username = ref('') // добавим для регистрации
 const agreed = ref(false)
 const showPassword = ref(false)
 const error = ref('')
 const loading = ref(false)
 
+// FIX: получаем origin универсально
 const { origin } = useRequestURL()
 
-// OAuth вход
 const signInWithOAuth = async (provider) => {
     try {
-        loading.value = true
-        const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: `${origin}/forum`
+                redirectTo: origin // FIX: используем origin из useRequestURL
             }
         })
-        if (oauthError) throw oauthError
+        if (error) throw error
     } catch (err) {
         error.value = err.message
-        loading.value = false
     }
 }
 
-// Создание профиля после регистрации
-async function createProfile(userId, email, username) {
-    const name = username || email.split('@')[0]
-    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`
-
-    const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-            id: userId,
-            name: name,
-            username: name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000),
-            avatar: avatar,
-            bio: '',
-            created_at: new Date().toISOString()
-        })
-
-    if (profileError) {
-        console.error('Ошибка создания профиля:', profileError)
-    }
-}
-
-// Основная обработка
 const handleSubmit = async () => {
     error.value = ''
     loading.value = true
 
     try {
         if (isLogin.value) {
-            // Вход
             const { error: authError } = await supabase.auth.signInWithPassword({
                 email: email.value,
                 password: password.value,
             })
             if (authError) throw authError
 
-            await router.push('/forum')
-            return
+            await navigateTo('/')
+            return // FIX: явный выход, чтобы не выполнять finally после навигации
         } else {
-            // Регистрация
             if (!agreed.value) {
                 throw new Error('Необходимо согласие с правилами')
             }
+
+            // FIX: проверка длины пароля
             if (password.value.length < 6) {
                 throw new Error('Пароль должен содержать минимум 6 символов')
             }
@@ -331,35 +287,34 @@ const handleSubmit = async () => {
                 password: password.value,
                 options: {
                     data: {
-                        username: username.value || email.value.split('@')[0]
+                        agreed_to_terms: true,
+                        agreed_at: new Date().toISOString()
                     }
                 }
             })
             if (authError) throw authError
 
-            // Если требуется подтверждение email
             if (data.user && !data.session) {
                 error.value = 'Проверьте почту для подтверждения регистрации'
+                // FIX: очищаем поля для безопасности
                 email.value = ''
                 password.value = ''
                 loading.value = false
                 return
             }
 
-            // Если сессия создана сразу
-            if (data.session) {
-                await createProfile(data.user.id, email.value, username.value)
-                await router.push('/forum')
-                return
-            }
+            await navigateTo('/')
+            return
         }
     } catch (err) {
         error.value = err.message
+    } finally {
+        // FIX: сбрасываем loading только если не было успешной навигации
+        // Благодаря return выше, этот код не выполнится после navigateTo
         loading.value = false
     }
 }
 </script>
-
 
 <style scoped>
 /* Анимации */

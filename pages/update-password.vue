@@ -5,31 +5,19 @@
       <p class="text-neutral-400 text-sm mb-6">Придумайте надёжный пароль</p>
 
       <form @submit.prevent="handleUpdate">
-        <input
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          placeholder="Новый пароль"
-          required
+        <input v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="Новый пароль" required
           minlength="6"
-          class="w-full px-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white outline-none mb-4"
-        />
-        <input
-          v-model="confirmPassword"
-          :type="showConfirm ? 'text' : 'password'"
-          placeholder="Подтвердите пароль"
+          class="w-full px-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white outline-none mb-4" />
+        <input v-model="confirmPassword" :type="showConfirm ? 'text' : 'password'" placeholder="Подтвердите пароль"
           required
-          class="w-full px-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white outline-none mb-6"
-        />
+          class="w-full px-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white outline-none mb-6" />
 
         <div v-if="message" class="mb-4 text-sm" :class="messageType === 'success' ? 'text-green-400' : 'text-red-400'">
           {{ message }}
         </div>
 
-        <button
-          type="submit"
-          :disabled="loading || password !== confirmPassword"
-          class="w-full bg-neutral-700 hover:bg-neutral-600 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50"
-        >
+        <button type="submit" :disabled="loading || password !== confirmPassword"
+          class="w-full bg-neutral-700 hover:bg-neutral-600 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50">
           {{ loading ? 'Сохраняем...' : 'Сохранить пароль' }}
         </button>
 

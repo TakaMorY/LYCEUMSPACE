@@ -630,23 +630,4 @@ onUnmounted(() => {
     window.removeEventListener('scroll', updateHeader)
     document.body.style.overflow = ''
 })
-
-
-
-
-
-
-
-
-
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-
-onMounted(async () => {
-    console.log('supabase client:', !!supabase)
-    console.log('user:', user.value)
-    const { data } = await supabase.from('posts').select('count').single()
-    console.log('test query:', data)
-})
-
 </script>
