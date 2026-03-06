@@ -102,7 +102,7 @@
                                 <NuxtLink to="/" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.3s">
-                                    <span 
+                                    <span
                                         class="absolute left-0 w-0 h-px bg-white group-hover:w-8 transition-all duration-300"></span>
                                     <span class="ml-0 group-hover:ml-12 transition-all duration-300">Главная</span>
                                     <span
@@ -630,4 +630,23 @@ onUnmounted(() => {
     window.removeEventListener('scroll', updateHeader)
     document.body.style.overflow = ''
 })
+
+
+
+
+
+
+
+
+
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+onMounted(async () => {
+    console.log('supabase client:', !!supabase)
+    console.log('user:', user.value)
+    const { data } = await supabase.from('posts').select('count').single()
+    console.log('test query:', data)
+})
+
 </script>

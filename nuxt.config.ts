@@ -2,10 +2,22 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/image', '@nuxtjs/supabase'],
-  supabase: {
-    redirect: false, // мы управляем редиректами сами
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/image', '@nuxtjs/supabase', '@nuxt/icon'],
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY
+    }
   },
+  supabase: {
+    redirect: false, // если хотите сами управлять редиректами
+
+  },
+  icon: {
+    serverBundle: 'local', // или 'remote'
+    collections: ['heroicons']
+  },
+
 
 
   app: {

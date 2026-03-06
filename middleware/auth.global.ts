@@ -3,7 +3,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const user = useSupabaseUser()
 
   // Публичные маршруты (доступны без авторизации)
-  const publicRoutes = ['/login', '/forgot-password', '/update-password', '/']
+  const publicRoutes = ['/login', '/forgot-password', '/update-password', '/',]
 
   if (!user.value && !publicRoutes.includes(to.path)) {
     return navigateTo('/login')

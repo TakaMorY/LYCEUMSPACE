@@ -1,142 +1,177 @@
-<!-- pages/profile/[id].vue -->
 <template>
-    <div class="min-h-screen bg-black text-white">
-        <!-- Хедер такой же как на форуме -->
-        <header class="border-b border-white/10 bg-black/95 backdrop-blur sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex items-center justify-between">
-                    <!-- Логотип -->
-                    <div class="text-2xl font-bold tracking-tighter">
-                        <span class="text-white">ЛИЦЕЙСКИЙ</span>
-                        <span class="text-white/60">ФОРУМ</span>
+    <div class="max-w-2xl mx-auto p-4">
+        <div class="card">
+            <div class="card-body">
+                <!-- Шапка профиля -->
+                <div class="flex items-start gap-4">
+                    <img v-if="profile?.avatar" :src="profile.avatar" class="avatar avatar-xl" />
+                    <div v-else
+                        class="avatar avatar-xl bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-2xl">
+                        {{ profile?.name?.charAt(0) }}
                     </div>
-
-                    <!-- Поиск -->
-                    <div class="hidden md:block flex-1 max-w-md mx-8">
-                        <div class="relative">
-                            <input type="text" placeholder="Поиск по форуму..."
-                                class="w-full bg-black border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white transition-colors">
-                            <svg class="absolute right-3 top-2.5 w-5 h-5 text-white/40" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold">{{ profile?.name }}</h1>
+                                <p class="text-gray-500">@{{ profile?.username }}</p>
+                            </div>
+                            <button v-if="user && user.id !== profile?.id" @click="toggleFollow"
+                                class="px-4 py-2 rounded-full text-sm font-medium transition" :class="isFollowing
+                                    ? 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'">
+                                {{ isFollowing ? 'Отписаться' : 'Подписаться' }}
+                            </button>
                         </div>
-                    </div>
-
-                    <!-- Иконки пользователя -->
-                    <div class="flex items-center gap-4">
-                        <button class="relative">
-                            <svg class="w-6 h-6 text-white/70 hover:text-white transition-colors" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <span
-                                class="absolute -top-1 -right-1 w-4 h-4 bg-white text-black text-xs rounded-full flex items-center justify-center">3</span>
-                        </button>
-                        <div
-                            class="w-10 h-10 rounded-full border-2 border-white/30 bg-gradient-to-br from-white/20 to-white/5">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="container mx-auto px-4 py-8">
-            <!-- Шапка профиля -->
-            <div class="relative mb-12">
-                <!-- Обложка -->
-                <div
-                    class="h-48 md:h-64 rounded-xl bg-gradient-to-r from-white/5 via-white/10 to-white/5 border border-white/10 mb-16">
-                </div>
-
-                <!-- Аватар и основная информация -->
-                <div class="absolute -bottom-12 left-8 flex items-end gap-6">
-                    <div
-                        class="w-32 h-32 rounded-full border-4 border-black bg-gradient-to-br from-white/30 to-white/10">
-                    </div>
-                    <div class="mb-2">
-                        <h1 class="text-3xl font-bold">cyber_punk</h1>
-                        <div class="flex items-center gap-2 text-white/60">
-                            <span>Подписчиков: 1.2K</span>
-                            <span class="w-1 h-1 rounded-full bg-white/60"></span>
-                            <span>Подписок: 342</span>
-                        </div>
+                        <p class="mt-2">{{ profile?.bio }}</p>
                     </div>
                 </div>
 
-                <!-- Кнопка редактирования/подписки -->
-                <div class="absolute right-0 bottom-0">
-                    <button
-                        class="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-white/90 transition-colors">
-                        РЕДАКТИРОВАТЬ
-                    </button>
-                </div>
-            </div>
-
-            <!-- Статистика -->
-            <div class="grid grid-cols-4 gap-4 mb-8">
-                <div
-                    class="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold">156</div>
-                    <div class="text-white/40 text-sm">Постов</div>
-                </div>
-                <div
-                    class="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold">2.3K</div>
-                    <div class="text-white/40 text-sm">Лайков</div>
-                </div>
-                <div
-                    class="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold">89</div>
-                    <div class="text-white/40 text-sm">Комментариев</div>
-                </div>
-                <div
-                    class="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold">45.6K</div>
-                    <div class="text-white/40 text-sm">Просмотров</div>
-                </div>
-            </div>
-
-            <!-- Табы -->
-            <div class="flex gap-6 border-b border-white/10 mb-6">
-                <button class="pb-2 px-1 text-white border-b-2 border-white font-medium">Посты</button>
-                <button class="pb-2 px-1 text-white/60 hover:text-white transition-colors">Комментарии</button>
-                <button class="pb-2 px-1 text-white/60 hover:text-white transition-colors">Медиа</button>
-                <button class="pb-2 px-1 text-white/60 hover:text-white transition-colors">О себе</button>
-            </div>
-
-            <!-- Сетка постов пользователя (уменьшенные карточки) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Пост пользователя -->
-                <article
-                    class="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-lg p-4 hover:border-white/30 transition-all">
-                    <h3 class="font-medium mb-2">Новый проект в работе</h3>
-                    <p class="text-white/60 text-sm mb-3 line-clamp-2">
-                        Работаю над новым дизайном, делюсь процессом...
-                    </p>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-3">
-                            <span class="flex items-center gap-1 text-white/40">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                45
-                            </span>
-                            <span class="flex items-center gap-1 text-white/40">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                12
-                            </span>
-                        </div>
-                        <span class="text-white/40 text-xs">2 дня назад</span>
+                <!-- Статистика -->
+                <div class="flex gap-6 border-t border-gray-200 dark:border-gray-800 mt-4 pt-4">
+                    <div><span class="font-bold">{{ postsCount }}</span> <span class="text-gray-500">постов</span></div>
+                    <div><span class="font-bold">{{ followersCount }}</span> <span
+                            class="text-gray-500">подписчиков</span></div>
+                    <div><span class="font-bold">{{ followingCount }}</span> <span class="text-gray-500">подписок</span>
                     </div>
-                </article>
+                </div>
             </div>
-        </main>
+        </div>
+
+        <!-- Посты пользователя -->
+        <div class="mt-6 space-y-4">
+            <h2 class="text-xl font-semibold">Посты</h2>
+            <PostCard v-for="post in userPosts" :key="post.id" :post="post" @like="toggleLike"
+                @comment="openCommentModal" @repost="toggleRepost" />
+            <div v-if="!userPosts.length" class="text-center py-10 text-gray-500">
+                У пользователя пока нет постов.
+            </div>
+        </div>
     </div>
 </template>
+
+
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+const profile = ref(null)
+const userPosts = ref([])
+const postsCount = ref(0)
+const followersCount = ref(0)
+const followingCount = ref(0)
+const isFollowing = ref(false)
+
+const isCommentModalOpen = ref(false)
+const selectedPost = ref(null)
+
+const userId = route.params.id || user.value?.id
+
+onMounted(async () => {
+    if (!userId) return
+    await fetchProfile()
+    await fetchUserPosts()
+    await fetchStats()
+    if (user.value && user.value.id !== userId) {
+        await checkFollow()
+    }
+})
+
+async function fetchProfile() {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+
+    if (!error) profile.value = data
+}
+
+async function fetchUserPosts() {
+    const { data, error } = await supabase
+        .from('posts')
+        .select(`
+      *,
+      profiles:user_id ( name, username, avatar ),
+      likes ( id, user_id ),
+      comments ( id ),
+      reposts ( id, user_id ),
+      media ( id, url, type )
+    `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+    if (!error && data) {
+        userPosts.value = data.map(post => ({
+            ...post,
+            likes_count: post.likes?.length || 0,
+            liked_by_user: post.likes?.some(like => like.user_id === user.value?.id) || false,
+            comments_count: post.comments?.length || 0,
+            reposts_count: post.reposts?.length || 0,
+            reposted_by_user: post.reposts?.some(r => r.user_id === user.value?.id) || false
+        }))
+        postsCount.value = data.length
+    }
+}
+
+async function fetchStats() {
+    const { count: followers } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', userId)
+
+    followersCount.value = followers || 0
+
+    const { count: following } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', userId)
+
+    followingCount.value = following || 0
+}
+
+async function checkFollow() {
+    const { data } = await supabase
+        .from('follows')
+        .select('id')
+        .eq('follower_id', user.value.id)
+        .eq('following_id', userId)
+        .maybeSingle()
+
+    isFollowing.value = !!data
+}
+
+async function toggleFollow() {
+    if (!user.value) return navigateTo('/login')
+
+    if (isFollowing.value) {
+        await supabase
+            .from('follows')
+            .delete()
+            .eq('follower_id', user.value.id)
+            .eq('following_id', userId)
+
+        followersCount.value -= 1
+        isFollowing.value = false
+    } else {
+        await supabase
+            .from('follows')
+            .insert({ follower_id: user.value.id, following_id: userId })
+
+        followersCount.value += 1
+        isFollowing.value = true
+    }
+}
+
+// Лайк, репост, комментарий аналогично index.vue
+async function toggleLike(post) { /* ... */ }
+async function toggleRepost(post) { /* ... */ }
+function openCommentModal(post) {
+    selectedPost.value = post
+    isCommentModalOpen.value = true
+}
+</script>

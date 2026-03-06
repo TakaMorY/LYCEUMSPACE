@@ -1,203 +1,409 @@
-<!-- pages/forum/index.vue -->
 <template>
-    <div class="min-h-screen bg-black text-white">
-        <!-- Хедер -->
-        <header class="border-b border-white/10 bg-black/95 backdrop-blur sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex items-center justify-between">
-                    <!-- Логотип -->
-                    <div class="flex items-center gap-3">
-                        <img src="/images/logo/logotip.png" alt="Logo" class="h-10 w-auto" />
-                        <div class="text-2xl font-bold tracking-tighter">
-
-                            <span class="text-white">ЛИЦЕЙСКИЙ</span>
-                            <span class="text-white/60">ФОРУМ</span>
-                        </div>
-                    </div>
-                    <!-- Поиск -->
-                    <div class="hidden md:block flex-1 max-w-md mx-8">
-                        <div class="relative">
-                            <input type="text" placeholder="Поиск по форуму..."
-                                class="w-full bg-black border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white transition-colors">
-                            <svg class="absolute right-3 top-2.5 w-5 h-5 text-white/40" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <!-- Иконки пользователя -->
-                    <div class="flex items-center gap-4">
-                        <button class="relative">
-                            <svg class="w-6 h-6 text-white/70 hover:text-white transition-colors" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <span
-                                class="absolute -top-1 -right-1 w-4 h-4 bg-white text-black text-xs rounded-full flex items-center justify-center">3</span>
-                        </button>
-                        <div
-                            class="w-10 h-10 rounded-full border-2 border-white/30 bg-gradient-to-br from-white/20 to-white/5">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Основной контент -->
-        <main class="container mx-auto px-4 py-8">
-            <!-- Заголовок и кнопка создания поста -->
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-light tracking-wider">ЛЕНТА <span class="text-white/40">/ СООБЩЕСТВО</span>
-                </h1>
-                <button
-                    class="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-white/90 transition-colors">
-                    + НОВЫЙ ПОСТ
-                </button>
-            </div>
-
-            <!-- Сетка постов -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Пост 1 -->
-                <article
-                    class="group bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-xl p-6 hover:border-white/30 transition-all duration-300">
-                    <!-- Шапка поста (автор) -->
-                    <div class="flex items-center gap-3 mb-4">
-                        <div
-                            class="w-12 h-12 rounded-full border-2 border-white/30 bg-gradient-to-br from-white/20 to-white/5">
-                        </div>
-                        <div>
-                            <div class="font-medium hover:text-white/80 cursor-pointer transition-colors">cyber_punk
-                            </div>
-                            <div class="text-white/40 text-sm">2 часа назад</div>
-                        </div>
-                    </div>
-
-                    <!-- Контент поста -->
-                    <h2 class="text-xl font-medium mb-2">Новый дизайн для форума</h2>
-                    <p class="text-white/70 mb-4 line-clamp-3">
-                        Решил полностью переработать дизайн форума в черно-белой стилистике.
-                        Что думаете насчет такого минимализма? Интересно ваше мнение...
-                    </p>
-
-                    <!-- Медиа (опционально) -->
-                    <div
-                        class="bg-gradient-to-br from-white/5 to-white/10 rounded-lg h-32 mb-4 flex items-center justify-center border border-white/10">
-                        <svg class="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-
-                    <!-- Метрики и действия -->
-                    <div class="flex items-center justify-between pt-4 border-t border-white/10">
-                        <div class="flex items-center gap-4">
-                            <!-- Лайки -->
-                            <button
-                                class="flex items-center gap-1 text-white/60 hover:text-white transition-colors group">
-                                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                <span class="text-sm">24</span>
-                            </button>
-
-                            <!-- Комментарии -->
-                            <button class="flex items-center gap-1 text-white/60 hover:text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span class="text-sm">8</span>
-                            </button>
-
-                            <!-- Репост -->
-                            <button class="text-white/60 hover:text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Просмотры -->
-                        <div class="flex items-center gap-1 text-white/40 text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <span>1.2K</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Пост 2 -->
-                <article
-                    class="group bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-xl p-6 hover:border-white/30 transition-all duration-300">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div
-                            class="w-12 h-12 rounded-full border-2 border-white/30 bg-gradient-to-br from-white/20 to-white/5">
-                        </div>
-                        <div>
-                            <div class="font-medium hover:text-white/80 cursor-pointer transition-colors">dark_angel
-                            </div>
-                            <div class="text-white/40 text-sm">5 часов назад</div>
-                        </div>
-                    </div>
-                    <h2 class="text-xl font-medium mb-2">Минимализм в веб-дизайне</h2>
-                    <p class="text-white/70 mb-6 line-clamp-3">
-                        Черный цвет - это не скучно, это элегантно. Показываю свои работы в темной теме...
-                    </p>
-                    <div class="flex items-center justify-between pt-4 border-t border-white/10">
-                        <div class="flex items-center gap-4">
-                            <button
-                                class="flex items-center gap-1 text-white/60 hover:text-white transition-colors group">
-                                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                <span class="text-sm">56</span>
-                            </button>
-                            <button class="flex items-center gap-1 text-white/60 hover:text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span class="text-sm">12</span>
-                            </button>
-                            <button class="text-white/60 hover:text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="flex items-center gap-1 text-white/40 text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <span>856</span>
-                        </div>
-                    </div>
-                </article>
-            </div>
-        </main>
+  <div class="max-w-2xl mx-auto p-4 space-y-6">
+    <!-- Шапка -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        Главная
+      </h1>
+      <span
+        v-if="user"
+        class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+      >
+        {{ posts.length }} постов
+      </span>
     </div>
-    <Footer />
+
+    <!-- Форма создания поста (только для авторизованных) -->
+    <div v-if="user" class="card sticky top-4 z-10">
+      <div class="card-body">
+        <div class="flex gap-3">
+          <!-- Аватар пользователя -->
+          <img
+            v-if="user.user_metadata?.avatar"
+            :src="user.user_metadata.avatar"
+            class="avatar avatar-md"
+            alt=""
+          />
+          <div
+            v-else
+            class="avatar avatar-md bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600"
+          >
+            {{ user.email?.charAt(0).toUpperCase() }}
+          </div>
+
+          <div class="flex-1">
+            <textarea
+              v-model="newPostContent"
+              placeholder="Что происходит?"
+              rows="2"
+              class="w-full p-0 border-0 focus:ring-0 text-lg bg-transparent placeholder-gray-400 resize-none"
+            ></textarea>
+
+            <div class="flex items-center justify-between mt-3">
+              <button @click="triggerFileUpload" class="btn-icon">
+                <Icon name="heroicons:photo" class="w-5 h-5" />
+              </button>
+              <input
+                ref="fileInput"
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                class="hidden"
+                @change="handleFileUpload"
+              />
+              <button
+                @click="createPost"
+                :disabled="!newPostContent.trim() && !uploadedFiles.length"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none text-white rounded-full font-medium transition"
+              >
+                <span v-if="creating">Публикация...</span>
+                <span v-else>Опубликовать</span>
+              </button>
+            </div>
+
+            <!-- Предпросмотр медиа -->
+            <div v-if="previews.length" class="flex gap-2 mt-3 flex-wrap">
+              <div v-for="(preview, idx) in previews" :key="idx" class="relative">
+                <img :src="preview" class="w-20 h-20 object-cover rounded" />
+                <button
+                  @click="removeFile(idx)"
+                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Лента постов -->
+    <div class="space-y-4">
+      <PostCard
+        v-for="post in posts"
+        :key="post.id"
+        :post="post"
+        @like="toggleLike"
+        @comment="openCommentModal"
+        @repost="toggleRepost"
+      />
+    </div>
+
+    <!-- Пустое состояние -->
+    <div v-if="!posts.length" class="text-center py-16">
+      <Icon name="heroicons:document-text" class="text-6xl text-gray-300 mx-auto mb-4" />
+      <p class="text-gray-500">Здесь пока пусто. Создайте первый пост!</p>
+    </div>
+
+    <!-- Модалка комментариев -->
+    <SimpleModal v-model="isCommentModalOpen" title="Комментарии" :fullscreen="mobile">
+      <CommentThread v-if="selectedPost" :post-id="selectedPost.id" />
+    </SimpleModal>
+  </div>
 </template>
 
-
-
-
 <script setup>
-import Footer from '~/components/Footer.vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useSupabaseUser, useSupabaseClient } from '#imports'
+import { useWindowSize } from '@vueuse/core'
+import PostCard from '~/components/PostCard.vue'
+import SimpleModal from '~/components/SimpleModal.vue'
+import CommentThread from '~/components/CommentThread.vue'
+
+const user = useSupabaseUser()
+const supabase = useSupabaseClient()
+const { width } = useWindowSize()
+const mobile = computed(() => width.value < 640)
+
+// Состояние для создания поста
+const newPostContent = ref('')
+const creating = ref(false)
+const fileInput = ref(null)
+const uploadedFiles = ref([]) // массив File объектов
+const previews = ref([]) // dataURL для предпросмотра
+
+// Лента постов
+const posts = ref([])
+
+// Комментарии
+const isCommentModalOpen = ref(false)
+const selectedPost = ref(null)
+
+// ---- Загрузка постов ----
+async function fetchPosts() {
+  let query = supabase
+    .from('posts')
+    .select(`
+      *,
+      profiles:user_id ( name, username, avatar ),
+      likes ( id, user_id ),
+      comments ( id ),
+      reposts ( id, user_id ),
+      media ( id, url, type )
+    `)
+    .order('created_at', { ascending: false })
+
+  // Если пользователь авторизован – показываем посты от подписок + свои
+  if (user.value) {
+    const { data: follows } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.value.id)
+
+    const followedIds = follows?.map(f => f.following_id) || []
+    followedIds.push(user.value.id) // добавляем самого себя
+    query = query.in('user_id', followedIds)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    console.error('Error fetching posts:', error)
+    return
+  }
+
+  posts.value = data.map(post => ({
+    ...post,
+    likes_count: post.likes?.length || 0,
+    liked_by_user: post.likes?.some(like => like.user_id === user.value?.id) || false,
+    comments_count: post.comments?.length || 0,
+    reposts_count: post.reposts?.length || 0,
+    reposted_by_user: post.reposts?.some(r => r.user_id === user.value?.id) || false
+  }))
+}
+
+// ---- Realtime подписка на новые посты ----
+let postsSubscription
+function subscribeToNewPosts() {
+  if (!user.value) return
+
+  // Подписываемся на посты от пользователей, на которых подписан
+  supabase
+    .from('follows')
+    .select('following_id')
+    .eq('follower_id', user.value.id)
+    .then(({ data: follows }) => {
+      const followedIds = follows?.map(f => f.following_id) || []
+      followedIds.push(user.value.id)
+
+      if (followedIds.length === 0) return
+
+      postsSubscription = supabase
+        .channel('posts-feed')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'posts',
+            filter: `user_id=in.(${followedIds.join(',')})`
+          },
+          async (payload) => {
+            // Загружаем полный пост с профилем и медиа
+            const { data: newPost } = await supabase
+              .from('posts')
+              .select(`
+                *,
+                profiles:user_id ( name, username, avatar ),
+                likes ( id, user_id ),
+                comments ( id ),
+                reposts ( id, user_id ),
+                media ( id, url, type )
+              `)
+              .eq('id', payload.new.id)
+              .single()
+
+            if (newPost) {
+              newPost.likes_count = newPost.likes?.length || 0
+              newPost.liked_by_user = false
+              newPost.comments_count = newPost.comments?.length || 0
+              newPost.reposts_count = newPost.reposts?.length || 0
+              newPost.reposted_by_user = false
+              posts.value = [newPost, ...posts.value]
+            }
+          }
+        )
+        .subscribe()
+    })
+}
+
+// Подписка на изменения лайков (чтобы обновлять счётчики)
+let likesSubscription
+function subscribeToLikes() {
+  likesSubscription = supabase
+    .channel('likes-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'likes' },
+      () => fetchPosts() // грубо, но для демо сойдёт
+    )
+    .subscribe()
+}
+
+// ---- Создание поста с медиа ----
+async function createPost() {
+  if (!user.value) return
+  if (!newPostContent.value.trim() && uploadedFiles.value.length === 0) return
+
+  creating.value = true
+  try {
+    // 1. Вставляем пост
+    const { data: postData, error: postError } = await supabase
+      .from('posts')
+      .insert({
+        content: newPostContent.value,
+        user_id: user.value.id
+      })
+      .select()
+      .single()
+
+    if (postError) throw postError
+
+    // 2. Загружаем медиа в Storage и создаём записи в таблице media
+    if (uploadedFiles.value.length) {
+      const mediaPromises = uploadedFiles.value.map(async (file) => {
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${user.value.id}/${Date.now()}.${fileExt}`
+        const { error: uploadError } = await supabase.storage
+          .from('post-media')
+          .upload(fileName, file)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('post-media')
+          .getPublicUrl(fileName)
+
+        return supabase
+          .from('media')
+          .insert({
+            post_id: postData.id,
+            url: publicUrl,
+            type: file.type.startsWith('image/') ? 'image' : 'video'
+          })
+      })
+
+      await Promise.all(mediaPromises)
+    }
+
+    // Очищаем форму
+    newPostContent.value = ''
+    uploadedFiles.value = []
+    previews.value = []
+  } catch (error) {
+    console.error('Error creating post:', error)
+  } finally {
+    creating.value = false
+  }
+}
+
+// ---- Лайк / дизлайк ----
+async function toggleLike(post) {
+  if (!user.value) return navigateTo('/login')
+
+  if (post.liked_by_user) {
+    await supabase
+      .from('likes')
+      .delete()
+      .eq('post_id', post.id)
+      .eq('user_id', user.value.id)
+
+    post.liked_by_user = false
+    post.likes_count -= 1
+  } else {
+    await supabase
+      .from('likes')
+      .insert({ post_id: post.id, user_id: user.value.id })
+
+    post.liked_by_user = true
+    post.likes_count += 1
+  }
+}
+
+// ---- Репост / отмена ----
+async function toggleRepost(post) {
+  if (!user.value) return navigateTo('/login')
+
+  if (post.reposted_by_user) {
+    await supabase
+      .from('reposts')
+      .delete()
+      .eq('original_post_id', post.id)
+      .eq('user_id', user.value.id)
+
+    post.reposted_by_user = false
+    post.reposts_count -= 1
+  } else {
+    await supabase
+      .from('reposts')
+      .insert({ original_post_id: post.id, user_id: user.value.id })
+
+    post.reposted_by_user = true
+    post.reposts_count += 1
+  }
+}
+
+// ---- Загрузка файлов ----
+function triggerFileUpload() {
+  fileInput.value?.click()
+}
+
+function handleFileUpload(event) {
+  const files = Array.from(event.target.files)
+  uploadedFiles.value.push(...files)
+
+  // Генерация превью для изображений
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => previews.value.push(e.target.result)
+      reader.readAsDataURL(file)
+    } else {
+      // Для видео можно показать плейсхолдер
+      previews.value.push('/video-placeholder.png') // замените на свой
+    }
+  })
+}
+
+function removeFile(index) {
+  uploadedFiles.value.splice(index, 1)
+  previews.value.splice(index, 1)
+}
+
+// ---- Открытие модалки комментариев ----
+function openCommentModal(post) {
+  selectedPost.value = post
+  isCommentModalOpen.value = true
+}
+
+// ---- Инициализация и очистка подписок ----
+onMounted(async () => {
+  await fetchPosts()
+  subscribeToNewPosts()
+  subscribeToLikes()
+})
+
+onUnmounted(() => {
+  postsSubscription?.unsubscribe()
+  likesSubscription?.unsubscribe()
+})
 </script>
+
+<style scoped>
+/* Дополнительные стили при необходимости */
+.card {
+  @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 transition-shadow hover:shadow-md;
+}
+.card-body {
+  @apply p-4 sm:p-5;
+}
+.avatar {
+  @apply rounded-full object-cover;
+}
+.avatar-md {
+  @apply w-10 h-10;
+}
+.btn-icon {
+  @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800;
+}
+</style>
