@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start space-x-2 text-sm">
-    <img :src="comment.profiles?.avatar_url || '/default-avatar.png'" class="w-6 h-6 rounded-full" />
+    <img :src="comment.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'" class="w-6 h-6 rounded-full" />
     <div>
       <span class="font-semibold text-white">{{ comment.profiles?.username }}</span>
       <span class="text-neutral-500 ml-2">{{ formatDate(comment.created_at) }}</span>

@@ -2,7 +2,7 @@
   <article class="border-b border-neutral-800 py-4 hover:bg-neutral-900/50 transition-colors">
     <div class="flex items-start space-x-3">
       <NuxtLink :to="`/profile/${post.user_id}`" class="flex-shrink-0">
-        <img :src="post.profiles?.avatar_url || '/default-avatar.png'" class="w-10 h-10 rounded-full" />
+        <img :src="post.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'" class="w-10 h-10 rounded-full" />
       </NuxtLink>
       <div class="flex-1 min-w-0">
         <div class="flex items-center space-x-1 text-sm">
