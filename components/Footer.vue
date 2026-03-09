@@ -2,10 +2,11 @@
     <div class=" mx-auto bg-black text-white pt-16 pb-8 px-6 md:px-8">
         <div class=" pt-6 border-t border-zinc-800">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div class="flex space-x-6 mb-4 md:mb-0">
+                <div class="flex space-x-4 mb-4 md:mb-0">
                     <NuxtLink target="_blank" to="https://github.com/TakaMorY/LYCEUMSPACE" alt="код git" class="text-xs text-gray-500 hover:text-gray-300">GitHub</NuxtLink>
                     <NuxtLink to="policy" alt="политика конфедициальности" class="text-xs text-gray-500 hover:text-gray-300">Политика конфедициальности</NuxtLink>
                     <NuxtLink to="/" external  alt="главная" class="text-xs text-gray-500 hover:text-gray-300">Главная</NuxtLink>
+                    <NuxtLink to="https://messenger.online.sberbank.ru/sl/qD6gSe0WFQUOhgpdr"  alt="Помоги проекту" class="text-xs text-gray-500 hover:text-gray-300">Помоги проекту</NuxtLink>
                 </div>
                 <div class="text-xs text-gray-500">
                     © 2026, ЛИЦЕЙСКОЕПРОСТРАНСТВО. Все права защищены.
