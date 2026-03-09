@@ -49,7 +49,7 @@
                 <div class="flex-1 relative group/input">
                     <input v-model="searchQuery"
                         :placeholder="searchMode === 'posts' ? 'Поиск по заголовкам...' : 'Поиск по имени или никнейму...'"
-                        class="w-full px-6 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
+                        class="w-full px-6 py-3 bg-transparent border rounded-full border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
                     <svg class="absolute right-4 top-3.5 w-5 h-5 text-neutral-500 transition-colors group-focus-within/input:text-white"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
