@@ -40,9 +40,7 @@
 
 
     </div>
-    <footer>
-        <Footer />
-    </footer>
+
 </template>
 
 <script setup>
