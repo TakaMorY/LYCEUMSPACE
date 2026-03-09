@@ -417,7 +417,7 @@ const handleSubmit = async () => {
             if (authError) throw authError
 
             if (data.user && !data.session) {
-                error.value = 'Проверьте почту для подтверждения регистрации'
+                error.value = 'Проверьте почту для подтверждения регистрации(проверть "Спам")'
                 loading.value = false
                 return
             }
