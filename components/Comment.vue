@@ -1,17 +1,33 @@
 <template>
-  <div class="flex items-start space-x-2 text-sm">
-    <img :src="comment.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'" class="w-6 h-6 rounded-full" />
-    <div>
-      <span class="font-semibold text-white">{{ comment.profiles?.username }}</span>
-      <span class="text-neutral-500 ml-2">{{ formatDate(comment.created_at) }}</span>
-      <p class="mt-0.5 text-white/90">{{ comment.content }}</p>
+  <NuxtLink :to="`/post/${comment.post_id}/comment/${comment.id}`" class="block hover:bg-white/5 transition rounded-xl">
+    <div class="flex gap-3" :class="size === 'large' ? 'p-4' : 'p-3'">
+      <NuxtLink :to="`/profile/${comment.user_id}`" class="flex-shrink-0">
+        <img
+          :src="comment.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'"
+          class="rounded-full"
+          :class="size === 'large' ? 'w-10 h-10' : 'w-8 h-8'"
+        />
+      </NuxtLink>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <NuxtLink :to="`/profile/${comment.user_id}`" class="font-semibold text-white hover:underline" :class="size === 'large' ? 'text-base' : 'text-sm'">
+            {{ comment.profiles?.username }}
+          </NuxtLink>
+          <span class="text-xs text-neutral-500">{{ formatTime(comment.created_at) }}</span>
+        </div>
+        <p class="text-white/80 whitespace-pre-wrap" :class="size === 'large' ? 'text-base' : 'text-sm'">
+          {{ comment.content }}
+        </p>
+        <img v-if="comment.image_url" :src="comment.image_url" class="mt-2 max-h-40 rounded-lg" />
+      </div>
     </div>
-  </div>
+  </NuxtLink>
 </template>
 
 <script setup>
 defineProps({
-  comment: Object
+  comment: Object,
+  size: { type: String, default: 'normal' } // новый пропс
 })
-const formatDate = (date) => new Date(date).toLocaleDateString('ru', { day: 'numeric', month: 'short' })
+const formatTime = (date) => new Date(date).toLocaleString()
 </script>

@@ -300,6 +300,7 @@
 
 <script setup>
 const supabase = useSupabaseClient()
+const router = useRouter()
 const isLogin = ref(true)
 const email = ref('')
 const username = ref('')
@@ -387,19 +388,20 @@ const handleSubmit = async () => {
                 password: password.value
             })
             if (authError) throw authError
-            await navigateTo('/')
+            await router.push('/')
         } else {
+            // Регистрация
             if (!agreed.value) throw new Error('Необходимо согласие с правилами')
             if (!isUsernameValid.value) throw new Error('Никнейм должен быть 3-20 символов: буквы, цифры, подчёркивание')
-            if (usernameAvailable.value !== true) throw new Error('Никнейм недоступен или не проверен')
-            if (emailExists.value !== false) throw new Error('Этот email уже зарегистрирован или не проверен')
+            if (usernameAvailable.value !== true) throw new Error('Никнейм недоступен')
+            if (emailExists.value !== false) throw new Error('Этот email уже зарегистрирован')
 
             const { data, error: authError } = await supabase.auth.signUp({
                 email: email.value,
                 password: password.value,
                 options: {
                     data: {
-                        username: username.value
+                        username: username.value // передаём username для триггера
                     }
                 }
             })
@@ -410,7 +412,7 @@ const handleSubmit = async () => {
                 loading.value = false
                 return
             }
-            await navigateTo('/')
+            await router.push('/')
         }
     } catch (err) {
         error.value = err.message
