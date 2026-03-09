@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
-        <!-- Частицы (анимированные точки) -->
+        <!-- Частицы -->
         <div class="absolute inset-0 opacity-30">
             <div class="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full animate-ping-slow"></div>
             <div class="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-neutral-300 rounded-full animate-pulse-slow"></div>
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <!-- Крупные размытые фигуры (блобсы) с неоновым свечением -->
+        <!-- Блобы -->
         <div class="absolute inset-0 overflow-hidden">
             <div
                 class="absolute -top-40 -right-40 w-96 h-96 bg-neutral-600 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
@@ -25,15 +25,12 @@
             </div>
         </div>
 
-        <!-- Основная карточка -->
+        <!-- Карточка -->
         <div class="relative w-full max-w-md animate-fade-in-up">
-            <!-- Двойное стекло: внешний слой с большим размытием -->
             <div class="absolute inset-0 bg-neutral-900/20 backdrop-blur-2xl rounded-3xl -z-10"></div>
-
-            <!-- Основной контент карточки с внутренним свечением -->
             <div
                 class="bg-neutral-900/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-neutral-700/50 overflow-hidden relative group">
-                <!-- Неоновая подсветка по краям при наведении на карточку -->
+                <!-- Неоновая подсветка -->
                 <div
                     class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
                     <div
@@ -44,16 +41,17 @@
                     </div>
                 </div>
 
-                <!-- Шапка с переключателем -->
+                <!-- Переключатель Вход / Регистрация -->
                 <div class="flex p-1 bg-neutral-800/60 m-2 rounded-2xl backdrop-blur-sm border border-neutral-700/30">
-                    <button @click="isLogin = true"
+                    <button @click="isLogin = true; error = ''"
                         class="flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
                         :class="isLogin ? 'text-white shadow-lg' : 'text-neutral-400 hover:text-neutral-200'">
                         <span v-if="isLogin"
                             class="absolute inset-0 bg-gradient-to-r from-neutral-700 to-neutral-600 animate-gradient"></span>
                         <span class="relative z-10">Вход</span>
                     </button>
-                    <button @click="isLogin = false"
+                    <button
+                        @click="isLogin = false; error = ''; username = ''; usernameAvailable = null; emailExists = null"
                         class="flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
                         :class="!isLogin ? 'text-white shadow-lg' : 'text-neutral-400 hover:text-neutral-200'">
                         <span v-if="!isLogin"
@@ -64,7 +62,6 @@
 
                 <!-- Контент -->
                 <div class="p-8">
-                    <!-- Заголовок с анимацией -->
                     <h2 class="text-4xl font-light text-white mb-2 animate-slide-down tracking-tight">
                         {{ isLogin ? 'С возвращением' : 'Присоединяйтесь' }}
                     </h2>
@@ -73,8 +70,8 @@
                     </p>
 
                     <form @submit.prevent="handleSubmit" class="space-y-6">
-                        <!-- Поле Email -->
-                        <div class="space-y-2 animate-slide-down animation-delay-200">
+                        <!-- Поле Email (в режиме входа) -->
+                        <div v-if="isLogin" class="space-y-2 animate-slide-down animation-delay-200">
                             <label class="block text-sm text-neutral-300">Email</label>
                             <div class="relative group/input">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -88,6 +85,86 @@
                                     class="w-full pl-10 pr-4 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
                                     placeholder="your@email.com" />
                             </div>
+                        </div>
+
+                        <!-- Поле Email (в режиме регистрации) с проверкой существования -->
+                        <div v-else class="space-y-2 animate-slide-down animation-delay-200">
+                            <label class="block text-sm text-neutral-300">Email</label>
+                            <div class="relative group/input">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-neutral-400 group-focus-within/input:text-white transition-colors"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <input v-model="email" @input="debouncedCheckEmail" type="email" required
+                                    class="w-full pl-10 pr-10 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                                    :class="{ 'border-green-500': emailExists === false, 'border-red-500': emailExists === true }"
+                                    placeholder="your@email.com" />
+                                <!-- Иконка статуса -->
+                                <div v-if="email && email.includes('@')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg v-if="emailExists === false" class="h-5 w-5 text-green-500" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <svg v-else-if="emailExists === true" class="h-5 w-5 text-red-500" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <div v-else
+                                        class="h-5 w-5 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
+                                    </div>
+                                </div>
+                            </div>
+                            <p v-if="emailExists === true" class="text-xs text-red-400">Этот email уже зарегистрирован
+                            </p>
+                            <p v-else-if="emailExists === false" class="text-xs text-green-400">Email свободен</p>
+                        </div>
+
+                        <!-- Поле Никнейм (только регистрация) -->
+                        <div v-if="!isLogin" class="space-y-2 animate-slide-down animation-delay-250">
+                            <label class="block text-sm text-neutral-300">Никнейм</label>
+                            <div class="relative group/input">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-neutral-400 group-focus-within/input:text-white transition-colors"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <input v-model="username" @input="debouncedCheckUsername"
+                                    class="w-full pl-10 pr-10 py-3 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                                    :class="{ 'border-green-500': usernameAvailable === true, 'border-red-500': usernameAvailable === false }"
+                                    placeholder="username" minlength="3" maxlength="20" pattern="^[a-zA-Z0-9_]+$"
+                                    required />
+                                <div v-if="username && username.length >= 3"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg v-if="usernameAvailable === true" class="h-5 w-5 text-green-500" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <svg v-else-if="usernameAvailable === false" class="h-5 w-5 text-red-500"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <div v-else
+                                        class="h-5 w-5 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
+                                    </div>
+                                </div>
+                            </div>
+                            <p v-if="username && username.length < 3" class="text-xs text-red-400">Минимум 3 символа</p>
+                            <p v-else-if="username && !/^[a-zA-Z0-9_]+$/.test(username)" class="text-xs text-red-400">
+                                Только буквы, цифры и подчёркивание</p>
+                            <p v-else-if="usernameAvailable === false" class="text-xs text-red-400">Никнейм уже занят
+                            </p>
+                            <p v-else-if="usernameAvailable === true" class="text-xs text-green-400">Никнейм свободен
+                            </p>
                         </div>
 
                         <!-- Поле Пароль -->
@@ -121,7 +198,7 @@
                             </div>
                         </div>
 
-                        <!-- Чекбокс согласия (только регистрация) -->
+                        <!-- Чекбокс согласия -->
                         <div v-if="!isLogin" class="flex items-center animate-slide-down animation-delay-400">
                             <label class="flex items-center cursor-pointer group/checkbox">
                                 <div class="relative">
@@ -139,13 +216,6 @@
                                         <span
                                             class="absolute bottom-0 left-0 w-full h-px bg-white scale-x-0 group-hover/link:scale-x-100 transition-transform"></span>
                                     </a>
-                                    и
-                                    <a href="/rules"
-                                        class="text-neutral-200 hover:text-white underline transition-colors relative group/link">
-                                        правилами форума
-                                        <span
-                                            class="absolute bottom-0 left-0 w-full h-px bg-white scale-x-0 group-hover/link:scale-x-100 transition-transform"></span>
-                                    </a>
                                 </span>
                             </label>
                         </div>
@@ -157,14 +227,15 @@
                         </div>
 
                         <!-- Кнопка отправки -->
-                        <button type="submit" :disabled="loading || (!isLogin && !agreed)"
+                        <button type="submit"
+                            :disabled="loading || (!isLogin && (!agreed || !isUsernameValid || usernameAvailable !== true || emailExists !== false))"
                             class="relative w-full group/btn overflow-hidden rounded-2xl bg-gradient-to-r from-neutral-700 via-neutral-600 to-neutral-700 bg-[length:200%_100%] animate-gradient-x px-6 py-4 text-white font-medium shadow-lg transition-all duration-300 hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed animate-slide-down animation-delay-500">
                             <span class="relative z-10">{{ loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Создать аккаунт') }}</span>
                             <span
                                 class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></span>
                         </button>
 
-                        <!-- Ссылка на восстановление пароля (только вход) -->
+                        <!-- Ссылка на восстановление пароля -->
                         <div v-if="isLogin" class="text-center animate-fade-in animation-delay-600">
                             <a href="/forgot-password"
                                 class="text-sm text-neutral-400 hover:text-white transition-colors relative group/link">
@@ -175,7 +246,7 @@
                         </div>
                     </form>
 
-                    <!-- OAuth разделитель и кнопки -->
+                    <!-- OAuth (без изменений) -->
                     <div class="mt-8 animate-fade-in animation-delay-700">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
@@ -186,9 +257,7 @@
                                     войти с помощью</span>
                             </div>
                         </div>
-
                         <div class="mt-6 grid grid-cols-2 gap-3">
-                            <!-- Google OAuth -->
                             <button @click="signInWithOAuth('google')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white transition-colors"
@@ -208,8 +277,6 @@
                                 </svg>
                                 <span class="ml-2 text-sm text-neutral-300 group-hover/btn:text-white">Google</span>
                             </button>
-
-                            <!-- Yandex OAuth -->
                             <button @click="signInWithOAuth('yandex')"
                                 class="flex items-center justify-center px-4 py-3 border border-neutral-700 rounded-xl hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 group/btn">
                                 <svg class="h-5 w-5 text-neutral-300 group-hover/btn:text-white" viewBox="0 0 24 24"
@@ -235,21 +302,72 @@
 const supabase = useSupabaseClient()
 const isLogin = ref(true)
 const email = ref('')
+const username = ref('')
 const password = ref('')
 const agreed = ref(false)
 const showPassword = ref(false)
 const error = ref('')
 const loading = ref(false)
+const usernameAvailable = ref(null)
+const emailExists = ref(null)
 
-// FIX: получаем origin универсально
-const { origin } = useRequestURL()
+let checkUsernameTimeout = null
+let checkEmailTimeout = null
+
+const isUsernameValid = computed(() => {
+    return username.value.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username.value)
+})
+
+const debouncedCheckUsername = () => {
+    if (checkUsernameTimeout) clearTimeout(checkUsernameTimeout)
+    if (!isUsernameValid.value) {
+        usernameAvailable.value = null
+        return
+    }
+    usernameAvailable.value = null
+    checkUsernameTimeout = setTimeout(async () => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('username')
+                .eq('username', username.value)
+                .maybeSingle()
+            if (error) throw error
+            usernameAvailable.value = !data
+        } catch (err) {
+            console.error('Ошибка проверки никнейма:', err)
+            usernameAvailable.value = null
+        }
+    }, 500)
+}
+
+const checkEmail = async () => {
+    if (!email.value || !email.value.includes('@')) {
+        emailExists.value = null
+        return
+    }
+    emailExists.value = null
+    try {
+        const { data, error } = await supabase.rpc('check_email_exists', { email_to_check: email.value })
+        if (error) throw error
+        emailExists.value = data
+    } catch (err) {
+        console.error('Ошибка проверки email:', err)
+        emailExists.value = null
+    }
+}
+
+const debouncedCheckEmail = () => {
+    if (checkEmailTimeout) clearTimeout(checkEmailTimeout)
+    checkEmailTimeout = setTimeout(checkEmail, 500)
+}
 
 const signInWithOAuth = async (provider) => {
     try {
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: origin // FIX: используем origin из useRequestURL
+                redirectTo: useRequestURL().origin
             }
         })
         if (error) throw error
@@ -266,29 +384,22 @@ const handleSubmit = async () => {
         if (isLogin.value) {
             const { error: authError } = await supabase.auth.signInWithPassword({
                 email: email.value,
-                password: password.value,
+                password: password.value
             })
             if (authError) throw authError
-
             await navigateTo('/')
-            return // FIX: явный выход, чтобы не выполнять finally после навигации
         } else {
-            if (!agreed.value) {
-                throw new Error('Необходимо согласие с правилами')
-            }
-
-            // FIX: проверка длины пароля
-            if (password.value.length < 6) {
-                throw new Error('Пароль должен содержать минимум 6 символов')
-            }
+            if (!agreed.value) throw new Error('Необходимо согласие с правилами')
+            if (!isUsernameValid.value) throw new Error('Никнейм должен быть 3-20 символов: буквы, цифры, подчёркивание')
+            if (usernameAvailable.value !== true) throw new Error('Никнейм недоступен или не проверен')
+            if (emailExists.value !== false) throw new Error('Этот email уже зарегистрирован или не проверен')
 
             const { data, error: authError } = await supabase.auth.signUp({
                 email: email.value,
                 password: password.value,
                 options: {
                     data: {
-                        agreed_to_terms: true,
-                        agreed_at: new Date().toISOString()
+                        username: username.value
                     }
                 }
             })
@@ -296,28 +407,21 @@ const handleSubmit = async () => {
 
             if (data.user && !data.session) {
                 error.value = 'Проверьте почту для подтверждения регистрации'
-                // FIX: очищаем поля для безопасности
-                email.value = ''
-                password.value = ''
                 loading.value = false
                 return
             }
-
             await navigateTo('/')
-            return
         }
     } catch (err) {
         error.value = err.message
     } finally {
-        // FIX: сбрасываем loading только если не было успешной навигации
-        // Благодаря return выше, этот код не выполнится после navigateTo
         loading.value = false
     }
 }
 </script>
 
 <style scoped>
-/* Анимации */
+/* Все анимации остаются без изменений */
 @keyframes blob {
 
     0%,
@@ -465,13 +569,16 @@ const handleSubmit = async () => {
     animation: shake 0.5s ease-in-out;
 }
 
-/* Задержки */
 .animation-delay-100 {
     animation-delay: 0.1s;
 }
 
 .animation-delay-200 {
     animation-delay: 0.2s;
+}
+
+.animation-delay-250 {
+    animation-delay: 0.25s;
 }
 
 .animation-delay-300 {
@@ -504,10 +611,5 @@ const handleSubmit = async () => {
 
 .animation-delay-4000 {
     animation-delay: 4s;
-}
-
-/* Дополнительные эффекты */
-.group:hover .group-hover\:opacity-100 {
-    opacity: 1;
 }
 </style>

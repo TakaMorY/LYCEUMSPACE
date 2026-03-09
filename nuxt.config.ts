@@ -5,9 +5,14 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/supabase', '@nuxt/image', '@nuxt/icon', '@nuxtjs/tailwindcss'],
   supabase: {
     redirect: false,
-    url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY,
-
+    cookie: true,
+    // управляем редиректами сами
+  },
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
   },
 
 

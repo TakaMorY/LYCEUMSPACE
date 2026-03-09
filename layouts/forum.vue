@@ -1,80 +1,46 @@
 <template>
-    <div class="min-h-screen bg-neutral-950 text-white">
-        <div class="max-w-7xl mx-auto flex">
-            <!-- Боковая панель (X style) -->
-            <aside class="w-64 sticky top-0 h-screen p-4 border-r border-neutral-800">
-                <div class="space-y-6">
-                    <NuxtLink to="/forum"
-                        class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        LYCEUMSPACE
-                    </NuxtLink>
-
-                    <nav class="space-y-2">
-                        <NuxtLink to="/forum"
-                            class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-900 transition">
-                            <Icon name="heroicons:home" class="w-6 h-6" />
-                            <span>Главная</span>
-                        </NuxtLink>
-
-                        <NuxtLink :to="`/forum/profile?id=${user?.id}`"
-                            class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-900 transition">
-                            <Icon name="heroicons:user" class="w-6 h-6" />
-                            <span>Профиль</span>
-                        </NuxtLink>
-
-                        <button @click="logout"
-                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-900 transition text-red-400">
-                            <Icon name="heroicons:arrow-left-on-rectangle" class="w-6 h-6" />
-                            <span>Выйти</span>
-                        </button>
-                    </nav>
-
-                    <!-- Кнопка создания поста (мобильная) -->
-                    <button @click="showCreatePost = true"
-                        class="md:hidden w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full py-3 font-medium">
-                        Написать
-                    </button>
-                </div>
-            </aside>
-
-            <!-- Основной контент -->
-            <main class="flex-1 max-w-2xl">
-                <slot />
-            </main>
-
-            <!-- Правый сайдбар (тренды, рекомендации) -->
-            <aside class="w-80 p-4 hidden lg:block">
-                <div class="bg-neutral-900/50 rounded-xl p-4 sticky top-4">
-                    <h3 class="font-bold mb-4">Тренды</h3>
-                    <div class="space-y-4 text-sm text-neutral-400">
-                        <p>Скоро здесь появятся популярные темы</p>
-                    </div>
-                </div>
-            </aside>
+  <div class="min-h-screen bg-neutral-950 text-white">
+    <!-- Шапка -->
+    <header class="sticky top-0 z-10 bg-neutral-900/80 backdrop-blur-md border-b border-neutral-800">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <NuxtLink to="/forum" class="text-2xl font-bold text-white hover:text-neutral-300 transition">❖ Forum</NuxtLink>
+        <div v-if="user" class="flex items-center space-x-4">
+          <NuxtLink :to="`/profile/${user.id}`" class="flex items-center space-x-2 hover:bg-neutral-800 p-2 rounded-full transition">
+            <img :src="userAvatar || '/default-avatar.png'" class="w-8 h-8 rounded-full" />
+            <span class="hidden sm:inline text-sm">{{ userUsername }}</span>
+          </NuxtLink>
+          <button @click="signOut" class="text-neutral-400 hover:text-white text-sm">Выйти</button>
         </div>
+        <NuxtLink v-else to="/login" class="bg-white text-neutral-950 px-4 py-2 rounded-full text-sm font-bold hover:bg-neutral-200 transition">Войти</NuxtLink>
+      </div>
+    </header>
 
-        <!-- Модалка создания поста -->
-        <SimpleModal v-model="showCreatePost" title="Создать пост">
-            <CreatePost @created="handlePostCreated" />
-        </SimpleModal>
-    </div>
+    <!-- Основной контент -->
+    <main class="max-w-2xl mx-auto px-4 py-6">
+      <slot />
+    </main>
+  </div>
 </template>
 
 <script setup>
-import { useSupabaseUser, useSupabaseClient } from '#imports'
-
-const user = useSupabaseUser()
 const supabase = useSupabaseClient()
-const router = useRouter()
-const showCreatePost = ref(false)
+const user = useSupabaseUser()
 
-const logout = async () => {
-    await supabase.auth.signOut()
-    await router.push('/login')
-}
+const { data: profile } = await useAsyncData('header-profile', async () => {
+  if (!user.value) return null
+  const { data } = await supabase
+    .from('profiles')
+    .select('username, avatar_url')
+    .eq('id', user.value.id)
+    .single()
+  return data
+})
 
-const handlePostCreated = () => {
-    showCreatePost.value = false
-    // Обновляем ленту (будет реализовано через emit)
+const userUsername = computed(() => profile.value?.username || user.value?.email?.split('@')[0] || '')
+const userAvatar = computed(() => profile.value?.avatar_url)
+
+const signOut = async () => {
+  await supabase.auth.signOut()
+  await navigateTo('/login')
 }
 </script>

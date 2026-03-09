@@ -1,16 +1,13 @@
-// middleware/auth.global.ts
-export default defineNuxtRouteMiddleware((to, from) => {
-  const user = useSupabaseUser()
-
-  // Публичные маршруты (доступны без авторизации)
-  const publicRoutes = ['/login', '/forgot-password', '/update-password', '/',]
-
-  if (!user.value && !publicRoutes.includes(to.path)) {
-    return navigateTo('/login')
+export default defineNuxtRouteMiddleware(async (to) => {
+  // Пропускаем публичные страницы
+  if (to.path === '/login' || to.path === '/register' || to.path === '/forgot-password') {
+    return
   }
 
-  if (user.value && publicRoutes.includes(to.path) && to.path !== '/') {
-    // Редирект с публичных страниц (кроме главной) для авторизованных
-    return navigateTo('/')
+  const supabase = useSupabaseClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session) {
+    return navigateTo('/login')
   }
 })
