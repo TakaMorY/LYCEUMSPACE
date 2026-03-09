@@ -32,7 +32,7 @@
         <div class="flex flex-wrap items-center gap-3">
           <label class="cursor-pointer px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xs sm:text-sm text-white transition border border-neutral-700/50 flex items-center gap-2">
             <input type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
-            📷 Загрузить фото
+            Загрузить фото
           </label>
           <span v-if="uploading" class="text-xs text-neutral-400">Загрузка...</span>
           <div v-if="imagePreview" class="flex items-center gap-2 bg-neutral-800/60 p-1 rounded-lg">
@@ -41,7 +41,7 @@
           </div>
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex ">
           <button
             @click="submitPost"
             :disabled="!content.trim() || loading || uploading"
