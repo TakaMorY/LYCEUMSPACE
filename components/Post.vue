@@ -10,7 +10,7 @@
     <div v-if="post.image_url" class="w-full max-h-[100vh] overflow-hidden rounded-t-2xl bg-neutral-900 flex items-center justify-center">
       <img :src="post.image_url" class="w-full h-auto object-contain" />
     </div>
-h
+
     <div class="relative p-6">
       <!-- Шапка: аватар, автор, дата, заголовок -->
       <div class="flex items-start gap-3 mb-3">
@@ -24,11 +24,11 @@ h
             </NuxtLink>
             <span class="text-sm text-neutral-400">@{{ post.profiles?.username }}</span>
             <span class="text-sm text-neutral-400">·</span>
-            <NuxtLink :to="`/post/${post.id}`" class="text-sm text-neutral-400 hover:text-white transition-colors">
+            <span  class="text-sm text-neutral-400 hover:text-white transition-colors">
               {{ formatDate(post.created_at) }}
-            </NuxtLink>
+            </span>
           </div>
-          <h2 v-if="post.title" class="mt-2 text-2xl font-bold text-white">{{ post.title }}</h2>
+          <NuxtLink :to="`/post/${post.id}`" v-if="post.title" class="mt-2 text-2xl font-bold text-white">{{ post.title }}</NuxtLink>
         </div>
       </div>
 

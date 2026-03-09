@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   // Пропускаем публичные страницы
-  if (to.path === '/login' || to.path === '/register' || to.path === '/forgot-password') {
+  if (to.path === '/login' || to.path === '/register' || to.path === '/forgot-password' || to.path === '/index.vue') {
     return
   }
 
