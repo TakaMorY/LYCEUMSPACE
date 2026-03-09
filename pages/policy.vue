@@ -10,11 +10,11 @@ import Footer from '~/components/Footer.vue';
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16 sm:h-20 lg:h-24">
                     <!-- Логотип - теперь всегда полный, с переносом на мобильных -->
-                    <div
+                    <NuxtLink to="/"
                         class="text-sm sm:text-base md:text-xl lg:text-2xl font-bold tracking-tighter max-w-[140px] xs:max-w-[180px] sm:max-w-none leading-tight">
                         <span class="text-white block xs:inline">ЛИЦЕЙСКОЕ</span>
                         <span class="text-white/40 block xs:inline xs:ml-1">ПРОСТРАНСТВО</span>
-                    </div>
+                    </NuxtLink>
 
                     <!-- Мобильное меню (бургер) -->
                     <button class="md:hidden p-2 text-white/60 hover:text-white flex-shrink-0" aria-label="Меню">
