@@ -8,16 +8,21 @@
                 class="w-20 h-20 rounded-full border-2 border-neutral-700 object-cover" />
             <div>
                 <label
-                    class="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-full text-sm font-semibold cursor-pointer transition"
+                    class="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-full text-sm font-semibold cursor-pointer transition "
                     :class="{ 'opacity-50 pointer-events-none': uploadingAvatar }">
                     {{ uploadingAvatar ? 'Загрузка...' : 'Загрузить аватар' }}
                     <input type="file" accept="image/*" class="hidden" @change="handleAvatarUpload" ref="fileInput"
                         :disabled="uploadingAvatar" />
                 </label>
-                <p v-if="uploadingAvatar" class="text-neutral-400 text-xs mt-1">Загрузка и сохранение...</p>
-                <p v-else-if="avatarError" class="text-red-400 text-xs mt-1">{{ avatarError }}</p>
-                <p v-else class="text-neutral-500 text-xs mt-1">PNG, JPG, до 2MB</p>
+                <div class="m-3">
+                    <p v-if="uploadingAvatar" class="text-neutral-400 text-xs mt-1">Загрузка и сохранение...</p>
+                    <p v-else-if="avatarError" class="text-red-400 text-xs mt-1">{{ avatarError }}</p>
+                    <p v-else class="text-neutral-500 text-xs mt-1">PNG, JPG, до 2MB</p>
+                </div>
+
+
             </div>
+
         </div>
 
         <!-- Никнейм с отдельным сохранением -->

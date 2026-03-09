@@ -1,8 +1,12 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
     <article class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-neutral-700/50 overflow-hidden">
-      <!-- Изображение поста -->
-      <div v-if="post.image_url" class="w-full max-h-[60vh] sm:max-h-[70vh] overflow-hidden bg-neutral-900">
+      <!-- Изображение поста (кликабельно) -->
+      <div
+        v-if="post.image_url"
+        class="w-full max-h-[60vh] sm:max-h-[70vh] overflow-hidden cursor-pointer"
+        @click="openImage(post.image_url)"
+      >
         <img :src="post.image_url" class="w-full h-auto object-contain" />
       </div>
 
@@ -10,7 +14,10 @@
         <!-- Шапка: аватар, автор, дата -->
         <div class="flex items-center gap-3 sm:gap-4 mb-4">
           <NuxtLink :to="`/profile/${post.user_id}`" class="flex-shrink-0">
-            <img :src="post.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-neutral-700/50" />
+            <img
+              :src="post.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'"
+              class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-neutral-700/50"
+            />
           </NuxtLink>
           <div>
             <NuxtLink :to="`/profile/${post.user_id}`" class="text-base sm:text-lg font-bold text-white hover:underline">
@@ -37,13 +44,24 @@
         <!-- Действия (лайк и счётчик комментариев) -->
         <div class="flex items-center gap-6 mb-6">
           <button @click="toggleLike" class="flex items-center gap-2 group">
-            <svg class="w-6 h-6 sm:w-7 sm:h-7 transition-all duration-300" :class="userLiked ? 'fill-pink-500 text-pink-500' : 'text-neutral-400 group-hover:text-pink-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-6 h-6 sm:w-7 sm:h-7 transition-all duration-300"
+              :class="userLiked ? 'fill-pink-500 text-pink-500' : 'text-neutral-400 group-hover:text-pink-400'"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
             <span class="text-white text-base sm:text-lg">{{ post.likes_count }}</span>
           </button>
           <div class="flex items-center gap-2">
-            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-6 h-6 sm:w-7 sm:h-7 text-neutral-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
             <span class="text-white text-base sm:text-lg">{{ post.comments_count }}</span>
@@ -57,7 +75,7 @@
             v-for="comment in comments"
             :key="comment.id"
             :comment="comment"
-            @open-image="openImageModal"
+            @open-image="openImage"
           />
 
           <!-- Форма добавления комментария -->
@@ -77,7 +95,7 @@
               <span v-else-if="commentImage" class="text-xs sm:text-sm text-neutral-400">✅ Фото выбрано</span>
               <button
                 @click="addComment"
-                :disabled="!newCommentText || commentUploading"
+                :disabled="!newCommentText.trim() || commentUploading"
                 class="ml-auto px-4 py-2 sm:px-5 sm:py-2 bg-gradient-to-r from-neutral-700 to-neutral-600 hover:from-neutral-600 hover:to-neutral-500 text-white rounded-lg text-xs sm:text-sm font-medium disabled:opacity-50 transition-all duration-300"
               >
                 Отправить
@@ -91,21 +109,17 @@
       </div>
     </article>
 
-    <!-- Модальное окно для просмотра изображения -->
-    <div v-if="modalImage" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" @click="closeModal">
-      <div class="relative max-w-full max-h-full" @click.stop>
-        <img :src="modalImage" class="max-w-full max-h-screen object-contain rounded-lg" />
-        <button @click="closeModal" class="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70 transition">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-    </div>
+    <!-- Модалка для просмотра изображений -->
+    <ImageViewer :image-url="selectedImage" @close="selectedImage = null" />
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useSupabaseClient, useSupabaseUser } from '#imports'
+import Comment from '~/components/Comment.vue'
+import ImageViewer from '~/components/ImageViewer.vue'
+
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const props = defineProps({ post: Object })
@@ -115,7 +129,7 @@ const newCommentText = ref('')
 const commentImage = ref(null)
 const commentUploading = ref(false)
 const comments = ref([])
-const modalImage = ref(null)
+const selectedImage = ref(null)
 
 const userLiked = computed(() => props.post.user_liked)
 
@@ -180,14 +194,17 @@ const handleCommentImage = async (e) => {
 
 // Добавление комментария
 const addComment = async () => {
+  if (!newCommentText.value.trim()) return
+
   const { data: { user: currentUser } } = await supabase.auth.getUser()
   if (!currentUser) return alert('Необходимо войти в систему')
+
   const { error } = await supabase
     .from('comments')
     .insert({
       post_id: props.post.id,
       user_id: currentUser.id,
-      content: newCommentText.value,
+      content: newCommentText.value.trim(),
       image_url: commentImage.value
     })
   if (!error) {
@@ -222,14 +239,9 @@ const toggleLike = async () => {
   }
 }
 
-// Открыть модальное окно с изображением
-const openImageModal = (url) => {
-  modalImage.value = url
-}
-
-// Закрыть модальное окно
-const closeModal = () => {
-  modalImage.value = null
+// Открыть изображение
+const openImage = (url) => {
+  selectedImage.value = url
 }
 
 const formatDate = (date) => new Date(date).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })

@@ -155,8 +155,8 @@
                 </div>
             </div>
 
-            <!-- Альтернативный дизайн для статистики - типографический -->
-            <div class="max-w-5xl mx-auto mb-32">
+            <!-- Альтернативный дизайн для статистики  -->
+            <!-- <div class="max-w-5xl mx-auto mb-32">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                     <div class="text-center group">
                         <div
@@ -189,7 +189,7 @@
 
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="max-w-6xl mx-auto mb-32">
                 <div class="text-center mb-16">
@@ -215,8 +215,7 @@
                             </div>
                         </div>
                         <NuxtLink to="/forum" class="flex items-center gap-6">
-                            <span class="text-sm text-neutral-600 font-mono bg-neutral-800/50 px-4 py-2 rounded-full">24
-                                ответа</span>
+                            
                             <span
                                 class="text-2xl text-neutral-600 group-hover:text-white group-hover:translate-x-2 transition-all">→</span>
                         </NuxtLink>
@@ -233,9 +232,7 @@
                             </div>
                         </div>
                         <NuxtLink to="/forum" class="flex items-center gap-6">
-                            <span
-                                class="text-sm text-neutral-600 font-mono border border-neutral-800 px-4 py-2 rounded-full group-hover:border-neutral-600 transition-colors">12
-                                ответов</span>
+                           
                             <span class="text-2xl text-neutral-600 group-hover:text-white transition-colors">→</span>
                         </NuxtLink>
                     </div>
@@ -253,7 +250,7 @@
                             </div>
                         </div>
                         <NuxtLink to="/forum" class="flex items-center gap-6">
-                            <span class="text-sm text-neutral-600 font-mono">8 ответов</span>
+                           
                             <div
                                 class="w-10 h-10 rounded-full border border-neutral-700 flex items-center justify-center group-hover:border-neutral-500 group-hover:border-neutral-600 transition-colors">
                                 <span class="text-xl text-neutral-600 group-hover:text-white">→</span>
