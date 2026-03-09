@@ -214,7 +214,16 @@
                                         class="text-neutral-200 hover:text-white underline transition-colors relative group/link">
                                         политикой конфиденциальности
                                         <span
-                                            class="absolute bottom-0 left-0 w-full h-px bg-white scale-x-0 group-hover/link:scale-x-100 transition-transform"></span>
+                                            class="absolute bottom-0 left-0 w-full h-px bg-white scale-x-0 group-hover/link:scale-x-100 transition-transform">
+                                        </span>
+                                    </a>
+                                    и
+                                    <a href="/rules"
+                                        class="text-neutral-200 hover:text-white underline transition-colors relative group/link">
+                                        правилами форума
+                                        <span
+                                            class="absolute bottom-0 left-0 w-full h-px bg-white scale-x-0 group-hover/link:scale-x-100 transition-transform">
+                                        </span>
                                     </a>
                                 </span>
                             </label>
