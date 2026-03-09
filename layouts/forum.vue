@@ -2,8 +2,8 @@
   <div class="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
     <header class="sticky top-0 z-50 bg-neutral-900/70 backdrop-blur-xl border-b border-white/10">
       <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <NuxtLink to="/forum" class="text-3xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent hover:from-blue-400 hover:to-purple-400 transition-all duration-300">
-          ✦ Forum
+        <NuxtLink to="/forum" class="text-xxs font-bold bg-gradient-to-r from-white to-neutral-500 bg-clip-text text-transparent ">
+          ЛИЦЕЙСКОЕПРОСТРАНСТВО
         </NuxtLink>
         <div class="flex items-center gap-4">
           <button v-if="user" @click="signOut" class="px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm border border-white/10">

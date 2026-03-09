@@ -33,16 +33,6 @@
           >
             Редактировать профиль
           </button>
-
-          <!-- Кнопка подписки (для других пользователей) -->
-          <button
-            v-else-if="user && !isOwner"
-            @click="toggleFollow"
-            class="px-4 py-2 rounded-full font-bold border transition"
-            :class="isFollowing ? 'border-neutral-700 text-white hover:bg-neutral-800' : 'bg-white text-black border-white hover:bg-neutral-200'"
-          >
-            {{ isFollowing ? 'Отписаться' : 'Подписаться' }}
-          </button>
         </div>
 
         <!-- Био -->
@@ -66,19 +56,15 @@
           </div>
         </div>
 
-        <!-- Статистика -->
+        <!-- Статистика (только посты и лайки) -->
         <div class="flex space-x-6 mt-4 border-t border-neutral-800 pt-4">
           <div>
             <span class="font-bold text-white">{{ posts?.length || 0 }}</span>
             <span class="text-neutral-500 ml-1">постов</span>
           </div>
           <div>
-            <span class="font-bold text-white">0</span>
-            <span class="text-neutral-500 ml-1">подписчиков</span>
-          </div>
-          <div>
-            <span class="font-bold text-white">0</span>
-            <span class="text-neutral-500 ml-1">подписок</span>
+            <span class="font-bold text-white">{{ totalLikes }}</span>
+            <span class="text-neutral-500 ml-1">лайков</span>
           </div>
         </div>
       </div>
@@ -107,15 +93,12 @@ const loading = ref(true)
 const error = ref(null)
 const profile = ref(null)
 
-// Получаем ID из URL
 const profileId = route.params.id
 
-// Проверяем, что ID передан и похож на UUID (минимум 30 символов)
 if (!profileId || profileId === 'undefined' || profileId === 'null' || profileId.length < 30) {
   throw createError({ statusCode: 404, message: 'Профиль не найден' })
 }
 
-// Является ли текущий пользователь владельцем профиля
 const isOwner = computed(() => user.value && user.value.id === profileId)
 
 // Загрузка профиля
@@ -124,7 +107,6 @@ const loadProfile = async () => {
   error.value = null
 
   try {
-    // Пытаемся найти профиль
     const { data, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
@@ -134,24 +116,15 @@ const loadProfile = async () => {
     if (fetchError) throw fetchError
 
     if (data) {
-      // Профиль найден
       profile.value = data
     } else {
-      // Профиль не найден
       if (isOwner.value) {
-        // Это текущий пользователь — создаём профиль
         const username = user.value.email?.split('@')[0] || `user_${Date.now()}`
         const { error: insertError } = await supabase
           .from('profiles')
-          .insert({
-            id: profileId,
-            username,
-            full_name: username,
-            avatar_url: null
-          })
+          .insert({ id: profileId, username, full_name: username, avatar_url: null })
         if (insertError) throw insertError
 
-        // После создания загружаем свежие данные
         const { data: newData, error: fetchNewError } = await supabase
           .from('profiles')
           .select('*')
@@ -160,7 +133,6 @@ const loadProfile = async () => {
         if (fetchNewError) throw fetchNewError
         profile.value = newData
       } else {
-        // Чужой профиль не найден
         throw new Error('Профиль не найден')
       }
     }
@@ -175,14 +147,13 @@ const loadProfile = async () => {
   }
 }
 
-// Загружаем профиль при изменении user или profileId
 watchEffect(async () => {
   if (profileId && user.value !== undefined) {
     await loadProfile()
   }
 })
 
-// Посты пользователя
+// Посты пользователя (исправлен запрос likes: теперь user_id)
 const { data: posts, pending: postsLoading, refresh: refreshPosts } = await useAsyncData(
   `profile-posts-${profileId}`,
   async () => {
@@ -210,42 +181,10 @@ const { data: posts, pending: postsLoading, refresh: refreshPosts } = await useA
   }
 )
 
-// Подписка
-const { data: followData, refresh: refreshFollow } = await useAsyncData(
-  `follow-${profileId}`,
-  async () => {
-    if (!user.value || user.value.id === profileId) return null
-    const { data } = await supabase
-      .from('follows')
-      .select('*')
-      .eq('follower_id', user.value.id)
-      .eq('following_id', profileId)
-      .maybeSingle()
-    return data
-  },
-  {
-    server: false,
-    default: () => null
-  }
-)
-
-const isFollowing = computed(() => !!followData.value)
-
-const toggleFollow = async () => {
-  if (!user.value) return
-  if (isFollowing.value) {
-    await supabase
-      .from('follows')
-      .delete()
-      .eq('follower_id', user.value.id)
-      .eq('following_id', profileId)
-  } else {
-    await supabase
-      .from('follows')
-      .insert({ follower_id: user.value.id, following_id: profileId })
-  }
-  refreshFollow()
-}
+// Общее количество лайков
+const totalLikes = computed(() => {
+  return posts.value?.reduce((sum, post) => sum + (post.likes_count || 0), 0) || 0
+})
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })
