@@ -17,12 +17,6 @@ import Footer from '~/components/Footer.vue';
                     </NuxtLink>
 
                     <!-- Мобильное меню (бургер) -->
-                    <button class="md:hidden p-2 text-white/60 hover:text-white flex-shrink-0" aria-label="Меню">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
 
                     <!-- Десктоп навигация -->
                     <nav class="hidden md:flex items-center gap-6 lg:gap-8">
@@ -441,8 +435,8 @@ import Footer from '~/components/Footer.vue';
                                 По всем вопросам, связанным с вашими данными, вы можете написать Создателю Сайта:
                             </p>
                             <div class="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-3">
-                                <span
-                                    class="text-white/80 font-mono text-xs sm:text-sm break-all">creator@lyceum.space</span>
+
+                                <span class="text-white/80 font-mono text-xs sm:text-sm break-all">@TakaMorY</span>
                                 <span class="text-white/40 text-[10px] sm:text-xs">(ученик 11 класса МАОУ Лицей
                                     "Технический")</span>
                             </div>
@@ -463,14 +457,14 @@ import Footer from '~/components/Footer.vue';
                                 <span class="text-white/40 block text-[10px] sm:text-xs mb-0.5 sm:mb-1">СОЗДАТЕЛЬ
                                     САЙТА</span>
                                 <span class="text-white text-base sm:text-lg">Осадчий Даниил</span>
+
                                 <span class="text-white/40 text-xs sm:text-sm block">ученик 11 класса, МАОУ Лицей
                                     "Технический"</span>
                             </p>
                             <p class="text-white/80 mb-2 mt-2 sm:mt-3">
                                 <span class="text-white/40 block text-[10px] sm:text-xs mb-0.5 sm:mb-1">КОНТАКТЫ</span>
-                                <span class="text-white block text-sm sm:text-base break-all">Email:
-                                    d.osadchiy@lyceum-student.ru</span>
-                                <span class="text-white block text-sm sm:text-base">Телеграм: @daniil_lyceum</span>
+                                <span class="text-white block text-sm sm:text-base">Телеграм канал: @lyceum_space</span>
+                                <span class="text-white block text-sm sm:text-base">Телеграм: @TakaMorY</span>
                             </p>
                         </div>
 

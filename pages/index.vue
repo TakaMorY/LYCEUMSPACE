@@ -16,7 +16,7 @@
                                 <!-- <img src="/logo.png" alt="Logo" class="h-10 w-auto"> -->
 
                                 <span
-                                    class="text-xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
+                                    class="text-xss sm:text-sm md:text-base lg:text-xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
                                     ЛИЦЕЙСКОЕПРОСТРАНСТВО
                                 </span>
                             </div>
@@ -149,7 +149,7 @@
                                 <span class="block text-xs tracking-[0.3em] text-white/30">СВЯЗАТЬСЯ С НАМИ</span>
 
                                 <!-- Telegram ссылка с красивым оформлением -->
-                                <a href="https://t.me/TakaMorY" target="_blank" rel="noopener noreferrer"
+                                <a href="https://t.me/lyceum_space" target="_blank" rel="noopener noreferrer"
                                     class="group flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
                                     <div class="flex items-center space-x-4">
                                         <div class="relative">
@@ -173,7 +173,8 @@
                                             <p class="text-sm text-white/40">Telegram</p>
                                             <p
                                                 class="text-lg font-medium text-white group-hover:text-[#0088cc] transition-colors duration-300">
-                                                @TakaMorY</p>
+                                                
+                                                @lyceum_space</p>
                                         </div>
                                     </div>
                                     <div class="transform group-hover:translate-x-1 transition-transform duration-300">
