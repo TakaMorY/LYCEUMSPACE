@@ -30,11 +30,11 @@
             </NuxtLink>
             <span class="text-neutral-400">@{{ post.profiles?.username }}</span>
             <span class="text-neutral-400">·</span>
-            <NuxtLink :to="`/post/${post.id}`" class="text-neutral-400 hover:text-white transition-colors">
+            <span class="text-neutral-400 hover:text-white transition-colors">
               {{ formatDate(post.created_at) }}
-            </NuxtLink>
+            </span>
           </div>
-          <h2 v-if="post.title" class="mt-1 text-lg sm:text-2xl font-bold text-white">{{ post.title }}</h2>
+          <NuxtLink :to="`/post/${post.id}`" v-if="post.title" class="mt-1 text-lg sm:text-2xl font-bold text-white">{{ post.title }}</NuxtLink>
         </div>
       </div>
 
