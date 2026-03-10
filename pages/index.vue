@@ -364,7 +364,7 @@
                             бальников.
                         </p>
                         <div class="mt-6 sm:mt-8 flex flex-wrap gap-4">
-                            <NuxtLink to=""
+                            <NuxtLink to="ege/"
                                 class="rounded-sm p-3 grow border text-center border-white text-white font-bold uppercase text-sm tracking-widest hover:bg-neutral-700 hover:text-white transition">
                                 Пора учиться
                             </NuxtLink>
