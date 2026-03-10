@@ -16,7 +16,7 @@
 
     <div class="relative p-4 sm:p-6">
       <!-- Шапка: аватар, автор, дата, заголовок -->
-      <div class="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+      <NuxtLink :to="`/post/${post.id}`" class="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
         <NuxtLink :to="`/profile/${post.user_id}`" class="flex-shrink-0">
           <img
             :src="post.profiles?.avatar_url || '/images/defaultavatar/default-avatar.png'"
@@ -34,9 +34,9 @@
               {{ formatDate(post.created_at) }}
             </span>
           </div>
-          <NuxtLink :to="`/post/${post.id}`" v-if="post.title" class="mt-1 text-lg sm:text-2xl font-bold text-white">{{ post.title }}</NuxtLink>
+          <span v-if="post.title" class="mt-1 text-lg sm:text-2xl font-bold text-white">{{ post.title }}</span>
         </div>
-      </div>
+      </NuxtLink>
 
       <!-- Текст поста -->
       <p class="text-white/80 text-sm sm:text-base mb-3 sm:mb-4 leading-relaxed whitespace-pre-wrap">{{ post.content }}</p>

@@ -54,7 +54,7 @@
                                     class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                     ГЛАВНАЯ
                                 </NuxtLink>
-                                <NuxtLink to="/"
+                                <NuxtLink to="/ege/"
                                     class="text-neutral-300 hover:text-white transition-colors text-sm tracking-wider">
                                     ЕГЭ/ОГЭ
                                 </NuxtLink>
