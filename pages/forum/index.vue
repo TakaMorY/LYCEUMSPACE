@@ -1,119 +1,164 @@
 <template>
-    <div class="absolute inset-0 opacity-30 pointer-events-none">
-        <div class="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full animate-ping-slow"></div>
-        <div class="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-neutral-300 rounded-full animate-pulse-slow"></div>
-        <div
-            class="absolute bottom-1/4 right-1/4 w-1 h-1 bg-neutral-400 rounded-full animate-ping-slow animation-delay-1000">
-        </div>
-        <div class="absolute top-1/2 left-2/3 w-1 h-1 bg-white rounded-full animate-pulse-slow animation-delay-2000">
-        </div>
-    </div>
-    <!-- Блобы (размытые круги) -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-            class="absolute -top-40 -right-40 w-96 h-96 bg-neutral-600 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
-        </div>
-
-        <div
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-neutral-400 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000">
-        </div>
-    </div>
-    <div class="min-h-screen relative  overflow-hidden">
-
-
-
-
-        <!-- Основной контент -->
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 z-10">
-
-            <!-- Панель поиска (стилизованная под переключатели на странице входа) -->
-            <div class="flex flex-col md:flex-row gap-4 mb-8 animate-fade-in-up animation-delay-100">
-                <div class="flex p-1 bg-neutral-800/60 rounded-2xl backdrop-blur-sm border border-neutral-700/30">
-                    <button @click="searchMode = 'posts'"
-                        class="flex-1 py-3 px-6 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
-                        :class="searchMode === 'posts' ? 'text-white shadow-lg' : 'text-neutral-400 hover:text-neutral-200'">
-                        <span v-if="searchMode === 'posts'"
-                            class="absolute inset-0 bg-gradient-to-r from-neutral-700 to-neutral-600 animate-gradient"></span>
-                        <span class="relative z-10">Поиск постов</span>
-                    </button>
-                    <button @click="searchMode = 'users'"
-                        class="flex-1 py-3 px-6 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
-                        :class="searchMode === 'users' ? 'text-white shadow-lg' : 'text-neutral-400 hover:text-neutral-200'">
-                        <span v-if="searchMode === 'users'"
-                            class="absolute inset-0 bg-gradient-to-r from-neutral-700 to-neutral-600 animate-gradient"></span>
-                        <span class="relative z-10">Поиск пользователей</span>
-                    </button>
-                </div>
-
-                <!-- Поле поиска (стиль инпута из login.vue) -->
-                <div class="flex-1 relative group/input">
-                    <input v-model="searchQuery"
-                        :placeholder="searchMode === 'posts' ? 'Поиск по заголовкам...' : 'Поиск по имени или никнейму...'"
-                        class="w-full px-6 py-3 bg-transparent border rounded-full border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
-                    <svg class="absolute right-4 top-3.5 w-5 h-5 text-neutral-500 transition-colors group-focus-within/input:text-white"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
+    <div>
+        <!-- Фоновые элементы (без изменений) -->
+        <div class="absolute inset-0 opacity-30 pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full animate-ping-slow"></div>
+            <div class="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-neutral-300 rounded-full animate-pulse-slow"></div>
+            <div
+                class="absolute bottom-1/4 right-1/4 w-1 h-1 bg-neutral-400 rounded-full animate-ping-slow animation-delay-1000">
             </div>
+            <div
+                class="absolute top-1/2 left-2/3 w-1 h-1 bg-white rounded-full animate-pulse-slow animation-delay-2000">
+            </div>
+        </div>
 
-            <!-- Результаты поиска пользователей (карточки в стиле карточки входа) -->
-            <div v-if="searchMode === 'users' && searchQuery" class="mb-8 animate-fade-in animation-delay-200">
-                <div v-if="searchingUsers" class="text-center py-8">
-                    <div
-                        class="inline-block w-8 h-8 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
+        <!-- Блобы -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div
+                class="absolute -top-40 -right-40 w-96 h-96 bg-neutral-600 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
+            </div>
+            <div
+                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-neutral-400 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000">
+            </div>
+        </div>
+
+        <div class="min-h-screen relative overflow-hidden">
+            <!-- Основной контент -->
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 z-10">
+                <!-- Переключатель режимов и поиск -->
+                <div class="flex flex-col md:flex-row gap-4 mb-8 animate-fade-in-up animation-delay-100">
+                    <div class="flex p-1 bg-neutral-800/60 rounded-2xl backdrop-blur-sm border border-neutral-700/30">
+                        <button @click="searchMode = 'posts'"
+                            class="flex-1 py-3 px-6 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
+                            :class="searchMode === 'posts' ? 'text-white shadow-lg' : 'text-neutral-400 hover:text-neutral-200'">
+                            <span v-if="searchMode === 'posts'"
+                                class="absolute inset-0 bg-gradient-to-r from-neutral-700 to-neutral-600 animate-gradient"></span>
+                            <span class="relative z-10">Поиск постов</span>
+                        </button>
+                        <button @click="searchMode = 'users'"
+                            class="flex-1 py-3 px-6 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden"
+                            :class="searchMode === 'users' ? 'text-white shadow-lg' : 'text-neutral-400 hover:text-neutral-200'">
+                            <span v-if="searchMode === 'users'"
+                                class="absolute inset-0 bg-gradient-to-r from-neutral-700 to-neutral-600 animate-gradient"></span>
+                            <span class="relative z-10">Поиск пользователей</span>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 relative group/input">
+                        <input v-model="searchQuery"
+                            :placeholder="searchMode === 'posts' ? 'Поиск по заголовкам...' : 'Поиск по имени или никнейму...'"
+                            class="w-full px-6 py-3 bg-transparent border rounded-full border-neutral-700 text-white placeholder-neutral-600 focus:border-white focus:outline-none transition-all duration-300 focus:shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
+                        <svg class="absolute right-4 top-3.5 w-5 h-5 text-neutral-500 transition-colors group-focus-within/input:text-white"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
                 </div>
-                <div v-else-if="userResults.length === 0" class="text-center py-8 text-neutral-500">
-                    Пользователи не найдены
+
+                <!-- Результаты поиска пользователей или топ-3 -->
+                <div v-if="searchMode === 'users'" class="mb-8 animate-fade-in animation-delay-200">
+                    <!-- Если есть поисковый запрос – показываем результаты поиска -->
+                    <div v-if="searchQuery">
+                        <div v-if="searchingUsers" class="text-center py-8">
+                            <div
+                                class="inline-block w-8 h-8 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
+                            </div>
+                        </div>
+                        <div v-else-if="userResults.length === 0" class="text-center py-8 text-neutral-500">
+                            Пользователи не найдены
+                        </div>
+                        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <NuxtLink v-for="user in userResults" :key="user.id" :to="`/profile/${user.id}`"
+                                class="relative group bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden hover:shadow-2xl transition-all duration-300">
+                                <div
+                                    class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                                    <div
+                                        class="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-2xl">
+                                    </div>
+                                    <div
+                                        class="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-white/20 to-transparent rounded-full blur-2xl">
+                                    </div>
+                                </div>
+                                <div class="relative p-4 flex items-center gap-3">
+                                    <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                        class="w-12 h-12 rounded-full border-2 border-neutral-700/50" />
+                                    <div>
+                                        <div class="font-semibold text-white">{{ user.full_name || user.username }}
+                                        </div>
+                                        <div class="text-sm text-neutral-400">@{{ user.username }}</div>
+                                    </div>
+                                </div>
+                            </NuxtLink>
+                        </div>
+                    </div>
+
+                    <!-- Если поиск пуст – показываем топ-3 пользователей по лайкам -->
+                    <div v-else>
+                        <h2 class="text-2xl font-bold text-white mb-4"> Топ пользователей</h2>
+                        <div v-if="loadingTopUsers" class="text-center py-8">
+                            <div
+                                class="inline-block w-8 h-8 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
+                            </div>
+                        </div>
+                        <div v-else-if="topUsers.length === 0" class="text-center py-8 text-neutral-500">
+                            Пока нет данных
+                        </div>
+                        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <NuxtLink v-for="(user, index) in topUsers" :key="user.id" :to="`/profile/${user.id}`"
+                                class="relative group bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden hover:shadow-2xl transition-all duration-300">
+                                <div
+                                    class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                                    <div
+                                        class="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-2xl">
+                                    </div>
+                                    <div
+                                        class="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-white/20 to-transparent rounded-full blur-2xl">
+                                    </div>
+                                </div>
+                                <div class="relative p-4 flex items-center gap-3">
+                                    <div class="relative">
+                                        <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                            class="w-12 h-12 rounded-full border-2 border-neutral-700/50" />
+                                        <!-- <div
+                                            class="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center text-xs font-bold text-black">
+                                            {{ index + 1 }}
+                                        </div> -->
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-white">{{ user.full_name || user.username }}
+                                        </div>
+                                        <div class="text-sm text-neutral-400">@{{ user.username }}</div>
+                                        <div class="text-xs text-neutral-400">❤️ {{ user.total_likes }}</div>
+                                    </div>
+                                </div>
+                            </NuxtLink>
+                        </div>
+                    </div>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <NuxtLink v-for="user in userResults" :key="user.id" :to="`/profile/${user.id}`"
-                        class="relative group bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden hover:shadow-2xl transition-all duration-300">
-                        <!-- Неоновая подсветка при наведении -->
+
+                <!-- Компонент создания поста -->
+                <div v-if="searchMode === 'posts'" class="animate-fade-in animation-delay-200">
+                    <CreatePost v-if="user" @created="handlePostCreated" />
+                    <div v-else
+                        class="bg-neutral-900/40 backdrop-blur-xl rounded-3xl border border-neutral-700/50 p-6 mb-8 text-center">
+                        <p class="text-neutral-400">Войдите, чтобы публиковать посты</p>
+                    </div>
+                </div>
+
+                <!-- Лента постов -->
+                <div v-if="searchMode === 'posts'" class="animate-fade-in animation-delay-300">
+                    <div v-if="loading" class="text-center py-20">
                         <div
-                            class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                            <div
-                                class="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-2xl">
-                            </div>
-                            <div
-                                class="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-white/20 to-transparent rounded-full blur-2xl">
-                            </div>
+                            class="inline-block w-12 h-12 border-4 border-neutral-700 border-t-neutral-300 rounded-full animate-spin">
                         </div>
-                        <div class="relative p-4 flex items-center gap-3">
-                            <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                class="w-12 h-12 rounded-full border-2 border-neutral-700/50" />
-                            <div>
-                                <div class="font-semibold text-white">{{ user.full_name || user.username }}</div>
-                                <div class="text-sm text-neutral-400">@{{ user.username }}</div>
-                            </div>
-                        </div>
-                    </NuxtLink>
-                </div>
-            </div>
-
-            <!-- Компонент создания поста (уже стилизован отдельно) -->
-            <div v-if="searchMode === 'posts'" class="animate-fade-in animation-delay-200">
-                <CreatePost v-if="user" @created="handlePostCreated" />
-                <div v-else
-                    class="bg-neutral-900/40 backdrop-blur-xl rounded-3xl border border-neutral-700/50 p-6 mb-8 text-center">
-                    <p class="text-neutral-400">Войдите, чтобы публиковать посты</p>
-                </div>
-            </div>
-
-            <!-- Лента постов -->
-            <div v-if="searchMode === 'posts'" class="animate-fade-in animation-delay-300">
-                <div v-if="loading" class="text-center py-20">
-                    <div
-                        class="inline-block w-12 h-12 border-4 border-neutral-700 border-t-neutral-300 rounded-full animate-spin">
                     </div>
-                </div>
-                <div v-else-if="filteredPosts.length === 0" class="text-center py-20 text-neutral-500 text-lg">
-                    Пока нет постов. Будьте первым!
-                </div>
-                <div v-else class="space-y-6">
-                    <Post v-for="post in filteredPosts" :key="post.id" :post="post" @updated="refreshPosts" />
+                    <div v-else-if="filteredPosts.length === 0" class="text-center py-20 text-neutral-500 text-lg">
+                        Пока нет постов. Будьте первым!
+                    </div>
+                    <div v-else class="space-y-6">
+                        <Post v-for="post in filteredPosts" :key="post.id" :post="post" @updated="refreshPosts" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -132,9 +177,15 @@ const loading = ref(true)
 const posts = ref([])
 const error = ref(null)
 
+// Поиск пользователей
 const userResults = ref([])
 const searchingUsers = ref(false)
 
+// Топ пользователей
+const topUsers = ref([])
+const loadingTopUsers = ref(false)
+
+// Загрузка постов
 const loadPosts = async () => {
     if (searchMode.value !== 'posts') return
     loading.value = true
@@ -166,12 +217,14 @@ const loadPosts = async () => {
     }
 }
 
+// Фильтрация постов
 const filteredPosts = computed(() => {
     if (!searchQuery.value) return posts.value
     const q = searchQuery.value.toLowerCase()
     return posts.value.filter(post => post.title?.toLowerCase().includes(q))
 })
 
+// Поиск пользователей с debounce
 let searchTimeout
 watch([searchMode, searchQuery], () => {
     if (searchMode.value !== 'users') {
@@ -201,9 +254,25 @@ watch([searchMode, searchQuery], () => {
     }, 300)
 })
 
+// Загрузка топ-3 пользователей по лайкам
+const fetchTopUsers = async () => {
+    loadingTopUsers.value = true
+    try {
+        const { data, error } = await supabase.rpc('get_top_users', { limit_count: 3 })
+        if (error) throw error
+        topUsers.value = data || []
+    } catch (err) {
+        console.error('Ошибка загрузки топа пользователей:', err)
+    } finally {
+        loadingTopUsers.value = false
+    }
+}
+
+// Realtime подписка на посты
 let postsChannel
 onMounted(() => {
     loadPosts()
+    fetchTopUsers()
     postsChannel = supabase
         .channel('public:posts')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, async (payload) => {
@@ -237,12 +306,15 @@ watch(searchMode, (newMode) => {
     }
 })
 
-const refreshPosts = () => loadPosts()
+const refreshPosts = () => {
+    loadPosts()
+    fetchTopUsers() // обновляем топ при изменении лайков
+}
 const handlePostCreated = () => { }
 </script>
 
 <style scoped>
-/* Копируем анимации из login.vue */
+/* Анимации (без изменений) */
 @keyframes blob {
 
     0%,
