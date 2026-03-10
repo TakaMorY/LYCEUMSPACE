@@ -360,7 +360,7 @@
                         </h1>
                         <p
                             class="mt-4 text-base sm:text-lg md:text-xl font-medium text-gray-400 dark:text-gray-400 text-gray-700 text-balance">
-                            На сайте представленно множество заданий, конспектов учеников и советов от 100
+                            На сайте представлено множество заданий, конспектов учеников и советов от 100
                             бальников.
                         </p>
                         <div class="mt-6 sm:mt-8 flex flex-wrap gap-4">
