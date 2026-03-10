@@ -135,7 +135,7 @@
                                         class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">01</span>
                                 </NuxtLink>
 
-                                <NuxtLink to="/" @click="closeMobileMenu"
+                                <NuxtLink to="/ege/" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.4s">
                                     <span
@@ -145,7 +145,7 @@
                                         class="ml-auto text-xs text-white/20 group-hover:text-white/40 transition-all duration-300">02</span>
                                 </NuxtLink>
 
-                                <NuxtLink to="/" @click="closeMobileMenu"
+                                <NuxtLink to="/aaa" @click="closeMobileMenu"
                                     class="group relative flex items-center py-4 text-2xl font-light text-white/70 hover:text-white transition-all duration-300 transform hover:translate-x-2 animate-slide-right"
                                     style="animation-delay: 0.5s">
                                     <span
