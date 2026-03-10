@@ -8,7 +8,7 @@
                     <div class="flex-1 text-sm text-neutral-300">
                         <span class="font-semibold text-white">Мы используем куки</span> для работы сайта.
                         Продолжая пользоваться сайтом, вы соглашаетесь с нашей
-                        <NuxtLink to="/privacy" class="text-neutral-200 hover:text-white underline transition-colors">
+                        <NuxtLink to="/policy" class="text-neutral-200 hover:text-white underline transition-colors">
                             политикой конфиденциальности и с использованием куки</NuxtLink>.
                     </div>
                     <div class="flex gap-3">
