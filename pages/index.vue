@@ -6,7 +6,7 @@
                 <div
                     class="bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                     <div class="flex-1 text-sm text-neutral-300">
-                        <span class="font-semibold text-white">🍪 Мы используем куки</span> для улучшения работы сайта.
+                        <span class="font-semibold text-white">Мы используем куки</span> для работы сайта.
                         Продолжая пользоваться сайтом, вы соглашаетесь с нашей
                         <NuxtLink to="/privacy" class="text-neutral-200 hover:text-white underline transition-colors">
                             политикой конфиденциальности</NuxtLink>.
