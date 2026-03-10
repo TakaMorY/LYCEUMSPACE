@@ -285,7 +285,7 @@
                                 <h2 class="mt-4 text-4xl md:text-7xl font-bold leading-none bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent opacity-0 text-reveal-delay"
                                     data-delay="200">Современный <br class="hidden md:block">Дизайн</h2>
                                 <p class="mt-6 text-neutral-400 text-base md:text-lg leading-relaxed opacity-0 text-reveal-delay"
-                                    data-delay="400">Создали удобный и модный дизайн специально для вас.
+                                    data-delay="400">Удобный и модный дизайн специально для вас.
                                 </p>
                             </div>
                         </div>
@@ -311,7 +311,7 @@
                                 <h2 class="mt-4 text-4xl md:text-7xl font-bold leading-none bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent opacity-0 text-reveal-delay"
                                     data-delay="200">Учебная <br class="hidden md:block">Среда</h2>
                                 <p class="mt-6 text-neutral-400 text-base md:text-lg leading-relaxed opacity-0 text-reveal-delay"
-                                    data-delay="400">Платформа для удобной учёбы
+                                    data-delay="400">Платформа для эффективного обучения
                                 </p>
                             </div>
                         </div>
