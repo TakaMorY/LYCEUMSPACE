@@ -22,7 +22,7 @@
                         class="bg-gradient-to-r from-white via-white to-neutral-400 bg-clip-text text-transparent block">О
                         ЛИЦЕЕ</span>
                     <span
-                        class="text-neutral-800 text-4xl sm:text-5xl md:text-6xl block -mt-4 sm:-mt-6">ТЕХНИЧЕСКИЙ</span>
+                        class="text-neutral-800 text-4xl sm:text-5xl md:text-6xl block -mt-4 sm:-mt-6">"ТЕХНИЧЕСКИЙ"</span>
                 </h2>
             </div>
 

@@ -1,6 +1,32 @@
 <template>
     <section>
+        <!-- Cookie consent banner -->
+        <div v-if="!cookiesAccepted" class="fixed bottom-0 left-0 right-0 z-40 p-4 sm:p-6 md:p-8 pointer-events-none">
+            <div class="max-w-7xl mx-auto pointer-events-auto">
+                <div
+                    class="bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                    <div class="flex-1 text-sm text-neutral-300">
+                        <span class="font-semibold text-white">🍪 Мы используем куки</span> для улучшения работы сайта.
+                        Продолжая пользоваться сайтом, вы соглашаетесь с нашей
+                        <NuxtLink to="/privacy" class="text-neutral-200 hover:text-white underline transition-colors">
+                            политикой конфиденциальности</NuxtLink>.
+                    </div>
+                    <div class="flex gap-3">
+                        <button @click="acceptCookies"
+                            class="px-6 py-2 bg-gradient-to-r from-neutral-700 to-neutral-600 hover:from-neutral-600 hover:to-neutral-500 text-white rounded-full text-sm font-medium transition-all duration-300">
+                            Принять
+                        </button>
+                        <NuxtLink to="/policy"
+                            class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-medium transition-all duration-300 border border-white/10">
+                            Подробнее
+                        </NuxtLink>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+
+        <!-- main -->
         <div class="modern-scroll-experience">
             <!-- Хедер появляется после прокрутки -->
             <header :class="['fixed top-0 left-0 w-full z-50 transition-all duration-700 transform',
@@ -173,7 +199,7 @@
                                             <p class="text-sm text-white/40">Telegram</p>
                                             <p
                                                 class="text-lg font-medium text-white group-hover:text-[#0088cc] transition-colors duration-300">
-                                                
+
                                                 @lyceum_space</p>
                                         </div>
                                     </div>
@@ -544,6 +570,21 @@
 </style>
 
 <script setup>
+const cookiesAccepted = ref(false)
+
+onMounted(() => {
+    // Проверяем, есть ли сохранённое согласие
+    const accepted = localStorage.getItem('cookiesAccepted')
+    if (accepted === 'true') {
+        cookiesAccepted.value = true
+    }
+})
+
+const acceptCookies = () => {
+    localStorage.setItem('cookiesAccepted', 'true')
+    cookiesAccepted.value = true
+}
+
 import { ref, onMounted, onUnmounted } from 'vue'
 import AboutLyceum from '~/components/AboutLyceum.vue'
 
