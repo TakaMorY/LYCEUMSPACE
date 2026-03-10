@@ -3,7 +3,7 @@
         <header class="sticky top-0 z-50 bg-neutral-900/70 backdrop-blur-xl border-b border-white/10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 flex-wrap">
                 <!-- Логотип с адаптивным размером и переносом -->
-                <NuxtLink to="/forum"
+                <NuxtLink to="/"
                     class="text-xs sm:text-sm md:text-base lg:text-xl font-bold bg-gradient-to-r from-white to-neutral-500 bg-clip-text text-transparent whitespace-normal">
                     ЛИЦЕЙСКОЕПРОСТРАНСТВО
                 </NuxtLink>

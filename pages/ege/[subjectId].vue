@@ -22,7 +22,7 @@
 
             <!-- Список тем -->
             <div v-if="loadingTopics" class="flex justify-center py-12">
-                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-10 h-10 border-4 border-neutral-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
             <div v-else-if="filteredTopics.length === 0" class="text-center text-neutral-500 py-12">
                 Нет тем по вашему запросу
