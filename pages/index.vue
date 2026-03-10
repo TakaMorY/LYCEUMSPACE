@@ -9,7 +9,7 @@
                         <span class="font-semibold text-white">Мы используем куки</span> для работы сайта.
                         Продолжая пользоваться сайтом, вы соглашаетесь с нашей
                         <NuxtLink to="/privacy" class="text-neutral-200 hover:text-white underline transition-colors">
-                            политикой конфиденциальности</NuxtLink>.
+                            политикой конфиденциальности и с использованием куки</NuxtLink>.
                     </div>
                     <div class="flex gap-3">
                         <button @click="acceptCookies"
