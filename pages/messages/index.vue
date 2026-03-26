@@ -2,7 +2,7 @@
     <div class="max-w-6xl mx-auto">
         <div
             class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row">
-            <!-- Левая панель: список диалогов -->
+            <!-- Левая панель: список диалогов (на мобильных скрывается при открытом чате) -->
             <div :class="[
                 'w-full md:w-80 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col overflow-hidden transition-all duration-300',
                 selectedUser && !isFavorites ? 'hidden md:flex' : 'flex'
@@ -94,9 +94,9 @@
 
             <!-- Правая панель: активный диалог -->
             <div class="flex-1 flex flex-col h-full">
-                <div v-if="selectedUser" class="flex-1 flex flex-col">
-                    <!-- Шапка диалога -->
-                    <div class="p-4 border-b border-neutral-800 flex items-center justify-between">
+                <div v-if="selectedUser" class="flex-1 flex flex-col h-full">
+                    <!-- Шапка диалога (фиксированная) -->
+                    <div class="p-4 border-b border-neutral-800 flex items-center justify-between shrink-0">
                         <div class="flex items-center gap-3">
                             <button @click="closeChat" class="md:hidden text-white p-1">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,9 +119,12 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="font-medium text-white">
-                                    {{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username) }}
-                                </div>
+                                <NuxtLink v-if="!isFavorites" :to="`/profile/${selectedUser.id}`">
+                                    <div class="font-medium text-white">
+                                        {{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username)
+                                        }}
+                                    </div>
+                                </NuxtLink>
                                 <div class="text-sm text-neutral-400">
                                     {{ isFavorites ? 'Ваши личные заметки' : `@${selectedUser.username}` }}
                                     <span v-if="typingStatus && !isFavorites"
@@ -129,27 +132,29 @@
                                 </div>
                             </div>
                         </div>
-                        <NuxtLink v-if="!isFavorites" :to="`/profile/${selectedUser.id}`"
-                            class="text-sm text-blue-400 hover:underline">
-                            Профиль
-                        </NuxtLink>
+
                     </div>
 
-                    <!-- Сообщения -->
-                    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <!-- Область сообщений (прокручивается) -->
+                    <div ref="messagesContainer" class="flex-1 overflow-y-auto messages-scroll p-4 space-y-3"
+                        @scroll="handleScroll">
                         <div v-for="msg in messages" :key="msg.id" class="flex"
                             :class="msg.sender_id === currentUserId ? 'justify-end' : 'justify-start'">
-                            <div :class="msg.sender_id === currentUserId ? 'bg-blue-600' : 'bg-neutral-800'"
-                                class="max-w-[75%] rounded-2xl p-3 shadow-sm">
-                                <p class="text-white text-sm whitespace-pre-wrap">{{ msg.content }}</p>
+                            <div :class="[
+                                'max-w-[75%] rounded-2xl p-3 shadow-sm transition-all duration-200 hover:scale-[1.02]',
+                                msg.sender_id === currentUserId
+                                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
+                                    : 'bg-neutral-800/80 text-white backdrop-blur-sm border border-neutral-700/30'
+                            ]">
+                                <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ msg.content }}</p>
                                 <img v-if="msg.image_url" :src="msg.image_url"
                                     class="mt-2 max-h-48 rounded-lg cursor-pointer" @click="openImage(msg.image_url)" />
                                 <div class="flex items-center justify-end gap-1 mt-1">
-                                    <span class="text-[10px] text-neutral-400">{{ formatTime(msg.created_at) }}</span>
+                                    <span class="text-[10px] opacity-70">{{ formatTime(msg.created_at) }}</span>
                                     <span v-if="msg.sender_id === currentUserId && msg.read"
-                                        class="text-[10px] text-blue-300">✓✓</span>
+                                        class="text-[10px] text-blue-200">✓✓</span>
                                     <span v-else-if="msg.sender_id === currentUserId"
-                                        class="text-[10px] text-neutral-400">✓</span>
+                                        class="text-[10px] opacity-70">✓</span>
                                 </div>
                             </div>
                         </div>
@@ -160,8 +165,8 @@
                         </div>
                     </div>
 
-                    <!-- Панель ввода -->
-                    <div class="p-4 border-t border-neutral-800">
+                    <!-- Панель ввода (фиксированная) -->
+                    <div class="p-4 border-t border-neutral-800 shrink-0">
                         <div class="flex flex-col gap-2">
                             <div v-if="imagePreview" class="relative inline-block self-start">
                                 <img :src="imagePreview" class="h-16 rounded-lg" />
@@ -248,7 +253,32 @@ const selectedImage = ref(null)
 const typingStatus = ref(false)
 let typingTimeout = null
 
+// Переменная для отслеживания, прокручен ли пользователь вверх
+const isUserScrolledUp = ref(false)
+
 const isFavorites = computed(() => selectedUser.value && selectedUser.value.id === currentUserId.value)
+
+// --- Функции прокрутки ---
+const handleScroll = () => {
+    if (!messagesContainer.value) return
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
+    isUserScrolledUp.value = scrollHeight - scrollTop - clientHeight > 50
+}
+
+const scrollToBottom = async () => {
+    await nextTick()
+    if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        isUserScrolledUp.value = false
+    }
+}
+
+const scrollToBottomIfNeeded = async () => {
+    await nextTick()
+    if (!messagesContainer.value || isUserScrolledUp.value) return
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+}
+// -------------------------
 
 // Закрыть чат на мобильных
 const closeChat = () => {
@@ -260,7 +290,6 @@ const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
         currentUserId.value = user.id
-        // Обновляем статус онлайн
         await supabase
             .from('user_status')
             .upsert({
@@ -363,7 +392,7 @@ watch(searchQuery, (query) => {
     }, 300)
 })
 
-// Начать чат с обычным пользователем
+// Начать чат
 const startChat = async (userProfile) => {
     searchQuery.value = ''
     selectedUser.value = userProfile
@@ -409,7 +438,6 @@ const loadMessages = async () => {
         messages.value = data || []
 
         if (!isFavorites.value) {
-            // Отмечаем сообщения от собеседника как прочитанные
             const unreadMessages = messages.value.filter(m => m.sender_id === selectedUser.value.id && !m.read)
             if (unreadMessages.length > 0) {
                 await supabase
@@ -584,13 +612,6 @@ const sendMessage = async () => {
     }
 }
 
-const scrollToBottom = async () => {
-    await nextTick()
-    if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
-}
-
 // Realtime подписка на сообщения
 let messagesChannel
 const setupMessagesRealtime = () => {
@@ -606,8 +627,7 @@ const setupMessagesRealtime = () => {
             if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
                 if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
-                    await scrollToBottom()
-                    // Отмечаем как прочитанное
+                    await scrollToBottomIfNeeded()
                     await supabase
                         .from('user_messages')
                         .update({ read: true })
@@ -620,7 +640,7 @@ const setupMessagesRealtime = () => {
             } else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
                 if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
-                    await scrollToBottom()
+                    await scrollToBottomIfNeeded()
                 }
             }
             loadChats()
@@ -676,3 +696,25 @@ onUnmounted(() => {
 const formatTime = (date) => new Date(date).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
 const openImage = (url) => { selectedImage.value = url }
 </script>
+
+<style scoped>
+/* Только для контейнера сообщений */
+:deep(.messages-scroll)::-webkit-scrollbar {
+    width: 6px;
+}
+
+:deep(.messages-scroll)::-webkit-scrollbar-track {
+    background: rgba(30, 30, 35, 0.5);
+    border-radius: 10px;
+}
+
+:deep(.messages-scroll)::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 110, 0.6);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+:deep(.messages-scroll)::-webkit-scrollbar-thumb:hover {
+    background: rgba(150, 150, 160, 0.8);
+}
+</style>
