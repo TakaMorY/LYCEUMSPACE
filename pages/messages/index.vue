@@ -7,12 +7,12 @@
                 'w-full md:w-80 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col overflow-hidden transition-all duration-300',
                 selectedUser && !isFavorites ? 'hidden md:flex' : 'flex'
             ]">
-                <div class="p-4 border-b border-neutral-800">
+                <div class="p-4 border-b border-neutral-800 shrink-0">
                     <h2 class="text-xl font-bold text-white">Чаты</h2>
                 </div>
 
                 <!-- Поиск -->
-                <div class="p-4">
+                <div class="p-4 shrink-0">
                     <div class="relative">
                         <input v-model="searchQuery" type="text" placeholder="Поиск пользователя..."
                             class="w-full px-4 py-2 bg-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition" />
@@ -92,7 +92,7 @@
                 </div>
             </div>
 
-            <!-- Правая панель: активный диалог -->
+            <!-- Правая панель: активный диалог (оптимизировано для мобильных) -->
             <div class="flex-1 flex flex-col h-full overflow-hidden">
                 <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
                     <!-- Шапка диалога (фиксированная, кликабельная) -->
@@ -105,35 +105,25 @@
                                 </svg>
                             </button>
                             <NuxtLink v-if="!isFavorites" :to="`/profile/${selectedUser.id}`"
-                                class="flex items-center gap-3 hover:opacity-80 transition">
+                                class="flex items-center gap-3 hover:opacity-80 transition flex-1">
                                 <div class="relative">
-                                    <div v-if="isFavorites"
-                                        class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                        </svg>
-                                    </div>
-                                    <img v-else
-                                        :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                    <img :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
                                         class="w-10 h-10 rounded-full" />
                                     <div v-if="!isFavorites && selectedUser.status?.is_online"
                                         class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
                                     </div>
                                 </div>
-                                <div>
-                                    <div class="font-medium text-white">
-                                        {{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username)
-                                        }}
-                                    </div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-white">{{ selectedUser.full_name ||
+                                        selectedUser.username }}</div>
                                     <div class="text-sm text-neutral-400">
-                                        {{ isFavorites ? 'Ваши личные заметки' : `@${selectedUser.username}` }}
+                                        @{{ selectedUser.username }}
                                         <span v-if="typingStatus && !isFavorites"
                                             class="text-blue-400 ml-2 animate-pulse">печатает...</span>
                                     </div>
                                 </div>
                             </NuxtLink>
-                            <div v-else class="flex items-center gap-3">
+                            <div v-else class="flex items-center gap-3 flex-1">
                                 <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
                                         <path
@@ -194,7 +184,7 @@
                             </div>
                             <div class="flex items-end gap-2">
                                 <label
-                                    class="cursor-pointer p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition">
+                                    class="cursor-pointer p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition shrink-0">
                                     <input type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
                                     <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -207,7 +197,7 @@
                                     class="flex-1 px-4 py-2 bg-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"></textarea>
                                 <button @click="sendMessage"
                                     :disabled="(!newMessageText.trim() && !imageFile) || sending"
-                                    class="p-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-full transition">
+                                    class="p-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-full transition shrink-0">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -625,7 +615,7 @@ const sendMessage = async () => {
     }
 }
 
-// Realtime подписка на сообщения (исправлена)
+// Realtime подписка на сообщения
 let messagesChannel
 const setupMessagesRealtime = () => {
     if (messagesChannel) supabase.removeChannel(messagesChannel)
@@ -637,19 +627,16 @@ const setupMessagesRealtime = () => {
             table: 'user_messages',
             filter: `receiver_id=eq.${currentUserId.value}`
         }, async (payload) => {
-            // Добавляем новое сообщение для текущего пользователя
             if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
                 if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
                     await scrollToBottomIfNeeded()
-                    // Отмечаем как прочитанное
                     await supabase
                         .from('user_messages')
                         .update({ read: true })
                         .eq('id', payload.new.id)
                     const index = messages.value.findIndex(m => m.id === payload.new.id)
                     if (index !== -1) messages.value[index].read = true
-                    // Обновляем счетчик непрочитанных
                     const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
                     if (chatIndex !== -1) chats.value[chatIndex].unread = 0
                 }
@@ -659,7 +646,6 @@ const setupMessagesRealtime = () => {
                     await scrollToBottomIfNeeded()
                 }
             }
-            // Обновляем список чатов для счетчиков
             loadChats()
         })
         .on('postgres_changes', {
@@ -715,7 +701,7 @@ const openImage = (url) => { selectedImage.value = url }
 </script>
 
 <style scoped>
-/* Кастомный скроллбар для всей страницы */
+/* Кастомный скроллбар */
 .custom-scroll::-webkit-scrollbar {
     width: 6px;
     height: 6px;
