@@ -1,8 +1,11 @@
 <template>
   <div class="max-w-6xl mx-auto">
-    <div class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row">
-      <!-- Левая панель: список диалогов -->
-      <div class="w-full md:w-80 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col overflow-hidden">
+    <div class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex md:flex-row">
+      <!-- Левая панель: список диалогов (скрывается на мобильных, когда открыт чат) -->
+      <div 
+        class="w-full md:w-80 border-r border-neutral-800 flex flex-col overflow-hidden transition-all"
+        :class="{ 'hidden md:flex': selectedUser && isMobile }"
+      >
         <div class="p-4 border-b border-neutral-800">
           <h2 class="text-xl font-bold text-white">Чаты</h2>
         </div>
@@ -65,17 +68,21 @@
           </button>
 
           <div v-if="!loadingChats && chats.length === 0" class="text-center py-8 text-neutral-500">
-            Нет чатов<br>Начните переписку с кем-нибудь
+            Нет чатов<br>Найдите пользователя
           </div>
         </div>
       </div>
 
-      <!-- Правая панель: активный диалог -->
-      <div class="flex-1 flex flex-col h-full">
+      <!-- Правая панель: активный диалог (всегда показывается, если выбран чат) -->
+      <div 
+        class="flex-1 flex flex-col h-full"
+        :class="{ 'hidden md:flex': !selectedUser && !isMobile }"
+      >
         <div v-if="selectedUser" class="flex-1 flex flex-col">
           <!-- Шапка диалога -->
           <div class="p-4 border-b border-neutral-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
+              <!-- Кнопка назад (только на мобильных) -->
               <button @click="selectedUser = null" class="md:hidden text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -91,7 +98,7 @@
                 <div class="font-medium text-white">{{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username) }}</div>
                 <div class="text-sm text-neutral-400">
                   {{ isFavorites ? 'Ваши личные заметки' : `@${selectedUser.username}` }}
-                  <span v-if="typingStatus && !isFavorites" class="text-blue-400 ml-2">печатает...</span>
+                  <span v-if="typingStatus && !isFavorites" class="text-blue-400 ml-2 animate-pulse">печатает...</span>
                 </div>
               </div>
             </div>
@@ -100,7 +107,7 @@
             </NuxtLink>
           </div>
 
-          <!-- Область сообщений -->
+          <!-- Сообщения -->
           <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
             <div v-for="msg in messages" :key="msg.id" class="flex" :class="msg.sender_id === currentUserId ? 'justify-end' : 'justify-start'">
               <div :class="msg.sender_id === currentUserId ? 'bg-blue-600' : 'bg-neutral-800'" class="max-w-[75%] rounded-2xl p-3 shadow-sm">
@@ -118,7 +125,7 @@
             </div>
           </div>
 
-          <!-- Панель ввода (с предпросмотром фото) -->
+          <!-- Панель ввода -->
           <div class="p-4 border-t border-neutral-800">
             <div class="flex flex-col gap-2">
               <div v-if="imagePreview" class="relative inline-block self-start">
@@ -159,7 +166,8 @@
           </div>
         </div>
 
-        <div v-else class="flex-1 flex items-center justify-center text-neutral-500 p-4">
+        <!-- Пустое состояние, когда чат не выбран (скрыто на мобильных) -->
+        <div v-else class="flex-1 flex items-center justify-center text-neutral-500 p-4 md:flex hidden">
           Выберите диалог или найдите пользователя
         </div>
       </div>
@@ -178,6 +186,19 @@ import ImageViewer from '~/components/ImageViewer.vue'
 
 const supabase = useSupabaseClient()
 const currentUserId = ref(null)
+const isMobile = ref(false)
+
+// Определяем мобильное устройство
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+}
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 
 // Состояния
 const searchQuery = ref('')
@@ -195,8 +216,6 @@ const uploadingImage = ref(false)
 const imageFile = ref(null)
 const imagePreview = ref(null)
 const selectedImage = ref(null)
-
-// Состояние печати (для имитации)
 const typingStatus = ref(false)
 let typingTimeout = null
 
@@ -258,7 +277,7 @@ const openFavorites = async () => {
   await loadMessages()
 }
 
-// Загрузка списка чатов (обычные)
+// Загрузка списка чатов
 const loadChats = async () => {
   if (!currentUserId.value) return
   loadingChats.value = true
@@ -345,6 +364,58 @@ const loadMessages = async () => {
   }
 }
 
+// --- Функции для индикатора печати ---
+const sendTypingStatus = async (isTyping) => {
+  if (!currentUserId.value || !selectedUser.value || isFavorites.value) return
+  try {
+    await supabase
+      .from('typing_status')
+      .upsert({
+        user_id: currentUserId.value,
+        chat_with: selectedUser.value.id,
+        is_typing: isTyping,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,chat_with' })
+  } catch (err) {
+    console.error('Ошибка отправки статуса печати:', err)
+  }
+}
+
+const onTyping = () => {
+  if (!selectedUser.value || isFavorites.value) return
+  sendTypingStatus(true)
+  if (typingTimeout) clearTimeout(typingTimeout)
+  typingTimeout = setTimeout(() => {
+    sendTypingStatus(false)
+  }, 2000)
+}
+
+// Подписка на статус печати собеседника
+let typingChannel
+const setupTypingRealtime = () => {
+  if (typingChannel) supabase.removeChannel(typingChannel)
+  if (!selectedUser.value || isFavorites.value) return
+
+  typingChannel = supabase
+    .channel(`typing:${selectedUser.value.id}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'typing_status',
+      filter: `user_id=eq.${selectedUser.value.id} AND chat_with=eq.${currentUserId.value}`
+    }, (payload) => {
+      if (payload.eventType === 'DELETE' || (payload.new && !payload.new.is_typing)) {
+        typingStatus.value = false
+      } else if (payload.new && payload.new.is_typing) {
+        typingStatus.value = true
+        setTimeout(() => {
+          if (typingStatus.value) typingStatus.value = false
+        }, 3000)
+      }
+    })
+    .subscribe()
+}
+
 // Обработка изображений
 const handleImageUpload = async (e) => {
   const file = e.target.files[0]
@@ -396,6 +467,9 @@ const sendMessage = async () => {
   if (!selectedUser.value) return alert('Выберите получателя')
   if (!currentUserId.value) return alert('Вы не авторизованы')
 
+  if (typingTimeout) clearTimeout(typingTimeout)
+  await sendTypingStatus(false)
+
   sending.value = true
   try {
     let imageUrl = null
@@ -422,7 +496,6 @@ const sendMessage = async () => {
     if (error) throw error
 
     newMessageText.value = ''
-    // Локальное добавление
     messages.value.push({
       id: Date.now().toString(),
       sender_id: currentUserId.value,
@@ -441,16 +514,6 @@ const sendMessage = async () => {
   }
 }
 
-// Индикатор печати (отправляем событие через канал – упрощённо, просто таймер)
-const onTyping = () => {
-  if (!selectedUser.value || isFavorites.value) return
-  if (typingTimeout) clearTimeout(typingTimeout)
-  typingStatus.value = true
-  typingTimeout = setTimeout(() => {
-    typingStatus.value = false
-  }, 1500)
-}
-
 const scrollToBottom = async () => {
   await nextTick()
   if (messagesContainer.value) {
@@ -458,9 +521,9 @@ const scrollToBottom = async () => {
   }
 }
 
-// Realtime подписка
+// Realtime подписка на сообщения
 let messagesChannel
-const setupRealtime = () => {
+const setupMessagesRealtime = () => {
   if (messagesChannel) supabase.removeChannel(messagesChannel)
   messagesChannel = supabase
     .channel('public:user_messages')
@@ -499,19 +562,24 @@ const selectChat = async (user) => {
 }
 
 watch(selectedUser, async (newUser) => {
-  if (newUser) await loadMessages()
+  if (newUser) {
+    await loadMessages()
+    setupTypingRealtime()
+  }
 })
 
 onMounted(async () => {
   await loadCurrentUser()
   if (currentUserId.value) {
     await loadChats()
-    setupRealtime()
+    setupMessagesRealtime()
   }
 })
 
 onUnmounted(() => {
   if (messagesChannel) supabase.removeChannel(messagesChannel)
+  if (typingChannel) supabase.removeChannel(typingChannel)
+  if (typingTimeout) clearTimeout(typingTimeout)
 })
 
 const formatTime = (date) => new Date(date).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
