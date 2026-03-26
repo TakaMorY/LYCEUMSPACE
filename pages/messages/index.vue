@@ -2,7 +2,7 @@
     <div class="max-w-6xl mx-auto">
         <div
             class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row">
-            <!-- Левая панель: список диалогов (скрывается на мобильных при открытом чате) -->
+            <!-- Левая панель: список диалогов -->
             <div :class="[
                 'w-full md:w-80 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col overflow-hidden transition-all duration-300',
                 selectedUser && !isFavorites ? 'hidden md:flex' : 'flex'
@@ -32,8 +32,13 @@
                     <div v-else>
                         <button v-for="user in userResults" :key="user.id" @click="startChat(user)"
                             class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3">
-                            <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                class="w-10 h-10 rounded-full" />
+                            <div class="relative">
+                                <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                    class="w-10 h-10 rounded-full" />
+                                <div v-if="user.status?.is_online"
+                                    class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                                </div>
+                            </div>
                             <div>
                                 <div class="font-medium text-white">{{ user.full_name || user.username }}</div>
                                 <div class="text-sm text-neutral-400">@{{ user.username }}</div>
@@ -63,8 +68,13 @@
                     <button v-for="chat in chats" :key="chat.user.id" @click="selectChat(chat.user)"
                         class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3"
                         :class="{ 'bg-neutral-800/50': selectedUser?.id === chat.user.id }">
-                        <img :src="chat.user.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                            class="w-10 h-10 rounded-full" />
+                        <div class="relative">
+                            <img :src="chat.user.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                class="w-10 h-10 rounded-full" />
+                            <div v-if="chat.user.status?.is_online"
+                                class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                            </div>
+                        </div>
                         <div class="flex-1 min-w-0">
                             <div class="font-medium text-white truncate">{{ chat.user.full_name || chat.user.username }}
                             </div>
@@ -85,7 +95,7 @@
             <!-- Правая панель: активный диалог -->
             <div class="flex-1 flex flex-col h-full">
                 <div v-if="selectedUser" class="flex-1 flex flex-col">
-                    <!-- Шапка диалога с кнопкой назад на мобильных -->
+                    <!-- Шапка диалога -->
                     <div class="p-4 border-b border-neutral-800 flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <button @click="closeChat" class="md:hidden text-white p-1">
@@ -94,18 +104,24 @@
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
-                            <div v-if="isFavorites"
-                                class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                </svg>
+                            <div class="relative">
+                                <div v-if="isFavorites"
+                                    class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                    </svg>
+                                </div>
+                                <img v-else :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                    class="w-10 h-10 rounded-full" />
+                                <div v-if="!isFavorites && selectedUser.status?.is_online"
+                                    class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                                </div>
                             </div>
-                            <img v-else :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                class="w-10 h-10 rounded-full" />
                             <div>
-                                <div class="font-medium text-white">{{ isFavorites ? 'Избранное' :
-                                    (selectedUser.full_name || selectedUser.username) }}</div>
+                                <div class="font-medium text-white">
+                                    {{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username) }}
+                                </div>
                                 <div class="text-sm text-neutral-400">
                                     {{ isFavorites ? 'Ваши личные заметки' : `@${selectedUser.username}` }}
                                     <span v-if="typingStatus && !isFavorites"
@@ -191,7 +207,6 @@
                     </div>
                 </div>
 
-                <!-- Если чат не выбран, показываем список чатов (на десктопе) -->
                 <div v-else class="flex-1 flex items-center justify-center text-neutral-500 p-4 hidden md:flex">
                     Выберите диалог для начала общения
                 </div>
@@ -229,7 +244,7 @@ const imageFile = ref(null)
 const imagePreview = ref(null)
 const selectedImage = ref(null)
 
-// Статус печати собеседника
+// Статус печати
 const typingStatus = ref(false)
 let typingTimeout = null
 
@@ -243,8 +258,80 @@ const closeChat = () => {
 // Получаем ID текущего пользователя
 const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) currentUserId.value = user.id
-    else currentUserId.value = null
+    if (user) {
+        currentUserId.value = user.id
+        // Обновляем статус онлайн
+        await supabase
+            .from('user_status')
+            .upsert({
+                user_id: user.id,
+                is_online: true,
+                last_seen: new Date().toISOString()
+            }, { onConflict: 'user_id' })
+    } else {
+        currentUserId.value = null
+    }
+}
+
+// Загрузка статусов пользователей
+const loadUsersStatus = async (userIds) => {
+    if (!userIds.length) return {}
+    const { data } = await supabase
+        .from('user_status')
+        .select('user_id, is_online')
+        .in('user_id', userIds)
+    const statusMap = {}
+    data?.forEach(s => statusMap[s.user_id] = s)
+    return statusMap
+}
+
+// Загрузка списка чатов
+const loadChats = async () => {
+    if (!currentUserId.value) return
+    loadingChats.value = true
+    try {
+        const { data: messagesData } = await supabase
+            .from('user_messages')
+            .select('sender_id, receiver_id')
+            .or(`sender_id.eq.${currentUserId.value},receiver_id.eq.${currentUserId.value}`)
+
+        const userIds = new Set()
+        messagesData?.forEach(msg => {
+            if (msg.sender_id !== currentUserId.value) userIds.add(msg.sender_id)
+            if (msg.receiver_id !== currentUserId.value) userIds.add(msg.receiver_id)
+        })
+
+        if (userIds.size === 0) {
+            chats.value = []
+            return
+        }
+
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url')
+            .in('id', Array.from(userIds))
+
+        const statuses = await loadUsersStatus(Array.from(userIds))
+
+        const chatsWithUnread = await Promise.all(profiles.map(async (profile) => {
+            const { count } = await supabase
+                .from('user_messages')
+                .select('*', { count: 'exact', head: true })
+                .eq('sender_id', profile.id)
+                .eq('receiver_id', currentUserId.value)
+                .eq('read', false)
+            return {
+                user: { ...profile, status: statuses[profile.id] },
+                unread: count || 0
+            }
+        }))
+
+        chats.value = chatsWithUnread.sort((a, b) => b.unread - a.unread)
+    } catch (err) {
+        console.error('Ошибка загрузки чатов:', err)
+    } finally {
+        loadingChats.value = false
+    }
 }
 
 // Поиск пользователей
@@ -264,7 +351,9 @@ watch(searchQuery, (query) => {
                 .or(`username.ilike.%${query}%,full_name.ilike.%${query}%`)
                 .limit(20)
             if (error) throw error
-            userResults.value = data || []
+            const userIds = data.map(u => u.id)
+            const statuses = await loadUsersStatus(userIds)
+            userResults.value = data.map(u => ({ ...u, status: statuses[u.id] }))
         } catch (err) {
             console.error('Ошибка поиска:', err)
             userResults.value = []
@@ -296,50 +385,6 @@ const openFavorites = async () => {
     await loadMessages()
 }
 
-// Загрузка списка чатов
-const loadChats = async () => {
-    if (!currentUserId.value) return
-    loadingChats.value = true
-    try {
-        const { data: messagesData } = await supabase
-            .from('user_messages')
-            .select('sender_id, receiver_id')
-            .or(`sender_id.eq.${currentUserId.value},receiver_id.eq.${currentUserId.value}`)
-
-        const userIds = new Set()
-        messagesData?.forEach(msg => {
-            if (msg.sender_id !== currentUserId.value) userIds.add(msg.sender_id)
-            if (msg.receiver_id !== currentUserId.value) userIds.add(msg.receiver_id)
-        })
-
-        if (userIds.size === 0) {
-            chats.value = []
-            return
-        }
-
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, username, full_name, avatar_url')
-            .in('id', Array.from(userIds))
-
-        const chatsWithUnread = await Promise.all(profiles.map(async (profile) => {
-            const { count } = await supabase
-                .from('user_messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('sender_id', profile.id)
-                .eq('receiver_id', currentUserId.value)
-                .eq('read', false)
-            return { user: profile, unread: count || 0 }
-        }))
-
-        chats.value = chatsWithUnread.sort((a, b) => b.unread - a.unread)
-    } catch (err) {
-        console.error('Ошибка загрузки чатов:', err)
-    } finally {
-        loadingChats.value = false
-    }
-}
-
 // Загрузка сообщений
 const loadMessages = async () => {
     if (!selectedUser.value || !currentUserId.value) return
@@ -364,7 +409,7 @@ const loadMessages = async () => {
         messages.value = data || []
 
         if (!isFavorites.value) {
-            // Отмечаем сообщения как прочитанные
+            // Отмечаем сообщения от собеседника как прочитанные
             const unreadMessages = messages.value.filter(m => m.sender_id === selectedUser.value.id && !m.read)
             if (unreadMessages.length > 0) {
                 await supabase
@@ -374,7 +419,6 @@ const loadMessages = async () => {
                     .eq('receiver_id', currentUserId.value)
                     .eq('read', false)
 
-                // Обновляем локальные сообщения
                 messages.value = messages.value.map(m =>
                     m.sender_id === selectedUser.value.id && !m.read ? { ...m, read: true } : m
                 )
@@ -392,7 +436,7 @@ const loadMessages = async () => {
     }
 }
 
-// --- Функции для индикатора печати ---
+// Функции печати
 const sendTypingStatus = async (isTyping) => {
     if (!currentUserId.value || !selectedUser.value || isFavorites.value) return
     try {
@@ -444,8 +488,6 @@ const setupTypingRealtime = () => {
         .subscribe()
 }
 
-// --- Конец функций печати ---
-
 // Обработка изображений
 const handleImageUpload = async (e) => {
     const file = e.target.files[0]
@@ -491,17 +533,15 @@ const uploadImage = async () => {
     }
 }
 
-// Отправка сообщения (исправлено)
+// Отправка сообщения
 const sendMessage = async () => {
     if ((!newMessageText.value.trim() && !imageFile.value) || sending.value) return
     if (!selectedUser.value) return alert('Выберите получателя')
     if (!currentUserId.value) return alert('Вы не авторизованы')
 
-    // Сохраняем текст до очистки
     const messageText = newMessageText.value.trim()
     const currentImageFile = imageFile.value
 
-    // При отправке сбрасываем статус печати
     if (typingTimeout) clearTimeout(typingTimeout)
     await sendTypingStatus(false)
 
@@ -532,11 +572,8 @@ const sendMessage = async () => {
 
         if (error) throw error
 
-        // Очищаем поля ввода
         newMessageText.value = ''
         clearImage()
-
-        // Добавляем сообщение локально
         messages.value.push(data)
         await scrollToBottom()
     } catch (err) {
@@ -554,7 +591,7 @@ const scrollToBottom = async () => {
     }
 }
 
-// Realtime подписка на сообщения (исправлена)
+// Realtime подписка на сообщения
 let messagesChannel
 const setupMessagesRealtime = () => {
     if (messagesChannel) supabase.removeChannel(messagesChannel)
@@ -566,41 +603,27 @@ const setupMessagesRealtime = () => {
             table: 'user_messages',
             filter: `receiver_id=eq.${currentUserId.value}`
         }, async (payload) => {
-            // Новое сообщение для текущего пользователя
-            if (selectedUser.value) {
-                // Если это сообщение от текущего собеседника
-                if (!isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
-                    // Добавляем сообщение в список
+            if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
+                if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
                     await scrollToBottom()
-
                     // Отмечаем как прочитанное
                     await supabase
                         .from('user_messages')
                         .update({ read: true })
                         .eq('id', payload.new.id)
-
-                    // Обновляем локальное сообщение
                     const index = messages.value.findIndex(m => m.id === payload.new.id)
-                    if (index !== -1) {
-                        messages.value[index].read = true
-                    }
-
-                    // Обновляем счетчик непрочитанных в списке чатов
+                    if (index !== -1) messages.value[index].read = true
                     const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
                     if (chatIndex !== -1) chats.value[chatIndex].unread = 0
                 }
-                // Для избранного
-                else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
-                    if (!messages.value.some(m => m.id === payload.new.id)) {
-                        messages.value.push(payload.new)
-                        await scrollToBottom()
-                    }
+            } else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
+                if (!messages.value.some(m => m.id === payload.new.id)) {
+                    messages.value.push(payload.new)
+                    await scrollToBottom()
                 }
             }
-
-            // Обновляем список чатов (для счетчиков)
-            await loadChats()
+            loadChats()
         })
         .on('postgres_changes', {
             event: 'UPDATE',
@@ -608,12 +631,9 @@ const setupMessagesRealtime = () => {
             table: 'user_messages',
             filter: `receiver_id=eq.${currentUserId.value}`
         }, (payload) => {
-            // Если сообщение было отмечено как прочитанное
             if (selectedUser.value && payload.new.sender_id === selectedUser.value.id) {
                 const index = messages.value.findIndex(m => m.id === payload.new.id)
-                if (index !== -1) {
-                    messages.value[index].read = payload.new.read
-                }
+                if (index !== -1) messages.value[index].read = payload.new.read
             }
         })
         .subscribe()
@@ -625,7 +645,7 @@ const selectChat = async (user) => {
     await loadMessages()
 }
 
-// При смене собеседника переподписываемся на его статус печати
+// При смене собеседника
 watch(selectedUser, async (newUser) => {
     if (newUser) {
         await loadMessages()
@@ -645,6 +665,12 @@ onUnmounted(() => {
     if (messagesChannel) supabase.removeChannel(messagesChannel)
     if (typingChannel) supabase.removeChannel(typingChannel)
     if (typingTimeout) clearTimeout(typingTimeout)
+    if (currentUserId.value) {
+        supabase
+            .from('user_status')
+            .update({ is_online: false, last_seen: new Date().toISOString() })
+            .eq('user_id', currentUserId.value)
+    }
 })
 
 const formatTime = (date) => new Date(date).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })

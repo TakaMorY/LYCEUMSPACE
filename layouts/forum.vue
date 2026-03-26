@@ -68,6 +68,14 @@ const loadUserId = async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     if (currentUser) {
         userId.value = currentUser.id
+        // Обновляем статус онлайн
+        await supabase
+            .from('user_status')
+            .upsert({
+                user_id: currentUser.id,
+                is_online: true,
+                last_seen: new Date().toISOString()
+            }, { onConflict: 'user_id' })
         loadUnreadCount()
     }
 }
@@ -83,6 +91,12 @@ const loadUnreadCount = async () => {
 }
 
 const signOut = async () => {
+    if (userId.value) {
+        await supabase
+            .from('user_status')
+            .update({ is_online: false, last_seen: new Date().toISOString() })
+            .eq('user_id', userId.value)
+    }
     await supabase.auth.signOut()
     await navigateTo('/login')
 }

@@ -77,7 +77,7 @@
       У пользователя пока нет постов
     </div>
     <div v-else>
-      <Post v-for="post in posts" :key="post.id" :post="post" @updated="refreshPosts" />
+      <Post class="m-5" v-for="post in posts" :key="post.id" :post="post" @updated="refreshPosts" />
     </div>
   </div>
 </template>
