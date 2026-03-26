@@ -2,7 +2,7 @@
     <div class="max-w-6xl mx-auto h-full">
         <div
             class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row">
-            <!-- Левая панель: список диалогов (на мобильных скрывается при открытом чате) -->
+            <!-- Левая панель: список диалогов -->
             <div :class="[
                 'w-full md:w-80 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col overflow-hidden transition-all duration-300',
                 selectedUser && !isFavorites ? 'hidden md:flex' : 'flex'
@@ -11,7 +11,6 @@
                     <h2 class="text-xl font-bold text-white">Чаты</h2>
                 </div>
 
-                <!-- Поиск -->
                 <div class="p-4 shrink-0">
                     <div class="relative">
                         <input v-model="searchQuery" type="text" placeholder="Поиск пользователя..."
@@ -19,7 +18,6 @@
                     </div>
                 </div>
 
-                <!-- Результаты поиска -->
                 <div v-if="searchQuery" class="flex-1 overflow-y-auto custom-scroll">
                     <div v-if="searching" class="text-center py-8">
                         <div
@@ -47,9 +45,7 @@
                     </div>
                 </div>
 
-                <!-- Список диалогов -->
                 <div v-else class="flex-1 overflow-y-auto custom-scroll">
-                    <!-- Избранное -->
                     <button @click="openFavorites"
                         class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
@@ -64,7 +60,6 @@
                         </div>
                     </button>
 
-                    <!-- Обычные чаты -->
                     <button v-for="chat in chats" :key="chat.user.id" @click="selectChat(chat.user)"
                         class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3"
                         :class="{ 'bg-neutral-800/50': selectedUser?.id === chat.user.id }">
@@ -92,10 +87,9 @@
                 </div>
             </div>
 
-            <!-- Правая панель: активный диалог (оптимизировано для мобильных) -->
+            <!-- Правая панель: активный диалог -->
             <div class="flex-1 flex flex-col h-full overflow-hidden">
                 <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
-                    <!-- Шапка диалога (фиксированная, кликабельная) -->
                     <div class="p-4 border-b border-neutral-800 shrink-0">
                         <div class="flex items-center gap-3">
                             <button @click="closeChat" class="md:hidden text-white p-1">
@@ -138,7 +132,6 @@
                         </div>
                     </div>
 
-                    <!-- Область сообщений (прокручивается) -->
                     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll"
                         @scroll="handleScroll">
                         <div v-for="msg in messages" :key="msg.id" class="flex"
@@ -168,7 +161,6 @@
                         </div>
                     </div>
 
-                    <!-- Панель ввода (фиксированная) -->
                     <div class="p-4 border-t border-neutral-800 shrink-0">
                         <div class="flex flex-col gap-2">
                             <div v-if="imagePreview" class="relative inline-block self-start">
@@ -293,6 +285,7 @@ const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
         currentUserId.value = user.id
+        // Обновляем статус онлайн
         await supabase
             .from('user_status')
             .upsert({
@@ -603,9 +596,13 @@ const sendMessage = async () => {
 
         if (error) throw error
 
+        // Добавляем сообщение локально
+        messages.value.push(data)
         newMessageText.value = ''
         clearImage()
-        messages.value.push(data)
+
+        // Обновляем список чатов для счетчиков
+        await loadChats()
         await scrollToBottom()
     } catch (err) {
         console.error('Ошибка отправки:', err)
@@ -615,39 +612,61 @@ const sendMessage = async () => {
     }
 }
 
-// Realtime подписка на сообщения
+// Realtime подписка на сообщения (исправлена)
 let messagesChannel
+let messagesChannelForSending
+
 const setupMessagesRealtime = () => {
     if (messagesChannel) supabase.removeChannel(messagesChannel)
+
+    // Создаём канал для получения сообщений
     messagesChannel = supabase
-        .channel('public:user_messages')
+        .channel('messages-receive')
         .on('postgres_changes', {
             event: 'INSERT',
             schema: 'public',
             table: 'user_messages',
             filter: `receiver_id=eq.${currentUserId.value}`
         }, async (payload) => {
+            console.log('Получено новое сообщение:', payload.new)
+
+            // Если это сообщение от текущего собеседника
             if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
                 if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
                     await scrollToBottomIfNeeded()
+
+                    // Отмечаем как прочитанное
                     await supabase
                         .from('user_messages')
                         .update({ read: true })
                         .eq('id', payload.new.id)
+
+                    // Обновляем локальное сообщение
                     const index = messages.value.findIndex(m => m.id === payload.new.id)
                     if (index !== -1) messages.value[index].read = true
+
+                    // Обновляем счетчик непрочитанных
                     const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
                     if (chatIndex !== -1) chats.value[chatIndex].unread = 0
                 }
-            } else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
+            }
+            // Для избранного
+            else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
                 if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
                     await scrollToBottomIfNeeded()
                 }
             }
-            loadChats()
+
+            // Обновляем список чатов для обновления счетчиков непрочитанных
+            await loadChats()
         })
+        .subscribe()
+
+    // Подписываемся на обновления (прочтение)
+    const messagesUpdateChannel = supabase
+        .channel('messages-update')
         .on('postgres_changes', {
             event: 'UPDATE',
             schema: 'public',
