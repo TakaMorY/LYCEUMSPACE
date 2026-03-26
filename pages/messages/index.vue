@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto h-full">
         <div
             class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row">
             <!-- Левая панель: список диалогов (на мобильных скрывается при открытом чате) -->
@@ -20,7 +20,7 @@
                 </div>
 
                 <!-- Результаты поиска -->
-                <div v-if="searchQuery" class="flex-1 overflow-y-auto">
+                <div v-if="searchQuery" class="flex-1 overflow-y-auto custom-scroll">
                     <div v-if="searching" class="text-center py-8">
                         <div
                             class="inline-block w-6 h-6 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Список диалогов -->
-                <div v-else class="flex-1 overflow-y-auto">
+                <div v-else class="flex-1 overflow-y-auto custom-scroll">
                     <!-- Избранное -->
                     <button @click="openFavorites"
                         class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3">
@@ -93,10 +93,10 @@
             </div>
 
             <!-- Правая панель: активный диалог -->
-            <div class="flex-1 flex flex-col h-full">
-                <div v-if="selectedUser" class="flex-1 flex flex-col h-full">
-                    <!-- Шапка диалога (фиксированная) -->
-                    <div class="p-4 border-b border-neutral-800 flex items-center justify-between shrink-0">
+            <div class="flex-1 flex flex-col h-full overflow-hidden">
+                <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
+                    <!-- Шапка диалога (фиксированная, кликабельная) -->
+                    <div class="p-4 border-b border-neutral-800 shrink-0">
                         <div class="flex items-center gap-3">
                             <button @click="closeChat" class="md:hidden text-white p-1">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,44 +104,57 @@
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
-                            <div class="relative">
-                                <div v-if="isFavorites"
-                                    class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                            <NuxtLink v-if="!isFavorites" :to="`/profile/${selectedUser.id}`"
+                                class="flex items-center gap-3 hover:opacity-80 transition">
+                                <div class="relative">
+                                    <div v-if="isFavorites"
+                                        class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                        </svg>
+                                    </div>
+                                    <img v-else
+                                        :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                        class="w-10 h-10 rounded-full" />
+                                    <div v-if="!isFavorites && selectedUser.status?.is_online"
+                                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-white">
+                                        {{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username)
+                                        }}
+                                    </div>
+                                    <div class="text-sm text-neutral-400">
+                                        {{ isFavorites ? 'Ваши личные заметки' : `@${selectedUser.username}` }}
+                                        <span v-if="typingStatus && !isFavorites"
+                                            class="text-blue-400 ml-2 animate-pulse">печатает...</span>
+                                    </div>
+                                </div>
+                            </NuxtLink>
+                            <div v-else class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
                                         <path
                                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                     </svg>
                                 </div>
-                                <img v-else :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                    class="w-10 h-10 rounded-full" />
-                                <div v-if="!isFavorites && selectedUser.status?.is_online"
-                                    class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
-                                </div>
-                            </div>
-                            <div>
-                                <NuxtLink v-if="!isFavorites" :to="`/profile/${selectedUser.id}`">
-                                    <div class="font-medium text-white">
-                                        {{ isFavorites ? 'Избранное' : (selectedUser.full_name || selectedUser.username)
-                                        }}
-                                    </div>
-                                </NuxtLink>
-                                <div class="text-sm text-neutral-400">
-                                    {{ isFavorites ? 'Ваши личные заметки' : `@${selectedUser.username}` }}
-                                    <span v-if="typingStatus && !isFavorites"
-                                        class="text-blue-400 ml-2 animate-pulse">печатает...</span>
+                                <div>
+                                    <div class="font-medium text-white">Избранное</div>
+                                    <div class="text-sm text-neutral-400">Ваши личные заметки</div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- Область сообщений (прокручивается) -->
-                    <div ref="messagesContainer" class="flex-1 overflow-y-auto messages-scroll p-4 space-y-3"
+                    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll"
                         @scroll="handleScroll">
                         <div v-for="msg in messages" :key="msg.id" class="flex"
                             :class="msg.sender_id === currentUserId ? 'justify-end' : 'justify-start'">
                             <div :class="[
-                                'max-w-[75%] rounded-2xl p-3 shadow-sm transition-all duration-200 hover:scale-[1.02]',
+                                'max-w-[75%] rounded-2xl p-3 shadow-sm transition-all duration-200',
                                 msg.sender_id === currentUserId
                                     ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
                                     : 'bg-neutral-800/80 text-white backdrop-blur-sm border border-neutral-700/30'
@@ -612,7 +625,7 @@ const sendMessage = async () => {
     }
 }
 
-// Realtime подписка на сообщения
+// Realtime подписка на сообщения (исправлена)
 let messagesChannel
 const setupMessagesRealtime = () => {
     if (messagesChannel) supabase.removeChannel(messagesChannel)
@@ -624,16 +637,19 @@ const setupMessagesRealtime = () => {
             table: 'user_messages',
             filter: `receiver_id=eq.${currentUserId.value}`
         }, async (payload) => {
+            // Добавляем новое сообщение для текущего пользователя
             if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
                 if (!messages.value.some(m => m.id === payload.new.id)) {
                     messages.value.push(payload.new)
                     await scrollToBottomIfNeeded()
+                    // Отмечаем как прочитанное
                     await supabase
                         .from('user_messages')
                         .update({ read: true })
                         .eq('id', payload.new.id)
                     const index = messages.value.findIndex(m => m.id === payload.new.id)
                     if (index !== -1) messages.value[index].read = true
+                    // Обновляем счетчик непрочитанных
                     const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
                     if (chatIndex !== -1) chats.value[chatIndex].unread = 0
                 }
@@ -643,6 +659,7 @@ const setupMessagesRealtime = () => {
                     await scrollToBottomIfNeeded()
                 }
             }
+            // Обновляем список чатов для счетчиков
             loadChats()
         })
         .on('postgres_changes', {
@@ -698,23 +715,34 @@ const openImage = (url) => { selectedImage.value = url }
 </script>
 
 <style scoped>
-/* Только для контейнера сообщений */
-:deep(.messages-scroll)::-webkit-scrollbar {
+/* Кастомный скроллбар для всей страницы */
+.custom-scroll::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
 }
 
-:deep(.messages-scroll)::-webkit-scrollbar-track {
+.custom-scroll::-webkit-scrollbar-track {
     background: rgba(30, 30, 35, 0.5);
     border-radius: 10px;
 }
 
-:deep(.messages-scroll)::-webkit-scrollbar-thumb {
+.custom-scroll::-webkit-scrollbar-thumb {
     background: rgba(100, 100, 110, 0.6);
     border-radius: 10px;
     transition: background 0.2s ease;
 }
 
-:deep(.messages-scroll)::-webkit-scrollbar-thumb:hover {
+.custom-scroll::-webkit-scrollbar-thumb:hover {
     background: rgba(150, 150, 160, 0.8);
+}
+
+.custom-scroll::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Для Firefox */
+.custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 100, 110, 0.6) rgba(30, 30, 35, 0.5);
 }
 </style>
