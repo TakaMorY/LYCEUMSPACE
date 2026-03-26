@@ -22,5 +22,6 @@
 <script setup>
 defineProps({ comment: Object })
 defineEmits(['open-image'])
+
 const formatTime = (date) => new Date(date).toLocaleString()
 </script>

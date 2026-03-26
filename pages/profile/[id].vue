@@ -88,91 +88,111 @@ definePageMeta({ layout: 'forum' })
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
+const router = useRouter()
 
 const loading = ref(true)
 const error = ref(null)
 const profile = ref(null)
 
-const profileId = route.params.id
+const profileId = computed(() => route.params.id)
 
-if (!profileId || profileId === 'undefined' || profileId === 'null' || profileId.length < 30) {
-  throw createError({ statusCode: 404, message: 'Профиль не найден' })
+// Проверка, что ID является UUID
+const isValidUUID = (id) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  return uuidRegex.test(id)
 }
 
-const isOwner = computed(() => user.value && user.value.id === profileId)
+const isOwner = computed(() => user.value && user.value.id === profileId.value)
 
 // Загрузка профиля
 const loadProfile = async () => {
+  if (!profileId.value || !isValidUUID(profileId.value)) {
+    error.value = 'Некорректный ID профиля'
+    loading.value = false
+    return
+  }
+
   loading.value = true
   error.value = null
 
   try {
-    const { data, error: fetchError } = await supabase
+    let { data, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', profileId)
+      .eq('id', profileId.value)
       .maybeSingle()
 
     if (fetchError) throw fetchError
 
-    if (data) {
-      profile.value = data
-    } else {
-      if (isOwner.value) {
-        const username = user.value.email?.split('@')[0] || `user_${Date.now()}`
+    if (!data) {
+      // Если профиль не найден, но это текущий пользователь, создаём
+      if (isOwner.value && user.value) {
+        const username = user.value.user_metadata?.username || user.value.email?.split('@')[0] || `user_${Date.now()}`
+        const full_name = user.value.user_metadata?.full_name || ''
+        
         const { error: insertError } = await supabase
           .from('profiles')
-          .insert({ id: profileId, username, full_name: username, avatar_url: null })
+          .insert({
+            id: user.value.id,
+            username,
+            full_name,
+            avatar_url: null
+          })
+        
         if (insertError) throw insertError
 
+        // Загружаем созданный профиль
         const { data: newData, error: fetchNewError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', profileId)
+          .eq('id', profileId.value)
           .single()
+        
         if (fetchNewError) throw fetchNewError
-        profile.value = newData
+        data = newData
       } else {
         throw new Error('Профиль не найден')
       }
     }
+
+    profile.value = data
   } catch (err) {
     console.error('Ошибка загрузки профиля:', err)
     error.value = err.message
     if (err.message === 'Профиль не найден') {
-      throw createError({ statusCode: 404, message: 'Профиль не найден' })
+      // Можно показать 404, но лучше просто отобразить ошибку
+      error.value = 'Пользователь не найден'
     }
   } finally {
     loading.value = false
   }
 }
 
-watchEffect(async () => {
-  if (profileId && user.value !== undefined) {
-    await loadProfile()
-  }
-})
-
-// Посты пользователя (исправлен запрос likes: теперь user_id)
-const { data: posts, pending: postsLoading, refresh: refreshPosts } = await useAsyncData(
-  `profile-posts-${profileId}`,
+// Загрузка постов пользователя
+const { data: posts, pending: postsLoading, refresh: refreshPosts } = useAsyncData(
+  `profile-posts-${profileId.value}`,
   async () => {
+    if (!profileId.value) return []
+    
     const { data, error } = await supabase
       .from('posts')
       .select(`
         *,
         profiles!user_id (username, full_name, avatar_url),
-        likes ( id ),
+        likes ( user_id ),
         comments ( id )
       `)
-      .eq('user_id', profileId)
+      .eq('user_id', profileId.value)
       .order('created_at', { ascending: false })
+    
     if (error) throw error
+    
+    const currentUser = user.value
     return (data || []).map(post => ({
       ...post,
       likes_count: post.likes?.length || 0,
       comments_count: post.comments?.length || 0,
-      user_liked: user.value ? post.likes?.some(like => like.user_id === user.value.id) : false
+      user_liked: currentUser ? post.likes?.some(like => like.user_id === currentUser.id) : false
     }))
   },
   {
@@ -189,4 +209,18 @@ const totalLikes = computed(() => {
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })
 }
+
+// Следим за изменением ID в URL или пользователя
+watch([profileId, user], () => {
+  if (profileId.value && user.value !== undefined) {
+    loadProfile()
+  }
+}, { immediate: true })
+
+// При монтировании также загружаем
+onMounted(() => {
+  if (profileId.value) {
+    loadProfile()
+  }
+})
 </script>

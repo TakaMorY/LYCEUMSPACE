@@ -53,7 +53,7 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            <span class="text-white text-base sm:text-lg">{{ post.likes_count }}</span>
+            <span class="text-white text-base sm:text-lg">{{ likesCount }}</span>
           </button>
           <div class="flex items-center gap-2">
             <svg
@@ -115,7 +115,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useSupabaseClient, useSupabaseUser } from '#imports'
 import Comment from '~/components/Comment.vue'
 import ImageViewer from '~/components/ImageViewer.vue'
@@ -131,7 +131,17 @@ const commentUploading = ref(false)
 const comments = ref([])
 const selectedImage = ref(null)
 
-const userLiked = computed(() => props.post.user_liked)
+// Локальное состояние лайков
+const userLiked = ref(props.post.user_liked || false)
+const likesCount = ref(props.post.likes_count || 0)
+
+// Синхронизация с props
+watch(() => props.post.user_liked, (newVal) => {
+  userLiked.value = newVal
+})
+watch(() => props.post.likes_count, (newVal) => {
+  likesCount.value = newVal
+})
 
 // Загрузка комментариев
 const loadComments = async () => {
@@ -162,7 +172,36 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  supabase.removeChannel(commentsChannel)
+  if (commentsChannel) {
+    supabase.removeChannel(commentsChannel)
+  }
+})
+
+// Realtime лайков
+let likesChannel
+onMounted(() => {
+  likesChannel = supabase
+    .channel(`likes:${props.post.id}`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'likes', filter: `post_id=eq.${props.post.id}` }, (payload) => {
+      if (payload.eventType === 'INSERT') {
+        likesCount.value++
+        if (payload.new.user_id === user.value?.id) {
+          userLiked.value = true
+        }
+      } else if (payload.eventType === 'DELETE') {
+        likesCount.value--
+        if (payload.old.user_id === user.value?.id) {
+          userLiked.value = false
+        }
+      }
+    })
+    .subscribe()
+})
+
+onUnmounted(() => {
+  if (likesChannel) {
+    supabase.removeChannel(likesChannel)
+  }
 })
 
 // Загрузка фото для комментария
@@ -216,24 +255,40 @@ const addComment = async () => {
   }
 }
 
-// Лайк
+// Лайк с оптимистичным обновлением
 const toggleLike = async () => {
   const { data: { user: currentUser } } = await supabase.auth.getUser()
   if (!currentUser) return alert('Войдите, чтобы ставить лайки')
+  
   try {
-    if (userLiked.value) {
-      await supabase
+    const newLiked = !userLiked.value
+    const newCount = likesCount.value + (newLiked ? 1 : -1)
+
+    // Оптимистичное обновление UI
+    userLiked.value = newLiked
+    likesCount.value = newCount
+
+    if (newLiked) {
+      const { error } = await supabase
+        .from('likes')
+        .insert({ user_id: currentUser.id, post_id: props.post.id })
+      
+      if (error) throw error
+    } else {
+      const { error } = await supabase
         .from('likes')
         .delete()
         .eq('user_id', currentUser.id)
         .eq('post_id', props.post.id)
-    } else {
-      await supabase
-        .from('likes')
-        .insert({ user_id: currentUser.id, post_id: props.post.id })
+      
+      if (error) throw error
     }
+
     emit('updated')
   } catch (e) {
+    // Откат при ошибке
+    userLiked.value = !userLiked.value
+    likesCount.value = likesCount.value + (userLiked.value ? 1 : -1)
     console.error('Ошибка лайка:', e)
     alert('Не удалось поставить лайк')
   }
