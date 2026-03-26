@@ -90,6 +90,7 @@
             <!-- Правая панель: активный диалог -->
             <div class="flex-1 flex flex-col h-full overflow-hidden">
                 <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
+                    <!-- Шапка диалога -->
                     <div class="p-4 border-b border-neutral-800 shrink-0">
                         <div class="flex items-center gap-3">
                             <button @click="closeChat" class="md:hidden text-white p-1">
@@ -132,7 +133,9 @@
                         </div>
                     </div>
 
-                    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll"
+                    <!-- Область сообщений (уменьшенная высота) -->
+                    <div ref="messagesContainer"
+                        class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll max-h-[calc(100vh-20rem)]"
                         @scroll="handleScroll">
                         <div v-for="msg in messages" :key="msg.id" class="flex"
                             :class="msg.sender_id === currentUserId ? 'justify-end' : 'justify-start'">
@@ -161,6 +164,7 @@
                         </div>
                     </div>
 
+                    <!-- Панель ввода -->
                     <div class="p-4 border-t border-neutral-800 shrink-0">
                         <div class="flex flex-col gap-2">
                             <div v-if="imagePreview" class="relative inline-block self-start">
@@ -285,7 +289,6 @@ const loadCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
         currentUserId.value = user.id
-        // Обновляем статус онлайн
         await supabase
             .from('user_status')
             .upsert({
@@ -612,27 +615,30 @@ const sendMessage = async () => {
     }
 }
 
-// Realtime подписка на сообщения (исправлена)
-let messagesChannel
-let messagesChannelForSending
+// Глобальная realtime подписка на все сообщения для текущего пользователя
+let realtimeChannel
 
-const setupMessagesRealtime = () => {
-    if (messagesChannel) supabase.removeChannel(messagesChannel)
+const setupRealtime = () => {
+    if (realtimeChannel) {
+        supabase.removeChannel(realtimeChannel)
+    }
 
-    // Создаём канал для получения сообщений
-    messagesChannel = supabase
-        .channel('messages-receive')
-        .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'user_messages',
-            filter: `receiver_id=eq.${currentUserId.value}`
-        }, async (payload) => {
-            console.log('Получено новое сообщение:', payload.new)
+    realtimeChannel = supabase
+        .channel('user-messages-realtime')
+        .on(
+            'postgres_changes',
+            {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'user_messages',
+                filter: `receiver_id=eq.${currentUserId.value}`
+            },
+            async (payload) => {
+                console.log('Новое сообщение:', payload.new)
 
-            // Если это сообщение от текущего собеседника
-            if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
-                if (!messages.value.some(m => m.id === payload.new.id)) {
+                // Если это сообщение от текущего собеседника
+                if (selectedUser.value && !isFavorites.value && payload.new.sender_id === selectedUser.value.id) {
+                    // Добавляем сообщение в список
                     messages.value.push(payload.new)
                     await scrollToBottomIfNeeded()
 
@@ -650,35 +656,37 @@ const setupMessagesRealtime = () => {
                     const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
                     if (chatIndex !== -1) chats.value[chatIndex].unread = 0
                 }
+                // Для избранного
+                else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
+                    if (!messages.value.some(m => m.id === payload.new.id)) {
+                        messages.value.push(payload.new)
+                        await scrollToBottomIfNeeded()
+                    }
+                }
+
+                // Обновляем список чатов
+                await loadChats()
             }
-            // Для избранного
-            else if (isFavorites.value && payload.new.sender_id === currentUserId.value && payload.new.receiver_id === currentUserId.value) {
-                if (!messages.value.some(m => m.id === payload.new.id)) {
-                    messages.value.push(payload.new)
-                    await scrollToBottomIfNeeded()
+        )
+        .on(
+            'postgres_changes',
+            {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'user_messages',
+                filter: `receiver_id=eq.${currentUserId.value}`
+            },
+            (payload) => {
+                // Обновляем статус прочтения
+                if (selectedUser.value && payload.new.sender_id === selectedUser.value.id) {
+                    const index = messages.value.findIndex(m => m.id === payload.new.id)
+                    if (index !== -1) messages.value[index].read = payload.new.read
                 }
             }
-
-            // Обновляем список чатов для обновления счетчиков непрочитанных
-            await loadChats()
+        )
+        .subscribe((status) => {
+            console.log('Realtime статус:', status)
         })
-        .subscribe()
-
-    // Подписываемся на обновления (прочтение)
-    const messagesUpdateChannel = supabase
-        .channel('messages-update')
-        .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'user_messages',
-            filter: `receiver_id=eq.${currentUserId.value}`
-        }, (payload) => {
-            if (selectedUser.value && payload.new.sender_id === selectedUser.value.id) {
-                const index = messages.value.findIndex(m => m.id === payload.new.id)
-                if (index !== -1) messages.value[index].read = payload.new.read
-            }
-        })
-        .subscribe()
 }
 
 // Выбор чата
@@ -699,12 +707,12 @@ onMounted(async () => {
     await loadCurrentUser()
     if (currentUserId.value) {
         await loadChats()
-        setupMessagesRealtime()
+        setupRealtime()
     }
 })
 
 onUnmounted(() => {
-    if (messagesChannel) supabase.removeChannel(messagesChannel)
+    if (realtimeChannel) supabase.removeChannel(realtimeChannel)
     if (typingChannel) supabase.removeChannel(typingChannel)
     if (typingTimeout) clearTimeout(typingTimeout)
     if (currentUserId.value) {
