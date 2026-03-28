@@ -1,217 +1,315 @@
 <template>
-    <div class="max-w-6xl mx-auto h-full">
+    <div class="max-w-7xl mx-auto h-full px-2 sm:px-4">
         <div
-            class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row">
+            class="bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-neutral-700/50 overflow-hidden h-[calc(100vh-8rem)] flex flex-col md:flex-row shadow-2xl">
+            
             <!-- Левая панель: список диалогов -->
             <div :class="[
-                'w-full md:w-80 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col overflow-hidden transition-all duration-300',
+                'w-full md:w-96 border-b md:border-b-0 md:border-r border-neutral-800/50 flex flex-col overflow-hidden transition-all duration-300 bg-gradient-to-b from-neutral-900/60 to-neutral-900/40',
                 selectedUser && !isFavorites ? 'hidden md:flex' : 'flex'
             ]">
-                <div class="p-4 border-b border-neutral-800 shrink-0">
-                    <h2 class="text-xl font-bold text-white">Чаты</h2>
-                </div>
-
-                <div class="p-4 shrink-0">
-                    <div class="relative">
-                        <input v-model="searchQuery" type="text" placeholder="Поиск пользователя..."
-                            class="w-full px-4 py-2 bg-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 transition" />
-                    </div>
-                </div>
-
-                <div v-if="searchQuery" class="flex-1 overflow-y-auto custom-scroll">
-                    <div v-if="searching" class="text-center py-8">
-                        <div
-                            class="inline-block w-6 h-6 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
+                
+                <!-- Шапка с поиском -->
+                <div class="p-3 sm:p-5 border-b border-neutral-800/50 shrink-0 bg-neutral-900/30">
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
+                            Сообщения
+                        </h2>
+                        <div class="text-xs sm:text-sm text-neutral-400">
+                            {{ chats.length }} чатов
                         </div>
                     </div>
-                    <div v-else-if="userResults.length === 0" class="text-center py-8 text-neutral-500">
-                        Пользователи не найдены
+                    
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input 
+                            v-model="searchQuery" 
+                            type="text" 
+                            placeholder="Поиск..."
+                            class="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm sm:text-base bg-neutral-800/50 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-neutral-800 transition-all border border-neutral-700/30"
+                        />
+                    </div>
+                </div>
+
+                <!-- Результаты поиска -->
+                <div v-if="searchQuery" class="flex-1 overflow-y-auto custom-scroll">
+                    <div v-if="searching" class="text-center py-8 sm:py-12">
+                        <div class="inline-block w-6 h-6 sm:w-8 sm:h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                    <div v-else-if="userResults.length === 0" class="text-center py-8 sm:py-12">
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-neutral-600 mb-2 sm:mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <p class="text-neutral-500 text-sm sm:text-base">Не найдены</p>
                     </div>
                     <div v-else>
-                        <button v-for="user in userResults" :key="user.id" @click="startChat(user)"
-                            class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3">
-                            <div class="relative">
-                                <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                    class="w-10 h-10 rounded-full" />
-                                <div v-if="user.status?.is_online"
-                                    class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                        <div v-for="user in userResults" :key="user.id" @click="startChat(user)"
+                            class="group p-3 sm:p-4 hover:bg-gradient-to-r hover:from-neutral-800/50 hover:to-transparent transition-all duration-200 cursor-pointer border-l-2 border-transparent hover:border-blue-500">
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <div class="relative">
+                                    <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-neutral-700 group-hover:ring-blue-500/50 transition-all" />
+                                    <div v-if="user.status?.is_online"
+                                        class="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-neutral-900 animate-pulse">
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold text-white text-sm sm:text-base truncate group-hover:text-blue-400 transition">
+                                        {{ user.full_name || user.username }}
+                                    </div>
+                                    <div class="text-xs sm:text-sm text-neutral-400 truncate">@{{ user.username }}</div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="font-medium text-white">{{ user.full_name || user.username }}</div>
-                                <div class="text-sm text-neutral-400">@{{ user.username }}</div>
-                            </div>
-                        </button>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Список чатов -->
                 <div v-else class="flex-1 overflow-y-auto custom-scroll">
+                    <!-- Избранное -->
                     <button @click="openFavorites"
-                        class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="font-medium text-white">Избранное</div>
-                            <div class="text-sm text-neutral-400">Личные заметки</div>
-                        </div>
-                    </button>
-
-                    <button v-for="chat in chats" :key="chat.user.id" @click="selectChat(chat.user)"
-                        class="w-full p-3 text-left hover:bg-neutral-800/50 transition-colors flex items-center gap-3"
-                        :class="{ 'bg-neutral-800/50': selectedUser?.id === chat.user.id }">
+                        class="w-full p-3 sm:p-4 text-left hover:bg-gradient-to-r hover:from-neutral-800/50 hover:to-transparent transition-all duration-200 flex items-center gap-2 sm:gap-3 border-l-2 border-transparent hover:border-pink-500 group">
                         <div class="relative">
-                            <img :src="chat.user.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                class="w-10 h-10 rounded-full" />
-                            <div v-if="chat.user.status?.is_online"
-                                class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-white truncate">{{ chat.user.full_name || chat.user.username }}
-                            </div>
-                            <div class="text-sm text-neutral-400 truncate">@{{ chat.user.username }}</div>
-                        </div>
-                        <div v-if="chat.unread > 0"
-                            class="w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
-                            {{ chat.unread > 9 ? '9+' : chat.unread }}
+                            <div class="font-semibold text-white text-sm sm:text-base">Избранное</div>
+                            <div class="text-xs sm:text-sm text-neutral-400 truncate">Личные заметки</div>
                         </div>
                     </button>
 
-                    <div v-if="!loadingChats && chats.length === 0" class="text-center py-8 text-neutral-500">
-                        Нет чатов<br>Начните переписку с кем-нибудь
+                    <!-- Диалоги -->
+                    <div v-for="chat in chats" :key="chat.user.id" @click="selectChat(chat.user)"
+                        class="group relative p-3 sm:p-4 hover:bg-gradient-to-r hover:from-neutral-800/50 hover:to-transparent transition-all duration-200 cursor-pointer border-l-2"
+                        :class="[
+                            selectedUser?.id === chat.user.id 
+                                ? 'border-l-blue-500 bg-gradient-to-r from-blue-500/10 to-transparent' 
+                                : 'border-l-transparent'
+                        ]">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <div class="relative">
+                                <img :src="chat.user.avatar_url || '/images/defaultavatar/default-avatar.png'"
+                                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-neutral-700 group-hover:ring-blue-500/50 transition-all"
+                                    :class="{ 'ring-blue-500': selectedUser?.id === chat.user.id }" />
+                                <div v-if="chat.user.status?.is_online"
+                                    class="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-neutral-900">
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="font-semibold text-white text-sm sm:text-base truncate">{{ chat.user.full_name || chat.user.username }}</div>
+                                    <div class="text-[10px] sm:text-xs text-neutral-500 shrink-0">{{ chat.lastMessageTime || '' }}</div>
+                                </div>
+                                <div class="text-xs sm:text-sm text-neutral-400 truncate">@{{ chat.user.username }}</div>
+                                <div v-if="chat.lastMessage" class="text-[11px] sm:text-xs text-neutral-500 truncate mt-0.5 sm:mt-1">
+                                    {{ chat.lastMessage }}
+                                </div>
+                            </div>
+                            <div v-if="chat.unread > 0"
+                                class="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center text-white shadow-lg shrink-0">
+                                {{ chat.unread > 9 ? '9+' : chat.unread }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="!loadingChats && chats.length === 0" class="text-center py-8 sm:py-12">
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-neutral-600 mb-2 sm:mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <p class="text-neutral-500 text-sm sm:text-base">Нет чатов</p>
+                        <p class="text-xs sm:text-sm text-neutral-600 mt-1">Начните переписку</p>
                     </div>
                 </div>
             </div>
 
             <!-- Правая панель: активный диалог -->
-            <div class="flex-1 flex flex-col h-full overflow-hidden">
+            <div class="flex-1 flex flex-col h-full overflow-hidden bg-gradient-to-b from-neutral-900/30 to-neutral-900/20">
                 <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
                     <!-- Шапка диалога -->
-                    <div class="p-4 border-b border-neutral-800 shrink-0">
-                        <div class="flex items-center gap-3">
-                            <button @click="closeChat" class="md:hidden text-white p-1">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 19l-7-7 7-7" />
+                    <div class="p-3 sm:p-4 border-b border-neutral-800/50 shrink-0 bg-neutral-900/30 backdrop-blur-sm">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <button @click="closeChat" class="md:hidden text-white p-1.5 sm:p-2 hover:bg-neutral-800 rounded-lg transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
                             <NuxtLink v-if="!isFavorites" :to="`/profile/${selectedUser.id}`"
-                                class="flex items-center gap-3 hover:opacity-80 transition flex-1">
+                                class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition flex-1 group">
                                 <div class="relative">
                                     <img :src="selectedUser.avatar_url || '/images/defaultavatar/default-avatar.png'"
-                                        class="w-10 h-10 rounded-full" />
+                                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-neutral-700 group-hover:ring-blue-500 transition" />
                                     <div v-if="!isFavorites && selectedUser.status?.is_online"
-                                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-800">
+                                        class="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-neutral-900">
                                     </div>
                                 </div>
-                                <div class="flex-1">
-                                    <div class="font-medium text-white">{{ selectedUser.full_name ||
-                                        selectedUser.username }}</div>
-                                    <div class="text-sm text-neutral-400">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold text-white text-sm sm:text-base truncate">{{ selectedUser.full_name || selectedUser.username }}</div>
+                                    <div class="text-xs sm:text-sm text-neutral-400 truncate">
                                         @{{ selectedUser.username }}
-                                        <span v-if="typingStatus && !isFavorites"
-                                            class="text-blue-400 ml-2 animate-pulse">печатает...</span>
+                                        <span v-if="typingStatus && !isFavorites" class="text-blue-400 ml-1 sm:ml-2 inline-flex gap-0.5">
+                                            <span class="animate-bounce">.</span>
+                                            <span class="animate-bounce" style="animation-delay: 0.2s">.</span>
+                                            <span class="animate-bounce" style="animation-delay: 0.4s">.</span>
+                                        </span>
                                     </div>
                                 </div>
                             </NuxtLink>
-                            <div v-else class="flex items-center gap-3 flex-1">
-                                <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                            <div v-else class="flex items-center gap-2 sm:gap-3 flex-1">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                     </svg>
                                 </div>
-                                <div>
-                                    <div class="font-medium text-white">Избранное</div>
-                                    <div class="text-sm text-neutral-400">Ваши личные заметки</div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-white text-sm sm:text-base">Избранное</div>
+                                    <div class="text-xs sm:text-sm text-neutral-400">Личные заметки</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Область сообщений -->
-                    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll"
+                    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 custom-scroll touch-pan-y"
                         @scroll="handleScroll">
-                        <div v-for="msg in messages" :key="msg.id" class="flex"
-                            :class="msg.sender_id === currentUserId ? 'justify-end' : 'justify-start'">
+                        <div v-for="msg in messages" :key="msg.id" 
+                            class="flex message-group relative"
+                            :class="[
+                                msg.sender_id === currentUserId ? 'justify-end' : 'justify-start',
+                                replyToMessageId === msg.id ? 'bg-blue-500/20 rounded-lg -mx-2 px-2' : ''
+                            ]"
+                            @contextmenu.prevent="handleContextMenu($event, msg)"
+                            @touchstart="onTouchStart($event, msg)"
+                            @touchmove="onTouchMove($event, msg)"
+                            @touchend="onTouchEnd($event, msg)">
+                            
+                            <!-- Контекстное меню -->
+                            <div v-if="contextMenuVisible && contextMenuMessage?.id === msg.id" 
+                                class="fixed z-50 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 py-1 min-w-[160px]"
+                                :style="{ top: contextMenuY + 'px', left: contextMenuX + 'px' }"
+                                @click.stop>
+                                <button v-if="contextMenuMessage.sender_id === currentUserId" 
+                                    @click="deleteMessage(contextMenuMessage)"
+                                    class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-neutral-700 transition flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Удалить сообщение
+                                </button>
+                                <button @click="replyToMessageFromMenu(contextMenuMessage)"
+                                    class="w-full px-4 py-2 text-left text-sm text-white hover:bg-neutral-700 transition flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    Ответить
+                                </button>
+                            </div>
+                            
                             <div :class="[
-                                'max-w-[75%] rounded-2xl p-3 shadow-sm transition-all duration-200',
+                                'max-w-[85%] sm:max-w-[70%] rounded-2xl p-2.5 sm:p-3 shadow-lg transition-all duration-200 relative',
                                 msg.sender_id === currentUserId
                                     ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white'
-                                    : 'bg-neutral-800/80 text-white backdrop-blur-sm border border-neutral-700/30'
+                                    : 'bg-neutral-800/80 text-white backdrop-blur-sm border border-neutral-700/30',
+                                isMessageSwiped === msg.id ? 'transform -translate-x-16 sm:-translate-x-20' : ''
                             ]">
-                                <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ msg.content }}</p>
+                                <!-- Ответ на сообщение -->
+                                <div v-if="msg.reply_to" class="mb-1.5 sm:mb-2 p-1.5 sm:p-2 rounded-lg bg-black/30 text-xs border-l-2 border-blue-400">
+                                    <div class="text-blue-300 text-[10px] sm:text-xs font-medium">
+                                        Ответ на сообщение
+                                    </div>
+                                    <div class="text-[11px] sm:text-sm truncate">{{ msg.reply_to.content }}</div>
+                                </div>
+                                
+                                <p class="text-sm sm:text-base whitespace-pre-wrap leading-relaxed break-words">{{ msg.content }}</p>
                                 <img v-if="msg.image_url" :src="msg.image_url"
-                                    class="mt-2 max-h-48 rounded-lg cursor-pointer" @click="openImage(msg.image_url)" />
+                                    class="mt-1.5 sm:mt-2 max-h-48 sm:max-h-64 rounded-lg cursor-pointer hover:opacity-90 transition" @click.stop="openImage(msg.image_url)" />
                                 <div class="flex items-center justify-end gap-1 mt-1">
-                                    <span class="text-[10px] opacity-70">{{ formatTime(msg.created_at) }}</span>
+                                    <span class="text-[9px] sm:text-[10px] opacity-70">{{ formatTime(msg.created_at) }}</span>
                                     <span v-if="msg.sender_id === currentUserId && msg.read"
-                                        class="text-[10px] text-blue-200">✓✓</span>
+                                        class="text-[9px] sm:text-[10px] text-blue-200">✓✓</span>
                                     <span v-else-if="msg.sender_id === currentUserId"
-                                        class="text-[10px] opacity-70">✓</span>
+                                        class="text-[9px] sm:text-[10px] opacity-70">✓</span>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Кнопка для прокрутки вниз -->
+                        <button v-if="isUserScrolledUp && messages.length > 5"
+                            @click="scrollToBottom"
+                            class="fixed bottom-24 right-4 md:bottom-28 md:right-8 bg-blue-600 rounded-full p-2 sm:p-3 shadow-lg hover:bg-blue-700 transition z-10">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7-7-7m14-6l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        
                         <div v-if="loadingMessages" class="text-center py-4">
-                            <div
-                                class="inline-block w-5 h-5 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
-                            </div>
+                            <div class="inline-block w-5 h-5 sm:w-6 sm:h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
+                        <div ref="scrollAnchor" class="h-0"></div>
                     </div>
 
                     <!-- Панель ввода -->
-                    <div class="p-4 border-t border-neutral-800 shrink-0">
+                    <div class="p-3 sm:p-4 border-t border-neutral-800/50 shrink-0 bg-neutral-900/30 backdrop-blur-sm">
+                        <!-- Ответ на сообщение -->
+                        <div v-if="replyToMessage" class="mb-2 p-2 sm:p-3 bg-neutral-800/50 rounded-lg flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="text-xs sm:text-sm text-blue-400 font-medium">Ответ на сообщение:</div>
+                                <div class="text-xs sm:text-sm text-neutral-300 truncate">{{ replyToMessage.content }}</div>
+                            </div>
+                            <button @click="clearReply" class="p-1 hover:bg-neutral-700 rounded">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        
                         <div class="flex flex-col gap-2">
                             <div v-if="imagePreview" class="relative inline-block self-start">
-                                <img :src="imagePreview" class="h-16 rounded-lg" />
+                                <img :src="imagePreview" class="h-16 sm:h-20 rounded-lg shadow-lg" />
                                 <button @click="clearImage"
-                                    class="absolute -top-2 -right-2 bg-red-500 rounded-full p-1">
-                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
+                                    class="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 hover:scale-110 transition shadow-lg">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </div>
-                            <div class="flex items-end gap-2">
-                                <label
-                                    class="cursor-pointer p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition shrink-0">
+                            <div class="flex items-end gap-1 sm:gap-2">
+                                <label class="cursor-pointer p-2 sm:p-2.5 bg-neutral-800 hover:bg-neutral-700 rounded-full transition-all hover:scale-110 shrink-0 group">
                                     <input type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
-                                    <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400 group-hover:text-blue-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                 </label>
                                 <textarea v-model="newMessageText" @keydown.enter.exact.prevent="sendMessage"
                                     @input="onTyping" placeholder="Напишите сообщение..." rows="1"
-                                    class="flex-1 px-4 py-2 bg-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"></textarea>
+                                    class="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-neutral-800/50 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none border border-neutral-700/30 focus:border-blue-500 transition"></textarea>
                                 <button @click="sendMessage"
                                     :disabled="(!newMessageText.trim() && !imageFile) || sending"
-                                    class="p-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-full transition shrink-0">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    class="p-2 sm:p-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 rounded-full transition-all hover:scale-110 shrink-0 shadow-lg">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                     </svg>
                                 </button>
                             </div>
                             <div v-if="uploadingImage" class="text-xs text-neutral-400 flex items-center gap-2">
-                                <div
-                                    class="inline-block w-3 h-3 border-2 border-neutral-500 border-t-transparent rounded-full animate-spin">
-                                </div>
+                                <div class="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                                 Загрузка фото...
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div v-else class="flex-1 flex items-center justify-center text-neutral-500 p-4 hidden md:flex">
-                    Выберите диалог для начала общения
+                <div v-else class="flex-1 flex flex-col items-center justify-center text-neutral-500 p-4 sm:p-8">
+                    <svg class="w-16 h-16 sm:w-24 sm:h-24 mb-3 sm:mb-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <p class="text-sm sm:text-base font-medium">Выберите диалог</p>
+                    <p class="text-xs sm:text-sm mt-1">Начните общение с друзьями</p>
                 </div>
             </div>
         </div>
@@ -242,86 +340,264 @@ const loadingMessages = ref(false)
 const newMessageText = ref('')
 const sending = ref(false)
 const messagesContainer = ref(null)
+const scrollAnchor = ref(null)
 const uploadingImage = ref(false)
 const imageFile = ref(null)
 const imagePreview = ref(null)
 const selectedImage = ref(null)
-const lastMessageId = ref(null)
+
+// Переменные для ответа на сообщения
+const replyToMessage = ref(null)
+const replyToMessageId = ref(null)
+
+// Переменные для контекстного меню
+const contextMenuVisible = ref(false)
+const contextMenuMessage = ref(null)
+const contextMenuX = ref(0)
+const contextMenuY = ref(0)
+
+// Переменные для свайпа на мобильных
+let touchStartX = 0
+let touchStartTime = 0
+const isMessageSwiped = ref(null)
+let swipeTimeout = null
+let longPressTimeout = null
 
 // Статус печати
 const typingStatus = ref(false)
 let typingTimeout = null
 let pollingInterval = null
+let chatsPollingInterval = null
+let onlineStatusInterval = null
 
 // Переменная для отслеживания, прокручен ли пользователь вверх
 const isUserScrolledUp = ref(false)
 
 const isFavorites = computed(() => selectedUser.value && selectedUser.value.id === currentUserId.value)
 
-// --- Функции прокрутки ---
-const handleScroll = () => {
-    if (!messagesContainer.value) return
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
-    isUserScrolledUp.value = scrollHeight - scrollTop - clientHeight > 50
-}
-
-const scrollToBottom = async () => {
-    await nextTick()
-    if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-        isUserScrolledUp.value = false
-    }
-}
-
-const scrollToBottomIfNeeded = async () => {
-    await nextTick()
-    if (!messagesContainer.value || isUserScrolledUp.value) return
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-}
-// -------------------------
-
-// Закрыть чат на мобильных
-const closeChat = () => {
-    selectedUser.value = null
-}
-
-// Получаем ID текущего пользователя
-const loadCurrentUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-        currentUserId.value = user.id
-        await supabase
+// --- Функции для отслеживания онлайн статуса ---
+const updateUserOnlineStatus = async () => {
+    if (!currentUserId.value) return
+    
+    try {
+        const { error } = await supabase
             .from('user_status')
             .upsert({
-                user_id: user.id,
+                user_id: currentUserId.value,
                 is_online: true,
-                last_seen: new Date().toISOString()
-            }, { onConflict: 'user_id' })
-    } else {
-        currentUserId.value = null
+                last_seen: new Date().toISOString(),
+                last_activity: new Date().toISOString()
+            }, { 
+                onConflict: 'user_id'
+            })
+        
+        if (error) throw error
+        
+        if (onlineStatusInterval) clearInterval(onlineStatusInterval)
+        onlineStatusInterval = setInterval(async () => {
+            await supabase
+                .from('user_status')
+                .update({ 
+                    last_activity: new Date().toISOString(),
+                    is_online: true
+                })
+                .eq('user_id', currentUserId.value)
+        }, 30000)
+    } catch (err) {
+        console.error('Ошибка обновления статуса:', err)
     }
 }
 
-// Загрузка статусов пользователей
 const loadUsersStatus = async (userIds) => {
     if (!userIds.length) return {}
+    
     const { data } = await supabase
         .from('user_status')
-        .select('user_id, is_online')
+        .select('user_id, is_online, last_activity')
         .in('user_id', userIds)
+    
     const statusMap = {}
-    data?.forEach(s => statusMap[s.user_id] = s)
+    data?.forEach(s => {
+        const isOnline = s.is_online && s.last_activity && new Date(s.last_activity) > new Date(Date.now() - 2 * 60 * 1000)
+        statusMap[s.user_id] = {
+            is_online: isOnline,
+            last_activity: s.last_activity
+        }
+    })
     return statusMap
 }
 
-// Загрузка списка чатов
-const loadChats = async () => {
-    if (!currentUserId.value) return
+// --- Функции для ответа на сообщения ---
+const setReplyToMessage = (msg) => {
+    replyToMessage.value = {
+        id: msg.id,
+        content: msg.content?.length > 100 ? msg.content.substring(0, 100) + '...' : msg.content || 'Изображение',
+        sender_id: msg.sender_id
+    }
+    replyToMessageId.value = msg.id
+    
+    nextTick(() => {
+        const textarea = document.querySelector('textarea')
+        if (textarea) textarea.focus()
+    })
+    
+    setTimeout(() => {
+        replyToMessageId.value = null
+    }, 1000)
+}
+
+const clearReply = () => {
+    replyToMessage.value = null
+    replyToMessageId.value = null
+}
+
+// --- Отправка сообщения ---
+let isSendingMessage = false
+
+const sendMessage = async () => {
+    if (isSendingMessage) {
+        return
+    }
+    
+    const hasText = newMessageText.value && newMessageText.value.trim()
+    const hasImage = imageFile.value
+    
+    if (!hasText && !hasImage) return
+    if (sending.value) return
+    if (!selectedUser.value) return alert('Выберите получателя')
+    if (!currentUserId.value) return alert('Вы не авторизованы')
+
+    const messageText = hasText ? newMessageText.value.trim() : ''
+    const currentImageFile = imageFile.value
+    const currentReplyTo = replyToMessage.value
+
+    if (typingTimeout) clearTimeout(typingTimeout)
+    await sendTypingStatus(false)
+
+    isSendingMessage = true
+    sending.value = true
+    
     try {
-        const { data: messagesData } = await supabase
+        let imageUrl = null
+        if (currentImageFile) {
+            imageUrl = await uploadImage()
+            if (!imageUrl && currentImageFile) {
+                isSendingMessage = false
+                sending.value = false
+                return
+            }
+        }
+
+        const receiverId = isFavorites.value ? currentUserId.value : selectedUser.value.id
+        
+        const messageData = {
+            sender_id: currentUserId.value,
+            receiver_id: receiverId,
+            content: messageText || '',
+            image_url: imageUrl,
+            read: false
+        }
+        
+        if (currentReplyTo) {
+            messageData.reply_to = currentReplyTo
+        }
+
+        const { data, error } = await supabase
+            .from('user_messages')
+            .insert(messageData)
+            .select()
+            .single()
+
+        if (error) throw error
+
+        if (data) {
+            messages.value.push(data)
+            newMessageText.value = ''
+            clearImage()
+            clearReply()
+            await refreshChatsInBackground()
+            await scrollToBottom()
+        }
+    } catch (err) {
+        console.error('Ошибка отправки:', err)
+        alert(`Не удалось отправить сообщение: ${err.message || 'неизвестная ошибка'}`)
+    } finally {
+        sending.value = false
+        isSendingMessage = false
+    }
+}
+
+// --- Функции печати ---
+const sendTypingStatus = async (isTyping) => {
+    if (!currentUserId.value || !selectedUser.value || isFavorites.value) return
+    try {
+        await supabase
+            .from('typing_status')
+            .upsert({
+                user_id: currentUserId.value,
+                chat_with: selectedUser.value.id,
+                is_typing: isTyping,
+                updated_at: new Date().toISOString()
+            }, { 
+                onConflict: 'user_id,chat_with'
+            })
+    } catch (err) {
+        // Игнорируем ошибки
+    }
+}
+
+const checkTypingStatus = async () => {
+    if (!selectedUser.value || isFavorites.value) return
+
+    try {
+        const { data, error } = await supabase
+            .from('typing_status')
+            .select('is_typing, updated_at')
+            .eq('user_id', selectedUser.value.id)
+            .eq('chat_with', currentUserId.value)
+            .maybeSingle()
+
+        if (data && !error) {
+            const updatedAt = new Date(data.updated_at)
+            const now = new Date()
+            const diffSeconds = (now - updatedAt) / 1000
+
+            if (data.is_typing && diffSeconds < 3) {
+                typingStatus.value = true
+                setTimeout(() => {
+                    if (typingStatus.value) typingStatus.value = false
+                }, 3000)
+            } else {
+                typingStatus.value = false
+            }
+        } else {
+            typingStatus.value = false
+        }
+    } catch (err) {
+        typingStatus.value = false
+    }
+}
+
+const onTyping = () => {
+    if (!selectedUser.value || isFavorites.value) return
+    sendTypingStatus(true)
+    if (typingTimeout) clearTimeout(typingTimeout)
+    typingTimeout = setTimeout(() => {
+        sendTypingStatus(false)
+    }, 2000)
+}
+
+// --- Загрузка чатов ---
+const refreshChatsInBackground = async () => {
+    if (!currentUserId.value) return
+    
+    try {
+        const { data: messagesData, error: messagesError } = await supabase
             .from('user_messages')
             .select('sender_id, receiver_id')
             .or(`sender_id.eq.${currentUserId.value},receiver_id.eq.${currentUserId.value}`)
+        
+        if (messagesError) throw messagesError
 
         const userIds = new Set()
         messagesData?.forEach(msg => {
@@ -331,87 +607,64 @@ const loadChats = async () => {
 
         if (userIds.size === 0) {
             chats.value = []
+            loadingChats.value = false
             return
         }
 
-        const { data: profiles } = await supabase
+        const { data: profiles, error: profilesError } = await supabase
             .from('profiles')
             .select('id, username, full_name, avatar_url')
             .in('id', Array.from(userIds))
+        
+        if (profilesError) throw profilesError
 
         const statuses = await loadUsersStatus(Array.from(userIds))
 
         const chatsWithUnread = await Promise.all(profiles.map(async (profile) => {
-            const { count } = await supabase
-                .from('user_messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('sender_id', profile.id)
-                .eq('receiver_id', currentUserId.value)
-                .eq('read', false)
-            return {
-                user: { ...profile, status: statuses[profile.id] },
-                unread: count || 0
+            try {
+                const { count, error: countError } = await supabase
+                    .from('user_messages')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('sender_id', profile.id)
+                    .eq('receiver_id', currentUserId.value)
+                    .eq('read', false)
+                
+                return {
+                    user: { ...profile, status: statuses[profile.id] || { is_online: false } },
+                    unread: count || 0
+                }
+            } catch (err) {
+                return {
+                    user: { ...profile, status: { is_online: false } },
+                    unread: 0
+                }
             }
         }))
 
         chats.value = chatsWithUnread.sort((a, b) => b.unread - a.unread)
+        
+        for (const chat of chats.value) {
+            const { data } = await supabase
+                .from('user_messages')
+                .select('content, created_at')
+                .or(`and(sender_id.eq.${currentUserId.value},receiver_id.eq.${chat.user.id}),and(sender_id.eq.${chat.user.id},receiver_id.eq.${currentUserId.value})`)
+                .order('created_at', { ascending: false })
+                .limit(1)
+            
+            if (data && data[0]) {
+                chat.lastMessage = data[0].content?.length > 40 ? data[0].content.substring(0, 40) + '...' : data[0].content || 'Изображение'
+                chat.lastMessageTime = formatTimeShort(data[0].created_at)
+            }
+        }
+        
+        loadingChats.value = false
     } catch (err) {
         console.error('Ошибка загрузки чатов:', err)
+        loadingChats.value = false
     }
 }
 
-// Поиск пользователей
-let searchTimeout
-watch(searchQuery, (query) => {
-    if (!query.trim()) {
-        userResults.value = []
-        return
-    }
-    if (searchTimeout) clearTimeout(searchTimeout)
-    searchTimeout = setTimeout(async () => {
-        searching.value = true
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('id, username, full_name, avatar_url')
-                .or(`username.ilike.%${query}%,full_name.ilike.%${query}%`)
-                .limit(20)
-            if (error) throw error
-            const userIds = data.map(u => u.id)
-            const statuses = await loadUsersStatus(userIds)
-            userResults.value = data.map(u => ({ ...u, status: statuses[u.id] }))
-        } catch (err) {
-            console.error('Ошибка поиска:', err)
-            userResults.value = []
-        } finally {
-            searching.value = false
-        }
-    }, 300)
-})
-
-// Начать чат
-const startChat = async (userProfile) => {
-    searchQuery.value = ''
-    selectedUser.value = userProfile
-    await loadMessages()
-    if (!chats.value.some(c => c.user.id === userProfile.id)) {
-        chats.value.unshift({ user: userProfile, unread: 0 })
-    }
-}
-
-// Открыть избранное
-const openFavorites = async () => {
-    if (!currentUserId.value) return
-    selectedUser.value = {
-        id: currentUserId.value,
-        username: currentUserId.value,
-        full_name: 'Избранное',
-        avatar_url: null
-    }
-    await loadMessages()
-}
-
-// Загрузка сообщений
+// --- Загрузка сообщений ---
 const loadMessages = async () => {
     if (!selectedUser.value || !currentUserId.value) return
     loadingMessages.value = true
@@ -431,16 +684,12 @@ const loadMessages = async () => {
                 .or(`and(sender_id.eq.${currentUserId.value},receiver_id.eq.${selectedUser.value.id}),and(sender_id.eq.${selectedUser.value.id},receiver_id.eq.${currentUserId.value})`)
                 .order('created_at', { ascending: true })
         }
-        const { data } = await query
+        const { data, error } = await query
+        if (error) throw error
+        
         messages.value = data || []
 
-        // Сохраняем ID последнего сообщения
-        if (messages.value.length > 0) {
-            lastMessageId.value = messages.value[messages.value.length - 1].id
-        }
-
         if (!isFavorites.value) {
-            // Отмечаем непрочитанные сообщения от собеседника
             const unreadMessages = messages.value.filter(m => m.sender_id === selectedUser.value.id && !m.read)
             if (unreadMessages.length > 0) {
                 await supabase
@@ -467,27 +716,26 @@ const loadMessages = async () => {
     }
 }
 
-// Проверка новых сообщений (polling)
+// --- Проверка новых сообщений ---
 const checkForNewMessages = async () => {
     if (!selectedUser.value || !currentUserId.value || isFavorites.value) return
 
     try {
-        // Проверяем новые сообщения от собеседника
+        const lastMessageTime = messages.value[messages.value.length - 1]?.created_at || '2000-01-01'
+        
         const { data: newMessages, error } = await supabase
             .from('user_messages')
             .select('*')
             .eq('sender_id', selectedUser.value.id)
             .eq('receiver_id', currentUserId.value)
-            .gt('created_at', messages.value[messages.value.length - 1]?.created_at || '2000-01-01')
+            .gt('created_at', lastMessageTime)
             .order('created_at', { ascending: true })
 
         if (error) throw error
 
         if (newMessages && newMessages.length > 0) {
-            // Добавляем новые сообщения
             messages.value.push(...newMessages)
 
-            // Отмечаем их как прочитанные
             await supabase
                 .from('user_messages')
                 .update({ read: true })
@@ -495,134 +743,82 @@ const checkForNewMessages = async () => {
                 .eq('receiver_id', currentUserId.value)
                 .eq('read', false)
 
-            // Обновляем статус прочтения локально
             messages.value = messages.value.map(m =>
                 m.sender_id === selectedUser.value.id && !m.read ? { ...m, read: true } : m
             )
 
-            // Обновляем счетчик непрочитанных в чатах
             const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
             if (chatIndex !== -1) chats.value[chatIndex].unread = 0
 
             await scrollToBottomIfNeeded()
-        }
-
-        // Проверяем статус прочтения наших отправленных сообщений
-        if (messages.value.length > 0) {
-            const { data: updatedMessages } = await supabase
-                .from('user_messages')
-                .select('id, read')
-                .eq('sender_id', currentUserId.value)
-                .eq('receiver_id', selectedUser.value.id)
-                .eq('read', true)
-
-            if (updatedMessages && updatedMessages.length > 0) {
-                updatedMessages.forEach(updated => {
-                    const index = messages.value.findIndex(m => m.id === updated.id)
-                    if (index !== -1 && !messages.value[index].read) {
-                        messages.value[index].read = true
-                    }
-                })
-            }
         }
     } catch (err) {
         console.error('Ошибка проверки новых сообщений:', err)
     }
 }
 
-// Проверка новых чатов и обновление статусов
 const checkForUpdates = async () => {
     if (!currentUserId.value) return
+    await refreshChatsInBackground()
+}
 
-    // Обновляем список чатов (для непрочитанных)
-    await loadChats()
-
-    // Обновляем статусы онлайн
-    const userIds = [...new Set([
-        ...chats.value.map(c => c.user.id),
-        ...(selectedUser.value && !isFavorites.value ? [selectedUser.value.id] : [])
-    ])]
-
-    if (userIds.length > 0) {
-        const statuses = await loadUsersStatus(userIds)
-        chats.value.forEach(chat => {
-            if (statuses[chat.user.id]) {
-                chat.user.status = statuses[chat.user.id]
-            }
-        })
-        if (selectedUser.value && !isFavorites.value && statuses[selectedUser.value.id]) {
-            selectedUser.value.status = statuses[selectedUser.value.id]
-        }
+// --- Остальные функции ---
+const scrollToBottom = async () => {
+    await nextTick()
+    if (scrollAnchor.value) {
+        scrollAnchor.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        isUserScrolledUp.value = false
     }
 }
 
-// Функции печати
-const sendTypingStatus = async (isTyping) => {
-    if (!currentUserId.value || !selectedUser.value || isFavorites.value) return
-    try {
-        await supabase
-            .from('typing_status')
-            .upsert({
-                user_id: currentUserId.value,
-                chat_with: selectedUser.value.id,
-                is_typing: isTyping,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id,chat_with' })
-    } catch (err) {
-        console.error('Ошибка отправки статуса печати:', err)
+const scrollToBottomIfNeeded = async () => {
+    await nextTick()
+    if (!messagesContainer.value || isUserScrolledUp.value) return
+    if (scrollAnchor.value) {
+        scrollAnchor.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
 }
 
-// Проверка статуса печати собеседника
-const checkTypingStatus = async () => {
-    if (!selectedUser.value || isFavorites.value) return
+const handleScroll = () => {
+    if (!messagesContainer.value) return
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
+    isUserScrolledUp.value = scrollHeight - scrollTop - clientHeight > 100
+}
 
+const closeChat = () => {
+    selectedUser.value = null
+}
+
+const loadCurrentUser = async () => {
     try {
-        const { data } = await supabase
-            .from('typing_status')
-            .select('is_typing, updated_at')
-            .eq('user_id', selectedUser.value.id)
-            .eq('chat_with', currentUserId.value)
-            .single()
-
-        if (data) {
-            // Если статус печати был обновлён менее 3 секунд назад
-            const updatedAt = new Date(data.updated_at)
-            const now = new Date()
-            const diffSeconds = (now - updatedAt) / 1000
-
-            if (data.is_typing && diffSeconds < 3) {
-                typingStatus.value = true
-                setTimeout(() => {
-                    if (typingStatus.value) typingStatus.value = false
-                }, 3000)
-            } else {
-                typingStatus.value = false
-            }
-        } else {
-            typingStatus.value = false
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) throw error
+        if (user) {
+            currentUserId.value = user.id
+            await updateUserOnlineStatus()
         }
     } catch (err) {
-        // Если записи нет, просто сбрасываем статус
-        typingStatus.value = false
+        console.error('Ошибка загрузки пользователя:', err)
     }
 }
 
-const onTyping = () => {
-    if (!selectedUser.value || isFavorites.value) return
-    sendTypingStatus(true)
-    if (typingTimeout) clearTimeout(typingTimeout)
-    typingTimeout = setTimeout(() => {
-        sendTypingStatus(false)
-    }, 2000)
+const openFavorites = async () => {
+    if (!currentUserId.value) return
+    selectedUser.value = {
+        id: currentUserId.value,
+        username: 'favorites',
+        full_name: 'Избранное',
+        avatar_url: null,
+        status: { is_online: false }
+    }
+    await loadMessages()
 }
 
-// Обработка изображений
 const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-        alert('Файл слишком большой (макс. 2MB)')
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Файл слишком большой (макс. 10MB)')
         return
     }
     if (!file.type.startsWith('image/')) {
@@ -648,6 +844,7 @@ const uploadImage = async () => {
             .from('chat-images')
             .upload(fileName, imageFile.value)
         if (error) throw error
+        
         const { data: { publicUrl } } = supabase.storage
             .from('chat-images')
             .getPublicUrl(fileName)
@@ -662,80 +859,197 @@ const uploadImage = async () => {
     }
 }
 
-// Отправка сообщения
-const sendMessage = async () => {
-    if ((!newMessageText.value.trim() && !imageFile.value) || sending.value) return
-    if (!selectedUser.value) return alert('Выберите получателя')
-    if (!currentUserId.value) return alert('Вы не авторизованы')
-
-    const messageText = newMessageText.value.trim()
-    const currentImageFile = imageFile.value
-
-    if (typingTimeout) clearTimeout(typingTimeout)
-    await sendTypingStatus(false)
-
-    sending.value = true
+const deleteMessage = async (message) => {
+    if (!confirm('Удалить это сообщение?')) return
+    
     try {
-        let imageUrl = null
-        if (currentImageFile) {
-            imageUrl = await uploadImage()
-            if (!imageUrl && currentImageFile) {
-                sending.value = false
-                return
-            }
-        }
-
-        const receiverId = isFavorites.value ? currentUserId.value : selectedUser.value.id
-
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('user_messages')
-            .insert({
-                sender_id: currentUserId.value,
-                receiver_id: receiverId,
-                content: messageText,
-                image_url: imageUrl,
-                read: false
-            })
-            .select()
-            .single()
-
+            .delete()
+            .eq('id', message.id)
+            .eq('sender_id', currentUserId.value)
+        
         if (error) throw error
-
-        // Добавляем сообщение локально
-        messages.value.push(data)
-        newMessageText.value = ''
-        clearImage()
-
-        // Обновляем список чатов
-        await loadChats()
-        await scrollToBottom()
+        
+        messages.value = messages.value.filter(m => m.id !== message.id)
+        contextMenuVisible.value = false
     } catch (err) {
-        console.error('Ошибка отправки:', err)
-        alert(`Не удалось отправить сообщение: ${err.message || 'неизвестная ошибка'}`)
-    } finally {
-        sending.value = false
+        console.error('Ошибка удаления сообщения:', err)
+        alert('Не удалось удалить сообщение')
     }
 }
 
-// Выбор чата
+const startChat = async (userProfile) => {
+    searchQuery.value = ''
+    selectedUser.value = userProfile
+    await loadMessages()
+    if (!chats.value.some(c => c.user.id === userProfile.id)) {
+        chats.value.unshift({ user: userProfile, unread: 0 })
+    }
+}
+
 const selectChat = async (user) => {
     selectedUser.value = user
     await loadMessages()
-    // Сбрасываем таймеры и запускаем polling для нового чата
+    clearReply()
     if (pollingInterval) {
         clearInterval(pollingInterval)
     }
     pollingInterval = setInterval(() => {
         checkForNewMessages()
         checkTypingStatus()
-    }, 2000) // Проверяем каждые 2 секунды
+    }, 2000)
 }
 
-// При смене собеседника
+const handleContextMenu = (event, message) => {
+    event.preventDefault()
+    
+    contextMenuVisible.value = false
+    contextMenuMessage.value = message
+    contextMenuX.value = event.clientX
+    contextMenuY.value = event.clientY
+    contextMenuVisible.value = true
+    
+    setTimeout(() => {
+        const closeMenu = () => {
+            contextMenuVisible.value = false
+            document.removeEventListener('click', closeMenu)
+        }
+        document.addEventListener('click', closeMenu, { once: true })
+    }, 0)
+}
+
+const replyToMessageFromMenu = (message) => {
+    setReplyToMessage(message)
+    contextMenuVisible.value = false
+}
+
+const onTouchStart = (e, msg) => {
+    if (msg.sender_id === currentUserId.value) return
+    touchStartX = e.touches[0].clientX
+    touchStartTime = Date.now()
+    
+    longPressTimeout = setTimeout(() => {
+        if (msg.sender_id === currentUserId.value) {
+            if (confirm('Удалить сообщение?')) {
+                deleteMessage(msg)
+            }
+        } else {
+            if (confirm('Ответить на сообщение?')) {
+                setReplyToMessage(msg)
+            }
+        }
+    }, 500)
+}
+
+const onTouchMove = (e, msg) => {
+    if (msg.sender_id === currentUserId.value) return
+    
+    if (longPressTimeout) {
+        clearTimeout(longPressTimeout)
+        longPressTimeout = null
+    }
+    
+    const touchCurrentX = e.touches[0].clientX
+    const diffX = touchStartX - touchCurrentX
+    
+    if (diffX > 30 && diffX < 100) {
+        e.preventDefault()
+        isMessageSwiped.value = msg.id
+        if (swipeTimeout) clearTimeout(swipeTimeout)
+        swipeTimeout = setTimeout(() => {
+            isMessageSwiped.value = null
+        }, 2000)
+    }
+}
+
+const onTouchEnd = (e, msg) => {
+    if (msg.sender_id === currentUserId.value) return
+    
+    if (longPressTimeout) {
+        clearTimeout(longPressTimeout)
+        longPressTimeout = null
+    }
+    
+    const touchEndX = e.changedTouches[0].clientX
+    const diffX = touchStartX - touchEndX
+    const timeDiff = Date.now() - touchStartTime
+    
+    if (diffX > 50 && timeDiff < 300) {
+        setReplyToMessage(msg)
+        isMessageSwiped.value = null
+    }
+}
+
+const formatTime = (date) => {
+    if (!date) return ''
+    try {
+        return new Date(date).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
+    } catch (e) {
+        return ''
+    }
+}
+
+const formatTimeShort = (date) => {
+    if (!date) return ''
+    try {
+        const d = new Date(date)
+        const now = new Date()
+        const diff = now - d
+        if (diff < 60000) return 'только что'
+        if (diff < 3600000) return `${Math.floor(diff / 60000)} мин`
+        if (diff < 86400000) return d.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
+        return d.toLocaleDateString('ru', { day: 'numeric', month: 'short' })
+    } catch (e) {
+        return ''
+    }
+}
+
+const openImage = (url) => { 
+    selectedImage.value = url 
+}
+
+// Жизненный цикл
+onMounted(async () => {
+    await loadCurrentUser()
+    if (currentUserId.value) {
+        await refreshChatsInBackground()
+        chatsPollingInterval = setInterval(() => {
+            checkForUpdates()
+        }, 5000)
+    }
+})
+
+onUnmounted(() => {
+    if (pollingInterval) {
+        clearInterval(pollingInterval)
+    }
+    if (chatsPollingInterval) {
+        clearInterval(chatsPollingInterval)
+    }
+    if (onlineStatusInterval) {
+        clearInterval(onlineStatusInterval)
+    }
+    if (typingTimeout) clearTimeout(typingTimeout)
+    if (swipeTimeout) clearTimeout(swipeTimeout)
+    if (longPressTimeout) clearTimeout(longPressTimeout)
+    
+    if (currentUserId.value) {
+        supabase
+            .from('user_status')
+            .update({ 
+                is_online: false, 
+                last_seen: new Date().toISOString() 
+            })
+            .eq('user_id', currentUserId.value)
+            .catch(err => console.error('Ошибка обновления статуса:', err))
+    }
+})
+
 watch(selectedUser, async (newUser) => {
     if (newUser) {
         await loadMessages()
-        // Сбрасываем таймеры
+        clearReply()
         if (pollingInterval) {
             clearInterval(pollingInterval)
         }
@@ -750,40 +1064,13 @@ watch(selectedUser, async (newUser) => {
         }
     }
 })
-
-onMounted(async () => {
-    await loadCurrentUser()
-    if (currentUserId.value) {
-        await loadChats()
-        // Запускаем общий polling для обновления чатов и статусов
-        setInterval(() => {
-            checkForUpdates()
-        }, 5000)
-    }
-})
-
-onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval)
-    }
-    if (typingTimeout) clearTimeout(typingTimeout)
-    if (currentUserId.value) {
-        supabase
-            .from('user_status')
-            .update({ is_online: false, last_seen: new Date().toISOString() })
-            .eq('user_id', currentUserId.value)
-    }
-})
-
-const formatTime = (date) => new Date(date).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
-const openImage = (url) => { selectedImage.value = url }
 </script>
 
 <style scoped>
 /* Кастомный скроллбар */
 .custom-scroll::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
@@ -809,5 +1096,43 @@ const openImage = (url) => { selectedImage.value = url }
 .custom-scroll {
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 100, 110, 0.6) rgba(30, 30, 35, 0.5);
+}
+
+/* Анимации */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Свайп анимация */
+.message-group {
+    transition: transform 0.2s ease;
+}
+
+/* Мобильные оптимизации */
+@media (max-width: 768px) {
+    .custom-scroll::-webkit-scrollbar {
+        width: 3px;
+    }
+    
+    button, 
+    [role="button"],
+    .cursor-pointer {
+        min-height: 44px;
+    }
+    
+    .message-group {
+        touch-action: pan-y pinch-zoom;
+    }
 }
 </style>
