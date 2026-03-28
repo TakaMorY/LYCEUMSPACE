@@ -27,7 +27,7 @@
                         <input 
                             v-model="searchQuery" 
                             type="text" 
-                            placeholder="Поиск пользователей..."
+                            placeholder="Поиск..."
                             class="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm sm:text-base bg-neutral-800/50 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-neutral-800 transition-all border border-neutral-700/30"
                         />
                     </div>
@@ -37,13 +37,12 @@
                 <div v-if="searchQuery" class="flex-1 overflow-y-auto custom-scroll">
                     <div v-if="searching" class="text-center py-8 sm:py-12">
                         <div class="inline-block w-6 h-6 sm:w-8 sm:h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p class="text-neutral-500 mt-2 text-sm">Поиск...</p>
                     </div>
                     <div v-else-if="userResults.length === 0" class="text-center py-8 sm:py-12">
                         <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-neutral-600 mb-2 sm:mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <p class="text-neutral-500 text-sm sm:text-base">Пользователи не найдены</p>
+                        <p class="text-neutral-500 text-sm sm:text-base">Не найдены</p>
                     </div>
                     <div v-else>
                         <div v-for="user in userResults" :key="user.id" @click="startChat(user)"
@@ -53,7 +52,7 @@
                                     <img :src="user.avatar_url || '/images/defaultavatar/default-avatar.png'"
                                         class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-neutral-700 group-hover:ring-blue-500/50 transition-all" />
                                     <div v-if="user.status?.is_online"
-                                        class="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-neutral-900 animate-pulse">
+                                        class="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-neutral-900">
                                     </div>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -62,11 +61,6 @@
                                     </div>
                                     <div class="text-xs sm:text-sm text-neutral-400 truncate">@{{ user.username }}</div>
                                 </div>
-                                <button class="opacity-0 group-hover:opacity-100 transition p-2 bg-blue-600 rounded-full">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2z" />
-                                    </svg>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -117,8 +111,9 @@
                                     {{ chat.lastMessage }}
                                 </div>
                             </div>
+                            <!-- Серо-белый кружок уведомлений -->
                             <div v-if="chat.unread > 0"
-                                class="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center text-white shadow-lg shrink-0">
+                                class="w-5 h-5 sm:w-6 sm:h-6 bg-neutral-400/90 rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center text-white shadow-md shrink-0">
                                 {{ chat.unread > 9 ? '9+' : chat.unread }}
                             </div>
                         </div>
@@ -134,7 +129,7 @@
                 </div>
             </div>
 
-            <!-- Правая панель: активный диалог (остается без изменений) -->
+            <!-- Правая панель: активный диалог (оставляем как было) -->
             <div class="flex-1 flex flex-col h-full overflow-hidden bg-gradient-to-b from-neutral-900/30 to-neutral-900/20">
                 <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
                     <!-- Шапка диалога -->
@@ -244,7 +239,6 @@
                             </div>
                         </div>
                         
-                        <!-- Кнопка для прокрутки вниз -->
                         <button v-if="isUserScrolledUp && messages.length > 5"
                             @click="scrollToBottom"
                             class="fixed bottom-24 right-4 md:bottom-28 md:right-8 bg-blue-600 rounded-full p-2 sm:p-3 shadow-lg hover:bg-blue-700 transition z-10">
@@ -371,10 +365,9 @@ let longPressTimeout = null
 // Статус печати
 const typingStatus = ref(false)
 let typingTimeout = null
-let pollingInterval = null // Для новых сообщений
-let chatsPollingInterval = null // Для обновления списка чатов
-let onlineStatusInterval = null // Для обновления онлайн статуса
-let readStatusInterval = null // Для проверки статуса прочтения
+let pollingInterval = null
+let chatsPollingInterval = null
+let onlineStatusInterval = null
 
 const isUserScrolledUp = ref(false)
 
@@ -427,7 +420,7 @@ watch(searchQuery, (query) => {
     }, 300)
 })
 
-// --- Функции для отслеживания онлайн статуса (polling) ---
+// --- Функции для отслеживания онлайн статуса ---
 const updateUserOnlineStatus = async () => {
     if (!currentUserId.value) return
     
@@ -716,7 +709,7 @@ const refreshChatsInBackground = async () => {
     }
 }
 
-// --- Загрузка сообщений ---
+// --- Загрузка сообщений с отметкой прочитанных ---
 const loadMessages = async () => {
     if (!selectedUser.value || !currentUserId.value) return
     loadingMessages.value = true
@@ -742,9 +735,11 @@ const loadMessages = async () => {
         messages.value = data || []
 
         if (!isFavorites.value) {
-            // Отмечаем все непрочитанные сообщения от собеседника как прочитанные
+            // Находим все непрочитанные сообщения от собеседника
             const unreadMessages = messages.value.filter(m => m.sender_id === selectedUser.value.id && !m.read)
+            
             if (unreadMessages.length > 0) {
+                // Отмечаем как прочитанные в базе данных
                 const unreadIds = unreadMessages.map(m => m.id)
                 await supabase
                     .from('user_messages')
@@ -752,13 +747,17 @@ const loadMessages = async () => {
                     .in('id', unreadIds)
                     .eq('read', false)
 
+                // Обновляем локально
                 messages.value = messages.value.map(m =>
                     unreadIds.includes(m.id) ? { ...m, read: true } : m
                 )
             }
 
+            // Обновляем счетчик непрочитанных в списке чатов
             const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
-            if (chatIndex !== -1) chats.value[chatIndex].unread = 0
+            if (chatIndex !== -1) {
+                chats.value[chatIndex].unread = 0
+            }
         }
 
         await scrollToBottom()
@@ -769,7 +768,7 @@ const loadMessages = async () => {
     }
 }
 
-// --- Проверка новых сообщений (polling) ---
+// --- Проверка новых сообщений ---
 const checkForNewMessages = async () => {
     if (!selectedUser.value || !currentUserId.value || isFavorites.value) return
 
@@ -789,7 +788,7 @@ const checkForNewMessages = async () => {
         if (newMessages && newMessages.length > 0) {
             messages.value.push(...newMessages)
 
-            // Отмечаем как прочитанные
+            // Автоматически отмечаем новые сообщения как прочитанные
             const newMessageIds = newMessages.map(m => m.id)
             await supabase
                 .from('user_messages')
@@ -801,8 +800,11 @@ const checkForNewMessages = async () => {
                 newMessageIds.includes(m.id) ? { ...m, read: true } : m
             )
 
+            // Обновляем счетчик непрочитанных в списке чатов
             const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
-            if (chatIndex !== -1) chats.value[chatIndex].unread = 0
+            if (chatIndex !== -1) {
+                chats.value[chatIndex].unread = 0
+            }
 
             await scrollToBottomIfNeeded()
         }
@@ -811,13 +813,13 @@ const checkForNewMessages = async () => {
     }
 }
 
-// --- Проверка статуса прочтения (polling) ---
+// --- Проверка статуса прочтения (для отправленных сообщений) ---
 const checkReadStatus = async () => {
     if (!selectedUser.value || !currentUserId.value || isFavorites.value) return
     if (messages.value.length === 0) return
 
     try {
-        // Проверяем наши отправленные сообщения, которые еще не прочитаны
+        // Находим наши отправленные сообщения, которые еще не прочитаны
         const unreadSentMessages = messages.value.filter(m => 
             m.sender_id === currentUserId.value && !m.read
         )
@@ -847,14 +849,12 @@ const checkReadStatus = async () => {
     }
 }
 
-// --- Проверка обновлений статусов и чатов (polling) ---
+// --- Проверка обновлений ---
 const checkForUpdates = async () => {
     if (!currentUserId.value) return
     
-    // Обновляем список чатов
     await refreshChatsInBackground()
 
-    // Обновляем статусы онлайн
     const userIds = [...new Set([
         ...chats.value.map(c => c.user.id),
         ...(selectedUser.value && !isFavorites.value ? [selectedUser.value.id] : [])
@@ -1004,22 +1004,15 @@ const selectChat = async (user) => {
     await loadMessages()
     clearReply()
     
-    // Перезапускаем polling для нового чата
     if (pollingInterval) {
         clearInterval(pollingInterval)
-    }
-    if (readStatusInterval) {
-        clearInterval(readStatusInterval)
     }
     
     pollingInterval = setInterval(() => {
         checkForNewMessages()
         checkTypingStatus()
+        checkReadStatus() // Добавляем проверку статуса прочтения
     }, 2000)
-    
-    readStatusInterval = setInterval(() => {
-        checkReadStatus()
-    }, 3000)
 }
 
 const handleContextMenu = (event, message) => {
@@ -1136,7 +1129,6 @@ onMounted(async () => {
     if (currentUserId.value) {
         await refreshChatsInBackground()
         
-        // Запускаем polling для обновления чатов и статусов
         chatsPollingInterval = setInterval(() => {
             checkForUpdates()
         }, 5000)
@@ -1146,9 +1138,6 @@ onMounted(async () => {
 onUnmounted(() => {
     if (pollingInterval) {
         clearInterval(pollingInterval)
-    }
-    if (readStatusInterval) {
-        clearInterval(readStatusInterval)
     }
     if (chatsPollingInterval) {
         clearInterval(chatsPollingInterval)
@@ -1177,30 +1166,19 @@ watch(selectedUser, async (newUser) => {
         await loadMessages()
         clearReply()
         
-        // Запускаем polling для нового чата
         if (pollingInterval) {
             clearInterval(pollingInterval)
-        }
-        if (readStatusInterval) {
-            clearInterval(readStatusInterval)
         }
         
         pollingInterval = setInterval(() => {
             checkForNewMessages()
             checkTypingStatus()
-        }, 2000)
-        
-        readStatusInterval = setInterval(() => {
             checkReadStatus()
-        }, 3000)
+        }, 2000)
     } else {
         if (pollingInterval) {
             clearInterval(pollingInterval)
             pollingInterval = null
-        }
-        if (readStatusInterval) {
-            clearInterval(readStatusInterval)
-            readStatusInterval = null
         }
     }
 })
