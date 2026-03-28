@@ -27,7 +27,7 @@
                         <input 
                             v-model="searchQuery" 
                             type="text" 
-                            placeholder="Поиск..."
+                            placeholder="Поиск пользователей..."
                             class="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm sm:text-base bg-neutral-800/50 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-neutral-800 transition-all border border-neutral-700/30"
                         />
                     </div>
@@ -37,12 +37,13 @@
                 <div v-if="searchQuery" class="flex-1 overflow-y-auto custom-scroll">
                     <div v-if="searching" class="text-center py-8 sm:py-12">
                         <div class="inline-block w-6 h-6 sm:w-8 sm:h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-neutral-500 mt-2 text-sm">Поиск...</p>
                     </div>
                     <div v-else-if="userResults.length === 0" class="text-center py-8 sm:py-12">
                         <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-neutral-600 mb-2 sm:mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <p class="text-neutral-500 text-sm sm:text-base">Не найдены</p>
+                        <p class="text-neutral-500 text-sm sm:text-base">Пользователи не найдены</p>
                     </div>
                     <div v-else>
                         <div v-for="user in userResults" :key="user.id" @click="startChat(user)"
@@ -61,6 +62,11 @@
                                     </div>
                                     <div class="text-xs sm:text-sm text-neutral-400 truncate">@{{ user.username }}</div>
                                 </div>
+                                <button class="opacity-0 group-hover:opacity-100 transition p-2 bg-blue-600 rounded-full">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2z" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -128,7 +134,7 @@
                 </div>
             </div>
 
-            <!-- Правая панель: активный диалог -->
+            <!-- Правая панель: активный диалог (остается без изменений) -->
             <div class="flex-1 flex flex-col h-full overflow-hidden bg-gradient-to-b from-neutral-900/30 to-neutral-900/20">
                 <div v-if="selectedUser" class="flex-1 flex flex-col h-full overflow-hidden">
                     <!-- Шапка диалога -->
@@ -255,7 +261,6 @@
 
                     <!-- Панель ввода -->
                     <div class="p-3 sm:p-4 border-t border-neutral-800/50 shrink-0 bg-neutral-900/30 backdrop-blur-sm">
-                        <!-- Ответ на сообщение -->
                         <div v-if="replyToMessage" class="mb-2 p-2 sm:p-3 bg-neutral-800/50 rounded-lg flex items-center justify-between">
                             <div class="flex-1">
                                 <div class="text-xs sm:text-sm text-blue-400 font-medium">Ответ на сообщение:</div>
@@ -318,7 +323,7 @@
     </div>
 </template>
 
-<script setup>
+<<script setup>
 definePageMeta({ layout: 'forum' })
 
 import { ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue'
@@ -370,10 +375,249 @@ let pollingInterval = null
 let chatsPollingInterval = null
 let onlineStatusInterval = null
 
-// Переменная для отслеживания, прокручен ли пользователь вверх
+// Realtime подписки
+let statusSubscription = null
+let messagesSubscription = null
+let typingSubscription = null
+
 const isUserScrolledUp = ref(false)
 
 const isFavorites = computed(() => selectedUser.value && selectedUser.value.id === currentUserId.value)
+
+// --- Функция поиска пользователей ---
+let searchTimeout
+
+const searchUsers = async (query) => {
+    if (!query.trim()) {
+        userResults.value = []
+        searching.value = false
+        return
+    }
+    
+    searching.value = true
+    
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url')
+            .or(`username.ilike.%${query}%,full_name.ilike.%${query}%`)
+            .limit(20)
+        
+        if (error) throw error
+        
+        if (data && data.length > 0) {
+            const userIds = data.map(u => u.id)
+            const statuses = await loadUsersStatus(userIds)
+            
+            userResults.value = data.map(u => ({ 
+                ...u, 
+                status: statuses[u.id] || { is_online: false } 
+            }))
+        } else {
+            userResults.value = []
+        }
+    } catch (err) {
+        console.error('Ошибка поиска:', err)
+        userResults.value = []
+    } finally {
+        searching.value = false
+    }
+}
+
+watch(searchQuery, (query) => {
+    if (searchTimeout) clearTimeout(searchTimeout)
+    searchTimeout = setTimeout(() => {
+        searchUsers(query)
+    }, 300)
+})
+
+// --- Realtime подписка на статусы пользователей ---
+const subscribeToUserStatus = () => {
+    if (statusSubscription) {
+        statusSubscription.unsubscribe()
+    }
+    
+    statusSubscription = supabase
+        .channel('user-status-changes')
+        .on(
+            'postgres_changes',
+            {
+                event: '*',
+                schema: 'public',
+                table: 'user_status'
+            },
+            (payload) => {
+                console.log('Статус пользователя изменен:', payload)
+                updateUserStatusInChats(payload.new)
+            }
+        )
+        .subscribe()
+}
+
+// Обновление статуса в списке чатов
+const updateUserStatusInChats = (status) => {
+    // Обновляем статус в списке чатов
+    const chatIndex = chats.value.findIndex(c => c.user.id === status.user_id)
+    if (chatIndex !== -1) {
+        const isOnline = status.is_online && status.last_activity && 
+                        new Date(status.last_activity) > new Date(Date.now() - 2 * 60 * 1000)
+        chats.value[chatIndex].user.status = {
+            is_online: isOnline,
+            last_activity: status.last_activity
+        }
+    }
+    
+    // Обновляем статус в выбранном чате
+    if (selectedUser.value && selectedUser.value.id === status.user_id && !isFavorites.value) {
+        const isOnline = status.is_online && status.last_activity && 
+                        new Date(status.last_activity) > new Date(Date.now() - 2 * 60 * 1000)
+        selectedUser.value.status = {
+            is_online: isOnline,
+            last_activity: status.last_activity
+        }
+    }
+}
+
+// --- Realtime подписка на новые сообщения и обновление прочтения ---
+const subscribeToMessages = () => {
+    if (messagesSubscription) {
+        messagesSubscription.unsubscribe()
+    }
+    
+    messagesSubscription = supabase
+        .channel('messages-changes')
+        .on(
+            'postgres_changes',
+            {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'user_messages',
+                filter: `receiver_id=eq.${currentUserId.value}`
+            },
+            (payload) => {
+                console.log('Новое сообщение:', payload)
+                handleNewMessage(payload.new)
+            }
+        )
+        .on(
+            'postgres_changes',
+            {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'user_messages',
+                filter: `receiver_id=eq.${currentUserId.value}`
+            },
+            (payload) => {
+                console.log('Сообщение обновлено (прочитано):', payload)
+                handleMessageUpdate(payload.new)
+            }
+        )
+        .subscribe()
+}
+
+// Обработка нового сообщения
+const handleNewMessage = (newMessage) => {
+    // Если это сообщение от текущего собеседника
+    if (selectedUser.value && newMessage.sender_id === selectedUser.value.id) {
+        messages.value.push(newMessage)
+        
+        // Отмечаем как прочитанное
+        markMessageAsRead(newMessage.id)
+        
+        scrollToBottomIfNeeded()
+    }
+    
+    // Обновляем список чатов
+    refreshChatsInBackground()
+}
+
+// Отметить сообщение как прочитанное
+const markMessageAsRead = async (messageId) => {
+    try {
+        const { error } = await supabase
+            .from('user_messages')
+            .update({ read: true })
+            .eq('id', messageId)
+            .eq('receiver_id', currentUserId.value)
+            .eq('read', false)
+        
+        if (error) throw error
+        
+        // Обновляем локально
+        const msgIndex = messages.value.findIndex(m => m.id === messageId)
+        if (msgIndex !== -1) {
+            messages.value[msgIndex].read = true
+        }
+    } catch (err) {
+        console.error('Ошибка отметки прочтения:', err)
+    }
+}
+
+// Обработка обновления сообщения (прочтение)
+const handleMessageUpdate = (updatedMessage) => {
+    // Обновляем статус прочтения в локальном списке
+    const msgIndex = messages.value.findIndex(m => m.id === updatedMessage.id)
+    if (msgIndex !== -1 && updatedMessage.read) {
+        messages.value[msgIndex].read = true
+    }
+    
+    // Обновляем счетчик непрочитанных в чатах
+    if (selectedUser.value && updatedMessage.sender_id === currentUserId.value) {
+        const chatIndex = chats.value.findIndex(c => c.user.id === updatedMessage.receiver_id)
+        if (chatIndex !== -1 && chats.value[chatIndex].unread > 0) {
+            chats.value[chatIndex].unread = 0
+        }
+    }
+}
+
+// --- Realtime подписка на статус печати ---
+const subscribeToTypingStatus = () => {
+    if (typingSubscription) {
+        typingSubscription.unsubscribe()
+    }
+    
+    typingSubscription = supabase
+        .channel('typing-changes')
+        .on(
+            'postgres_changes',
+            {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'typing_status',
+                filter: `chat_with=eq.${currentUserId.value}`
+            },
+            (payload) => {
+                if (selectedUser.value && payload.new.user_id === selectedUser.value.id) {
+                    typingStatus.value = true
+                    setTimeout(() => {
+                        if (typingStatus.value) typingStatus.value = false
+                    }, 3000)
+                }
+            }
+        )
+        .on(
+            'postgres_changes',
+            {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'typing_status',
+                filter: `chat_with=eq.${currentUserId.value}`
+            },
+            (payload) => {
+                if (selectedUser.value && payload.new.user_id === selectedUser.value.id) {
+                    if (payload.new.is_typing) {
+                        typingStatus.value = true
+                        setTimeout(() => {
+                            if (typingStatus.value) typingStatus.value = false
+                        }, 3000)
+                    } else {
+                        typingStatus.value = false
+                    }
+                }
+            }
+        )
+        .subscribe()
+}
 
 // --- Функции для отслеживания онлайн статуса ---
 const updateUserOnlineStatus = async () => {
@@ -387,9 +631,7 @@ const updateUserOnlineStatus = async () => {
                 is_online: true,
                 last_seen: new Date().toISOString(),
                 last_activity: new Date().toISOString()
-            }, { 
-                onConflict: 'user_id'
-            })
+            }, { onConflict: 'user_id' })
         
         if (error) throw error
         
@@ -411,20 +653,26 @@ const updateUserOnlineStatus = async () => {
 const loadUsersStatus = async (userIds) => {
     if (!userIds.length) return {}
     
-    const { data } = await supabase
-        .from('user_status')
-        .select('user_id, is_online, last_activity')
-        .in('user_id', userIds)
-    
-    const statusMap = {}
-    data?.forEach(s => {
-        const isOnline = s.is_online && s.last_activity && new Date(s.last_activity) > new Date(Date.now() - 2 * 60 * 1000)
-        statusMap[s.user_id] = {
-            is_online: isOnline,
-            last_activity: s.last_activity
-        }
-    })
-    return statusMap
+    try {
+        const { data } = await supabase
+            .from('user_status')
+            .select('user_id, is_online, last_activity')
+            .in('user_id', userIds)
+        
+        const statusMap = {}
+        data?.forEach(s => {
+            const isOnline = s.is_online && s.last_activity && 
+                            new Date(s.last_activity) > new Date(Date.now() - 2 * 60 * 1000)
+            statusMap[s.user_id] = {
+                is_online: isOnline,
+                last_activity: s.last_activity
+            }
+        })
+        return statusMap
+    } catch (err) {
+        console.error('Ошибка загрузки статусов:', err)
+        return {}
+    }
 }
 
 // --- Функции для ответа на сообщения ---
@@ -455,9 +703,7 @@ const clearReply = () => {
 let isSendingMessage = false
 
 const sendMessage = async () => {
-    if (isSendingMessage) {
-        return
-    }
+    if (isSendingMessage) return
     
     const hasText = newMessageText.value && newMessageText.value.trim()
     const hasImage = imageFile.value
@@ -538,43 +784,9 @@ const sendTypingStatus = async (isTyping) => {
                 chat_with: selectedUser.value.id,
                 is_typing: isTyping,
                 updated_at: new Date().toISOString()
-            }, { 
-                onConflict: 'user_id,chat_with'
-            })
+            }, { onConflict: 'user_id,chat_with' })
     } catch (err) {
         // Игнорируем ошибки
-    }
-}
-
-const checkTypingStatus = async () => {
-    if (!selectedUser.value || isFavorites.value) return
-
-    try {
-        const { data, error } = await supabase
-            .from('typing_status')
-            .select('is_typing, updated_at')
-            .eq('user_id', selectedUser.value.id)
-            .eq('chat_with', currentUserId.value)
-            .maybeSingle()
-
-        if (data && !error) {
-            const updatedAt = new Date(data.updated_at)
-            const now = new Date()
-            const diffSeconds = (now - updatedAt) / 1000
-
-            if (data.is_typing && diffSeconds < 3) {
-                typingStatus.value = true
-                setTimeout(() => {
-                    if (typingStatus.value) typingStatus.value = false
-                }, 3000)
-            } else {
-                typingStatus.value = false
-            }
-        } else {
-            typingStatus.value = false
-        }
-    } catch (err) {
-        typingStatus.value = false
     }
 }
 
@@ -690,17 +902,18 @@ const loadMessages = async () => {
         messages.value = data || []
 
         if (!isFavorites.value) {
+            // Отмечаем все непрочитанные сообщения от собеседника как прочитанные
             const unreadMessages = messages.value.filter(m => m.sender_id === selectedUser.value.id && !m.read)
             if (unreadMessages.length > 0) {
+                const unreadIds = unreadMessages.map(m => m.id)
                 await supabase
                     .from('user_messages')
                     .update({ read: true })
-                    .eq('sender_id', selectedUser.value.id)
-                    .eq('receiver_id', currentUserId.value)
+                    .in('id', unreadIds)
                     .eq('read', false)
 
                 messages.value = messages.value.map(m =>
-                    m.sender_id === selectedUser.value.id && !m.read ? { ...m, read: true } : m
+                    unreadIds.includes(m.id) ? { ...m, read: true } : m
                 )
             }
 
@@ -714,52 +927,6 @@ const loadMessages = async () => {
     } finally {
         loadingMessages.value = false
     }
-}
-
-// --- Проверка новых сообщений ---
-const checkForNewMessages = async () => {
-    if (!selectedUser.value || !currentUserId.value || isFavorites.value) return
-
-    try {
-        const lastMessageTime = messages.value[messages.value.length - 1]?.created_at || '2000-01-01'
-        
-        const { data: newMessages, error } = await supabase
-            .from('user_messages')
-            .select('*')
-            .eq('sender_id', selectedUser.value.id)
-            .eq('receiver_id', currentUserId.value)
-            .gt('created_at', lastMessageTime)
-            .order('created_at', { ascending: true })
-
-        if (error) throw error
-
-        if (newMessages && newMessages.length > 0) {
-            messages.value.push(...newMessages)
-
-            await supabase
-                .from('user_messages')
-                .update({ read: true })
-                .eq('sender_id', selectedUser.value.id)
-                .eq('receiver_id', currentUserId.value)
-                .eq('read', false)
-
-            messages.value = messages.value.map(m =>
-                m.sender_id === selectedUser.value.id && !m.read ? { ...m, read: true } : m
-            )
-
-            const chatIndex = chats.value.findIndex(c => c.user.id === selectedUser.value.id)
-            if (chatIndex !== -1) chats.value[chatIndex].unread = 0
-
-            await scrollToBottomIfNeeded()
-        }
-    } catch (err) {
-        console.error('Ошибка проверки новых сообщений:', err)
-    }
-}
-
-const checkForUpdates = async () => {
-    if (!currentUserId.value) return
-    await refreshChatsInBackground()
 }
 
 // --- Остальные функции ---
@@ -796,6 +963,11 @@ const loadCurrentUser = async () => {
         if (user) {
             currentUserId.value = user.id
             await updateUserOnlineStatus()
+            
+            // Подписываемся на realtime обновления
+            subscribeToUserStatus()
+            subscribeToMessages()
+            subscribeToTypingStatus()
         }
     } catch (err) {
         console.error('Ошибка загрузки пользователя:', err)
@@ -892,13 +1064,12 @@ const selectChat = async (user) => {
     selectedUser.value = user
     await loadMessages()
     clearReply()
+    
+    // Очищаем старый polling, теперь используем realtime
     if (pollingInterval) {
         clearInterval(pollingInterval)
+        pollingInterval = null
     }
-    pollingInterval = setInterval(() => {
-        checkForNewMessages()
-        checkTypingStatus()
-    }, 2000)
 }
 
 const handleContextMenu = (event, message) => {
@@ -1015,14 +1186,21 @@ onMounted(async () => {
     if (currentUserId.value) {
         await refreshChatsInBackground()
         chatsPollingInterval = setInterval(() => {
-            checkForUpdates()
+            refreshChatsInBackground()
         }, 5000)
     }
 })
 
 onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval)
+    // Отписываемся от всех realtime каналов
+    if (statusSubscription) {
+        statusSubscription.unsubscribe()
+    }
+    if (messagesSubscription) {
+        messagesSubscription.unsubscribe()
+    }
+    if (typingSubscription) {
+        typingSubscription.unsubscribe()
     }
     if (chatsPollingInterval) {
         clearInterval(chatsPollingInterval)
@@ -1050,18 +1228,6 @@ watch(selectedUser, async (newUser) => {
     if (newUser) {
         await loadMessages()
         clearReply()
-        if (pollingInterval) {
-            clearInterval(pollingInterval)
-        }
-        pollingInterval = setInterval(() => {
-            checkForNewMessages()
-            checkTypingStatus()
-        }, 2000)
-    } else {
-        if (pollingInterval) {
-            clearInterval(pollingInterval)
-            pollingInterval = null
-        }
     }
 })
 </script>
