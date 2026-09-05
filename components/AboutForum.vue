@@ -1,6 +1,6 @@
 <template>
     <section class="relative py-32 overflow-hidden bg-neutral-900">
-        <!-- Фоновый эффект -->
+        
         <div class="absolute inset-0 bg-neutral-900">
             <div
                 class="absolute top-20 right-20 w-96 h-96 bg-neutral-700/20 rounded-full filter blur-[128px] animate-pulse">
@@ -14,7 +14,7 @@
         </div>
 
         <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Заголовок секции -->
+            
             <div class="text-center mb-20 reveal">
                 <span class="text-neutral-400 text-sm font-mono tracking-[0.3em] block mb-4">ЛИЦЕЙ</span>
                 <h2 class="text-6xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-none">
@@ -25,10 +25,10 @@
                 </h2>
             </div>
 
-            <!-- Главный посыл -->
+            
             <div class="max-w-5xl mx-auto mb-32">
                 <div class="relative">
-                    <!-- Декоративный элемент -->
+                    
                     <div class="absolute -top-8 left-0 w-20 h-20 border-l-2 border-t-2 border-neutral-700"></div>
                     <div class="absolute -bottom-8 right-0 w-20 h-20 border-r-2 border-b-2 border-neutral-700"></div>
 
@@ -51,16 +51,16 @@
                 </div>
             </div>
 
-            <!-- Альтернативный дизайн для блока преимуществ - модный минимализм -->
+            
             <div class="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-32">
-                <!-- Общение - стеклянный эффект -->
+              
                 <div class="group relative">
                     <div
                         class="absolute inset-0 bg-gradient-to-br from-neutral-600/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl">
                     </div>
                     <div
                         class="relative p-10 bg-neutral-900/40 backdrop-blur-sm border border-neutral-800 rounded-2xl h-full overflow-hidden">
-                        <!-- Декоративный элемент -->
+                      
                         <div
                             class="absolute top-0 right-0 w-32 h-32 bg-neutral-800/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700">
                         </div>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
 
-                <!-- Вопросы по учебе - градиентный -->
+                
                 <div class="group relative">
                     <div
                         class="relative p-10 bg-gradient-to-br from-neutral-800 to-neutral-900 rounded-2xl h-full border border-neutral-700 overflow-hidden">
@@ -123,10 +123,10 @@
                     </div>
                 </div>
 
-                <!-- Ответы - с акцентной линией -->
+               
                 <div class="group relative">
                     <div class="relative p-10 bg-neutral-900 rounded-2xl h-full border border-neutral-800">
-                        <!-- Акцентная линия слева -->
+                      
                         <div
                             class="absolute left-0 top-10 bottom-10 w-0.5 bg-gradient-to-b from-neutral-700 via-neutral-600 to-neutral-700 opacity-50 group-hover:opacity-100 transition-opacity">
                         </div>
@@ -154,43 +154,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Альтернативный дизайн для статистики  -->
-            <!-- <div class="max-w-5xl mx-auto mb-32">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    <div class="text-center group">
-                        <div
-                            class="text-6xl md:text-7xl font-black text-white mb-2 tracking-tighter group-hover:scale-105 transition-transform">
-                            150</div>
-                        <div class="text-neutral-600 text-xs font-mono tracking-widest">УЧАСТНИКОВ</div>
-                        <div class="text-4xl font-thin text-neutral-800 mt-2">+</div>
-                    </div>
-                    <div class="text-center group">
-                        <div
-                            class="text-6xl md:text-7xl font-black text-white mb-2 tracking-tighter group-hover:scale-105 transition-transform">
-                            1K</div>
-                        <div class="text-neutral-600 text-xs font-mono tracking-widest">СООБЩЕНИЙ</div>
-                        <div class="text-4xl font-thin text-neutral-800 mt-2">+</div>
-                    </div>
-                    <div class="text-center group">
-                        <div
-                            class="text-6xl md:text-7xl font-black text-white mb-2 tracking-tighter group-hover:scale-105 transition-transform">
-                            24</div>
-                        <div class="text-neutral-600 text-xs font-mono tracking-widest">ДОСТУП</div>
-                        <div class="text-2xl font-thin text-neutral-700 mt-2">/7</div>
-                    </div>
-                    <div class="text-center group">
-                        <div
-                            class="text-6xl md:text-7xl font-black text-white mb-2 tracking-tighter group-hover:scale-105 transition-transform">
-                            100
-                        </div>
-                        <div class="text-neutral-600 text-xs font-mono tracking-widest">БЕСПЛАТНО</div>
-                        <div class="text-3xl font-thin text-neutral-700 mt-2">%</div>
-
-                    </div>
-                </div>
-            </div> -->
-
             <div class="max-w-6xl mx-auto mb-32">
                 <div class="text-center mb-16">
                     <span class="text-neutral-500 text-xs font-mono tracking-[0.3em] block mb-4">/
@@ -202,9 +165,9 @@
                     </h3>
                 </div>
 
-                <!-- Вертикальный список с превью -->
+             
                 <div class="space-y-3">
-                    <!-- Тема 1 - с акцентной полосой -->
+                  
                     <div
                         class="group relative flex items-center justify-between p-6 bg-neutral-900/20 border-l-4 border-neutral-700 hover:border-white transition-all duration-300 hover:bg-neutral-900/40">
                         <div class="flex items-center gap-8">
@@ -220,8 +183,6 @@
                                 class="text-2xl text-neutral-600 group-hover:text-white group-hover:translate-x-2 transition-all">→</span>
                         </NuxtLink>
                     </div>
-
-                    <!-- Тема 2 - с градиентным фоном при ховере -->
                     <div
                         class="group relative flex items-center justify-between p-6 bg-neutral-900/20 rounded-2xl hover:bg-gradient-to-r hover:from-neutral-800/50 hover:to-neutral-900/20 transition-all duration-500">
                         <div class="flex items-center gap-8">
@@ -237,7 +198,6 @@
                         </NuxtLink>
                     </div>
 
-                    <!-- Тема 3 - с боковой линией -->
                     <div class="group relative flex items-center justify-between p-6 bg-neutral-900/20 overflow-hidden">
                         <div
                             class="absolute left-0 top-0 bottom-0 w-1 bg-neutral-700 group-hover:w-2 group-hover:bg-white transition-all duration-300">
@@ -259,7 +219,6 @@
                     </div>
                 </div>
 
-                <!-- Кнопка "Все темы" -->
                 <div class="text-center mt-12">
                     <NuxtLink to="/forum"
                         class="group inline-flex items-center gap-3 px-8 py-4 border border-neutral-800 rounded-full hover:border-neutral-600 transition-all duration-300">
@@ -271,7 +230,6 @@
                 </div>
             </div>
 
-            <!-- Призыв к действию -->
             <div class="relative max-w-4xl mx-auto text-center">
                 <div
                     class="absolute inset-0 bg-gradient-to-r from-neutral-800/50 to-neutral-900/50 rounded-3xl blur-2xl">
@@ -297,7 +255,6 @@
                 </div>
             </div>
 
-            <!-- Нижний слоган -->
             <div class="text-center mt-24">
                 <p class="text-neutral-700 text-sm font-mono tracking-[0.3em]">
                     ЛИЦЕЙСКОЕПРОСТРАНСТВО • ФОРУМ • 2026
