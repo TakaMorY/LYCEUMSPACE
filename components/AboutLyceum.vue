@@ -1,6 +1,6 @@
 <template>
     <section class="relative py-32 overflow-hidden bg-neutral-950">
-        <!-- Фоновый эффект с нейтральными тонами -->
+     
         <div class="absolute inset-0 bg-neutral-950">
             <div
                 class="absolute top-0 -left-40 w-80 h-80 bg-neutral-600/20 rounded-full filter blur-[128px] animate-pulse">
@@ -14,7 +14,7 @@
         </div>
 
         <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Заголовок с эффектом появления -->
+ 
             <div class="text-center mb-20 reveal">
                 <span class="text-neutral-400 text-sm font-mono tracking-[0.3em] block mb-4">О НАС</span>
                 <h2 class="text-7xl sm:text-8xl md:text-9xl font-black tracking-tighter leading-none">
@@ -26,10 +26,10 @@
                 </h2>
             </div>
 
-            <!-- Главный акцент - уникальность -->
+           
             <div class="max-w-5xl mx-auto mb-24">
                 <div class="relative">
-                    <!-- Декоративная линия -->
+                   
                     <div class="absolute left-0 top-0 w-32 h-[2px] bg-gradient-to-r from-neutral-400 to-transparent">
                     </div>
 
